@@ -129,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Reautenticar usuário (necessário para operações sensíveis)
     const reauthenticate = (currentPassword) => {
         const user = auth.currentUser;
         if (!user || !user.email) { // Adicionado verificação para user.email
@@ -140,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return reauthenticateWithCredential(user, credential);
     };
  
-    // Alterar Senha
     if (changePasswordForm) {
         changePasswordForm.addEventListener('submit', (e) => {
             e.preventDefault();
