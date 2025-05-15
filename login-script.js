@@ -5,7 +5,7 @@ import {
     signInWithPopup, 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
-    onAuthStateChanged
+    onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
