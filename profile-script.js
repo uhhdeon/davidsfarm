@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const credential = EmailAuthProvider.credential(user.email, currentPassword);
         return reauthenticateWithCredential(user, credential);
     };
-
+ 
     // Alterar Senha
     if (changePasswordForm) {
         changePasswordForm.addEventListener('submit', (e) => {
