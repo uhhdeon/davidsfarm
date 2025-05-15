@@ -113,199 +113,128 @@ footer {
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* ... (Seu CSS existente) ... */
+/* ... (seu CSS existente) ... */
 
 /* --- Estilos para Informações do Usuário no Header (index.html) --- */
-#user-status-header .user-info {
+.user-auth-section {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: #fff;
 }
 
-.user-avatar {
+.user-info {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+#user-photo {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 2px solid #fff;
+    margin-right: 10px;
+    border: 2px solid #555;
     object-fit: cover; /* Garante que a imagem cubra o espaço sem distorcer */
 }
 
-.user-name {
+#user-name {
+    margin-right: 15px;
     font-weight: bold;
 }
 
-.logout-button {
+.logout-button-style { /* Estilo para o botão de Sair */
     padding: 8px 15px;
     background-color: #dc3545; /* Vermelho para logout */
     color: white;
+    text-decoration: none;
     border: none;
     border-radius: 5px;
-    cursor: pointer;
     font-weight: bold;
+    cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-.logout-button:hover {
-    background-color: #c82333;
+.logout-button-style:hover {
+    background-color: #c82333; /* Vermelho mais escuro no hover */
+}
+
+/* Garante que o botão de login original (se recriado) tenha a mesma animação */
+/* Você pode precisar ajustar o seletor se ele não pegar a animação de fadeInSlideRight */
+.user-auth-section .login-button {
+    opacity: 0;
+    transform: translateX(20px);
+    animation: fadeInSlideRight 0.7s ease-out forwards;
+    animation-delay: 1.0s; /* Sincronize com outros delays se necessário */
 }
 
 
-/* --- Estilos para a Página de Login (login.html) --- */
-body.login-page { /* Adicione esta classe ao body do login.html se ainda não tiver */
-    background-color: #1a1a1a;
-    color: #e0e0e0;
+/* --- Estilos Adicionais para login.html se não estiverem inline --- */
+/* (Muitos estilos para login.html já foram colocados inline no HTML acima para simplicidade,
+   mas você pode movê-los para cá se preferir) */
+
+.login-form-container .form-group {
+    margin-bottom: 15px; /* Ajuste de espaço */
+    text-align: left;
+}
+
+.login-form-container .form-group label {
+    display: block;
+    margin-bottom: 6px; /* Ajuste de espaço */
+    font-weight: 500; /* Ajuste de peso */
+    color: #ccc; /* Cor mais suave para o label */
+}
+
+.login-form-container .form-group input[type="email"],
+.login-form-container .form-group input[type="password"] {
+    width: 100%;
+    padding: 12px; /* Aumenta o padding */
+    border-radius: 4px;
+    border: 1px solid #444; /* Borda um pouco mais clara */
+    background-color: #222; /* Fundo do input mais escuro */
+    color: #e0e0e0; /* Texto do input */
+    font-size: 1rem; /* Tamanho da fonte */
+    box-sizing: border-box; /* Garante que padding não aumente o tamanho total */
+}
+
+.login-form-container .form-buttons {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
-    padding: 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    justify-content: space-between; /* Para espaçar os botões */
+    margin-top: 20px; /* Espaço acima dos botões */
+    margin-bottom: 10px;
 }
 
-.login-container {
-    background-color: #2c2c2c;
-    padding: 30px 40px;
-    border-radius: 12px; /* Bordas mais suaves */
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    width: 100%;
-    max-width: 420px;
-    text-align: left; /* Alinha o texto dentro do container à esquerda */
-}
-
-.login-container h1 {
-    margin-bottom: 25px;
-    color: #fff;
-    text-align: center; /* Centraliza o título principal */
-    font-size: 2em;
-}
-
-.login-container h2 {
-    font-size: 1.3em;
-    color: #f0f0f0;
-    margin-top: 20px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #444;
-    padding-bottom: 8px;
-}
-
-
-.form-section {
-    margin-bottom: 25px;
-}
-
-.login-container input[type="email"],
-.login-container input[type="password"] {
-    width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 15px;
-    border: 1px solid #555;
-    border-radius: 6px;
-    background-color: #333;
-    color: #fff;
-    font-size: 1em;
-}
-
-.login-container input[type="email"]:focus,
-.login-container input[type="password"]:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.login-container .email-button,
-.login-container .google-login-button {
-    width: 100%;
-    padding: 12px 20px;
+.login-form-container .form-buttons button {
+    flex-grow: 1; /* Faz os botões crescerem para preencher o espaço */
+    margin: 0 5px; /* Pequeno espaço entre os botões */
+    padding: 12px;
     border: none;
-    border-radius: 6px;
-    font-size: 1em;
+    border-radius: 5px;
+    font-size: 0.95rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-    margin-top: 5px; /* Pequeno espaço entre botões e inputs */
+    transition: background-color 0.2s ease-out, transform 0.1s ease-out;
 }
-
-.login-container .email-button {
-    background-color: #007bff;
-    color: white;
-}
-.login-container .email-button:hover {
-    background-color: #0056b3;
-}
-.login-container .email-button.secondary {
-    background-color: #6c757d;
-}
-.login-container .email-button.secondary:hover {
-    background-color: #545b62;
-}
-
-.login-container .google-login-button {
-    background-color: #DB4437;
-    color: white;
-    display: flex; /* Para alinhar SVG e texto */
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-.login-container .google-login-button:hover {
-    background-color: #c33d2e;
-}
-.login-container .google-login-button svg {
-    width: 20px; height: 20px;
+.login-form-container .form-buttons button:active {
+    transform: scale(0.98);
 }
 
 
-.login-container .email-button:active,
-.login-container .google-login-button:active {
-    transform: translateY(1px);
-}
-
-
-.divider {
-    text-align: center;
-    margin: 25px 0;
-    color: #777;
-    font-weight: bold;
-    position: relative;
-}
-.divider::before,
-.divider::after {
-    content: '';
-    display: block;
-    width: 40%;
-    height: 1px;
-    background-color: #444;
-    position: absolute;
-    top: 50%;
-}
-.divider::before { left: 0; }
-.divider::after { right: 0; }
-
-.auth-message {
+#auth-status { /* Mensagens de status/erro no login.html */
     margin-top: 20px;
     padding: 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    min-height: 1.5em; /* Para evitar que o layout pule quando a mensagem aparece */
-    text-align: center;
+    border-radius: 4px;
+    font-size: 0.9em;
+    min-height: 1.2em; /* Para não pular quando o texto some/aparece */
 }
-
-.auth-message[style*="color: red"] { /* Mensagem de erro */
-    background-color: rgba(255, 0, 0, 0.1);
-    border: 1px solid rgba(255,0,0,0.3);
+#auth-status.success {
+    background-color: rgba(40, 167, 69, 0.2); /* Fundo verde sutil para sucesso */
+    color: #28a745; /* Texto verde para sucesso */
+    border: 1px solid rgba(40, 167, 69, 0.5);
 }
-.auth-message[style*="color: green"] { /* Mensagem de sucesso */
-    background-color: rgba(0, 255, 0, 0.1);
-    border: 1px solid rgba(0,255,0,0.3);
+#auth-status:not(.success) { /* Estilo para erros ou mensagens neutras */
+    background-color: rgba(220, 53, 69, 0.1); /* Fundo vermelho sutil para erro */
+    color: #ffc107; /* Texto amarelo/laranja para erro */
+    border: 1px solid rgba(220, 53, 69, 0.3);
 }
-
-
-/* Oculta partículas e tela de loading na página de login, se style.css for compartilhado */
-body.login-page #background-particles,
-body.login-page #loading-screen,
-body.login-page #site-content { /* Se #site-content estivesse no login.html, o que não é o caso */
-    display: none !important;
+#auth-status:empty { /* Esconde se estiver vazio */
+    display: none;
 }

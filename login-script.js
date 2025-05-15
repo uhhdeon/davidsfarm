@@ -1,138 +1,129 @@
-// Importações do Firebase (sintaxe modular v9+)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-import {
-    getAuth,
-    onAuthStateChanged,
-    GoogleAuthProvider,
-    signInWithPopup,
-    createUserWithEmailAndPassword,
+// login-script.js
+import { auth } from './firebase-config.js'; // Importa a instância do auth
+import { 
+    GoogleAuthProvider, 
+    signInWithPopup, 
+    createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
-    signOut
-} from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-
-// Sua Configuração do Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyAoI436Z3hx8rp63S6Ea095YpGxAeJdazA",
-    authDomain: "david-s-farm.firebaseapp.com",
-    projectId: "david-s-farm",
-    storageBucket: "david-s-farm.firebasestorage.app", // Verifique este valor
-    messagingSenderId: "1036766340330",
-    appId: "1:1036766340330:web:5fb56b8eb0d7241c7a2393",
-    measurementId: "G-XP73P7XJ09"
-};
-
-// Inicializa o Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const emailInput = document.getElementById('email-input');
     const passwordInput = document.getElementById('password-input');
-    const loginEmailButton = document.getElementById('login-email-button');
-    const registerEmailButton = document.getElementById('register-email-button');
-    const loginGoogleButton = document.getElementById('login-google-button');
-    const authMessageDiv = document.getElementById('auth-message');
+    const emailLoginButton = document.getElementById('email-login-button');
+    const emailSignupButton = document.getElementById('email-signup-button');
+    const googleLoginButton = document.getElementById('google-login-button');
+    const authStatusDiv = document.getElementById('auth-status');
 
-    function showMessage(message, isError = false) {
-        if (authMessageDiv) {
-            authMessageDiv.textContent = message;
-            authMessageDiv.style.color = isError ? 'red' : 'green';
-        }
-    }
-
-    // Login com Google
-    if (loginGoogleButton) {
-        loginGoogleButton.addEventListener('click', () => {
+    // Função Login com Google
+    if (googleLoginButton) {
+        googleLoginButton.addEventListener('click', () => {
             const provider = new GoogleAuthProvider();
             signInWithPopup(auth, provider)
                 .then((result) => {
                     const user = result.user;
-                    showMessage(`Login com Google bem-sucedido! Bem-vindo, ${user.displayName || user.email}!`);
                     console.log("Usuário logado com Google:", user);
-                    // Redirecionar para a página principal ou dashboard após um pequeno atraso
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                    authStatusDiv.textContent = `Login com Google bem-sucedido! Bem-vindo, ${user.displayName || user.email}!`;
+                    authStatusDiv.className = 'success'; // Adiciona classe para estilização de sucesso
+                    // Redireciona para a página principal após o login
+                    window.location.href = 'index.html';
                 })
                 .catch((error) => {
                     console.error("Erro no login com Google:", error);
-                    showMessage(`Erro Google: ${error.message}`, true);
+                    authStatusDiv.textContent = `Erro Google: ${error.message}`;
+                    authStatusDiv.className = '';
                 });
         });
     }
 
-    // Registrar com Email e Senha
-    if (registerEmailButton) {
-        registerEmailButton.addEventListener('click', () => {
+    // Função Login com Email e Senha
+    if (emailLoginButton) {
+        emailLoginButton.addEventListener('click', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
             if (!email || !password) {
-                showMessage("Por favor, preencha email e senha para registrar.", true);
-                return;
-            }
-            createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    showMessage(`Usuário registrado com sucesso: ${user.email}! Você já está logado.`);
-                    console.log("Usuário registrado:", user);
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
-                })
-                .catch((error) => {
-                    console.error("Erro ao registrar:", error);
-                    let friendlyMessage = "Erro ao registrar.";
-                    if (error.code === 'auth/email-already-in-use') {
-                        friendlyMessage = "Este email já está em uso. Tente fazer login.";
-                    } else if (error.code === 'auth/weak-password') {
-                        friendlyMessage = "Senha muito fraca. Use pelo menos 6 caracteres.";
-                    } else {
-                        friendlyMessage = error.message;
-                    }
-                    showMessage(friendlyMessage, true);
-                });
-        });
-    }
-
-    // Entrar com Email e Senha
-    if (loginEmailButton) {
-        loginEmailButton.addEventListener('click', () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            if (!email || !password) {
-                showMessage("Por favor, preencha email e senha para entrar.", true);
+                authStatusDiv.textContent = 'Por favor, preencha email e senha.';
+                authStatusDiv.className = '';
                 return;
             }
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     const user = userCredential.user;
-                    showMessage(`Login bem-sucedido! Bem-vindo de volta, ${user.email}!`);
                     console.log("Usuário logado com email:", user);
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                    authStatusDiv.textContent = `Login bem-sucedido! Bem-vindo de volta!`;
+                    authStatusDiv.className = 'success';
+                    window.location.href = 'index.html';
                 })
                 .catch((error) => {
-                    console.error("Erro ao entrar com email:", error);
-                    let friendlyMessage = "Erro ao entrar.";
-                     if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                        friendlyMessage = "Email ou senha incorretos.";
-                    } else {
-                        friendlyMessage = error.message;
-                    }
-                    showMessage(friendlyMessage, true);
+                    console.error("Erro no login com email:", error);
+                    authStatusDiv.textContent = `Erro Email/Senha: ${mapFirebaseAuthError(error.code)}`;
+                    authStatusDiv.className = '';
                 });
         });
     }
 
-    // Observador do estado de autenticação (útil para redirecionar se já logado)
+    // Função Criar Conta com Email e Senha
+    if (emailSignupButton) {
+        emailSignupButton.addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            if (!email || !password) {
+                authStatusDiv.textContent = 'Por favor, preencha email e senha para criar a conta.';
+                authStatusDiv.className = '';
+                return;
+            }
+            if (password.length < 6) {
+                authStatusDiv.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+                 authStatusDiv.className = '';
+                return;
+            }
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    console.log("Conta criada com email:", user);
+                    authStatusDiv.textContent = `Conta criada com sucesso! Bem-vindo!`;
+                    authStatusDiv.className = 'success';
+                    // Você pode querer atualizar o perfil do usuário aqui (displayName, photoURL) se coletar mais dados
+                    // Por exemplo: updateProfile(auth.currentUser, { displayName: "Novo Usuário" }).then(...);
+                    window.location.href = 'index.html'; // Loga e redireciona
+                })
+                .catch((error) => {
+                    console.error("Erro ao criar conta com email:", error);
+                    authStatusDiv.textContent = `Erro ao criar conta: ${mapFirebaseAuthError(error.code)}`;
+                    authStatusDiv.className = '';
+                });
+        });
+    }
+
+    // Observador do estado de autenticação (para redirecionar se já estiver logado)
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // Se o usuário já está logado e está na página de login,
-            // talvez redirecioná-lo para o index.html.
-            // Isso pode ser útil para evitar que o usuário veja a tela de login novamente
-            // se ele já estiver autenticado.
-            console.log("Usuário já logado na página de login, redirecionando...", user.email);
-             // Evitar redirecionamento imediato se a mensagem de sucesso do login ainda não foi vista
-            if (!authMessageDiv.textContent.includes("sucesso") && !authMessageDiv.textContent.includes("registrado")) {
-                 // window.location.href = 'index.html'; // Descomente se quiser redirecionamento automático
+            // Se o usuário já está logado e está na página de login, redireciona para o index.
+            // Isso evita que o usuário veja a página de login se já tiver uma sessão ativa.
+            console.log('Usuário já logado, redirecionando do login.html para index.html');
+            if (window.location.pathname.endsWith('login.html')) { // Verifica se está realmente na página de login
+                 window.location.href = 'index.html';
             }
-        } else {
-            console.log("Nenhum usuário logado na página de login.");
         }
     });
+
+    // Mapeia códigos de erro do Firebase para mensagens mais amigáveis
+    function mapFirebaseAuthError(errorCode) {
+        switch (errorCode) {
+            case 'auth/invalid-email':
+                return 'Formato de email inválido.';
+            case 'auth/user-not-found':
+            case 'auth/wrong-password':
+                return 'Email ou senha incorretos.';
+            case 'auth/email-already-in-use':
+                return 'Este email já está em uso por outra conta.';
+            case 'auth/weak-password':
+                return 'A senha é muito fraca. Use pelo menos 6 caracteres.';
+            case 'auth/operation-not-allowed':
+                return 'Login com email e senha não está habilitado.'; // Verifique no console Firebase
+            default:
+                return errorCode; // Retorna o código original se não mapeado
+        }
+    }
 });
