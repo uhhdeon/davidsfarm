@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>David's Farm</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAoI436Z3hx8rp63S6Ea095YpGxAeJdazA",
+    authDomain: "david-s-farm.firebaseapp.com",
+    projectId: "david-s-farm",
+    storageBucket: "david-s-farm.firebasestorage.app",
+    messagingSenderId: "1036766340330",
+    appId: "1:1036766340330:web:5fb56b8eb0d7241c7a2393",
+    measurementId: "G-XP73P7XJ09"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  
+</script>
+
+    <div id="background-particles"></div>
+
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p>Carregando David's Farm...</p>
+    </div>
+
+    <div id="site-content" class="hidden">
+        <header>
+            <div class="header-left"> <img src="imgs/logo.svg" alt="Logo David's Farm" id="logo">
+                <h1>David's Farm</h1>
+            </div>
+            <a href="login.html" class="login-button">Login</a> </header>
+
+        <main>
+            </main>
+
+        <footer>
+            <p>&copy; <span id="currentYear"></span> David's Farm. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
