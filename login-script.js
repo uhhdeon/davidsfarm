@@ -10,68 +10,58 @@ import {
 document.addEventListener('DOMContentLoaded', () => {
     const emailInput = document.getElementById('email-input');
     const passwordInput = document.getElementById('password-input');
-    const emailLoginButton = document.getElementById('login-button-email'); // ID atualizado
+    const emailLoginButton = document.getElementById('login-button-email');
     const googleLoginButton = document.getElementById('google-login-button');
     const authStatusDiv = document.getElementById('auth-status');
 
-    // Função Login com Google
+    const showMessage = (message, type = 'error') => {
+        authStatusDiv.textContent = message;
+        authStatusDiv.className = 'auth-status ' + (type === 'success' ? 'success' : '');
+    };
+
     if (googleLoginButton) {
         googleLoginButton.addEventListener('click', () => {
             const provider = new GoogleAuthProvider();
             signInWithPopup(auth, provider)
-                .then((result) => {
-                    authStatusDiv.textContent = `Login com Google bem-sucedido! Redirecionando...`;
-                    authStatusDiv.className = 'success auth-status'; // Adiciona classe base para estilo
+                .then(() => {
+                    showMessage(`Login com Google bem-sucedido! Redirecionando...`, 'success');
                     window.location.href = 'index.html';
                 })
-                .catch((error) => {
-                    authStatusDiv.textContent = `Erro Google: ${error.message}`;
-                    authStatusDiv.className = 'auth-status';
-                });
+                .catch((error) => showMessage(`Erro Google: ${error.message}`));
         });
     }
 
-    // Função Login com Email e Senha
     if (emailLoginButton) {
         emailLoginButton.addEventListener('click', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
             if (!email || !password) {
-                authStatusDiv.textContent = 'Por favor, preencha email e senha.';
-                authStatusDiv.className = 'auth-status';
+                showMessage('Por favor, preencha email e senha.');
                 return;
             }
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    authStatusDiv.textContent = `Login bem-sucedido! Redirecionando...`;
-                    authStatusDiv.className = 'success auth-status';
+                .then(() => {
+                    showMessage(`Login bem-sucedido! Redirecionando...`, 'success');
                     window.location.href = 'index.html';
                 })
-                .catch((error) => {
-                    authStatusDiv.textContent = `Erro Email/Senha: ${mapFirebaseAuthError(error.code)}`;
-                    authStatusDiv.className = 'auth-status';
-                });
+                .catch((error) => showMessage(`Erro Email/Senha: ${mapFirebaseAuthError(error.code)}`));
         });
     }
 
-    // Observador do estado de autenticação
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            if (window.location.pathname.endsWith('login.html')) {
-                //  window.location.href = 'index.html'; // Comentado para evitar loop se o index tiver problema e redirecionar de volta
-                console.log('Usuário já logado na página de login.');
-            }
+        if (user && window.location.pathname.includes('login.html')) {
+            console.log('Usuário já logado, redirecionando de login.html');
+            // window.location.href = 'index.html'; // Descomente se quiser redirecionamento automático agressivo
         }
     });
 
     function mapFirebaseAuthError(errorCode) {
-        // ... (função mapFirebaseAuthError da versão anterior, sem alterações)
         switch (errorCode) {
             case 'auth/invalid-email': return 'Formato de email inválido.';
             case 'auth/user-disabled': return 'Este usuário foi desabilitado.';
             case 'auth/user-not-found': return 'Nenhum usuário encontrado com este email.';
             case 'auth/wrong-password': return 'Senha incorreta.';
-            case 'auth/invalid-credential': return 'Credenciais inválidas (email ou senha).'; // Novo no v9+ para erros genéricos
+            case 'auth/invalid-credential': return 'Credenciais inválidas (email ou senha).';
             default: return `Erro desconhecido (${errorCode})`;
         }
     }

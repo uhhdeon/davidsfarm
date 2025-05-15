@@ -5,56 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - David's Farm</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        body.login-page { /* ... (mantém estilos de body.login-page) ... */
-            background-color: #1a1a1a; color: #e0e0e0; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; min-height: 100vh;
-            text-align: center; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .login-form-container { /* ... (mantém estilos de .login-form-container) ... */
-            background-color: #2c2c2c; padding: 30px 40px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); width: 100%; max-width: 450px;
-        }
-        .login-form-container h1 { margin-bottom: 25px; color: #fff; }
-        .login-form-container p { margin-bottom: 15px; line-height: 1.6; }
-        .login-form-container a { color: #00bfff; text-decoration: none; }
-        .login-form-container a:hover { text-decoration: underline; }
-        #background-particles, #loading-screen, #site-content { display: none !important; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input { /* ... (mantém estilos de input) ... */
-            width: 100%; padding: 12px; border-radius: 4px; border: 1px solid #444;
-            background-color: #222; color: #e0e0e0; font-size: 1rem; box-sizing: border-box;
-        }
-        #login-button-email { /* Botão principal de login */
-            width: 100%; padding: 12px; border: none; border-radius: 5px; font-size: 16px;
-            font-weight: bold; cursor: pointer; transition: background-color 0.3s ease; margin-top: 10px;
-            background-color: #007bff; color: white;
-        }
-        #login-button-email:hover { background-color: #0056b3; }
-        .google-login-button { /* ... (mantém estilos do botão Google) ... */
-             background-color: #DB4437; color: white; padding: 12px 20px; border: none;
-             border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer;
-             transition: background-color 0.3s ease; display: inline-flex; align-items: center;
-             gap: 10px; margin-top: 20px; width: auto; margin-bottom: 20px;
-        }
-        .google-login-button:hover { background-color: #c33d2e; }
-        .google-login-button svg { width: 20px; height: 20px; }
-        #auth-status { /* ... (mantém estilos de #auth-status) ... */
-            margin-top: 20px; padding: 10px; border-radius: 4px; font-size: 0.9em;
-            min-height: 1.2em; word-break: break-all;
-        }
-        #auth-status.success { background-color: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.5); }
-        #auth-status:not(.success) { background-color: rgba(220, 53, 69, 0.1); color: #ffc107; border: 1px solid rgba(220, 53, 69, 0.3); }
-        #auth-status:empty { display: none; }
-        .divider-text { margin: 25px 0; color: #aaa; }
-        .form-links { margin-top: 20px; font-size: 0.9em; }
-        .form-links a { margin: 0 10px; }
-    </style>
 </head>
-<body class="login-page">
-
-    <div class="login-form-container">
+<body class="auth-page"> <div class="auth-form-container">
         <h1>Entrar</h1>
         
         <div class="form-group">
@@ -83,7 +35,7 @@
         <div class="form-links">
             <span>Não tem uma conta? <a href="register.html">Registrar-se</a></span>
         </div>
-        <p style="margin-top: 30px;"><a href="index.html">Voltar para a Home</a></p>
+        <a href="index.html" class="home-link">Voltar para a Home</a>
     </div>
 
     <script type="module" src="login-script.js"></script>

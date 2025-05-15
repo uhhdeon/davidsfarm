@@ -7,31 +7,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetPasswordButton = document.getElementById('reset-password-button');
     const authStatusDiv = document.getElementById('auth-status');
 
+    const showMessage = (message, type = 'error') => {
+        authStatusDiv.textContent = message;
+        authStatusDiv.className = 'auth-status ' + (type === 'success' ? 'success' : '');
+    };
+
     if (resetPasswordButton) {
         resetPasswordButton.addEventListener('click', () => {
             const email = emailInputForgot.value.trim();
-            authStatusDiv.textContent = ''; // Limpa mensagens anteriores
-            authStatusDiv.className = 'auth-status';
-
+            showMessage('');
 
             if (!email) {
-                authStatusDiv.textContent = 'Por favor, insira seu endereço de email.';
+                showMessage('Por favor, insira seu endereço de email.');
                 return;
             }
 
             sendPasswordResetEmail(auth, email)
                 .then(() => {
-                    authStatusDiv.textContent = 'Email de redefinição enviado! Verifique sua caixa de entrada (e spam).';
-                    authStatusDiv.className = 'success auth-status';
+                    showMessage('Email de redefinição enviado! Verifique sua caixa de entrada (e spam).', 'success');
                 })
-                .catch((error) => {
-                    console.error("Erro ao enviar email de redefinição:", error);
-                    authStatusDiv.textContent = `Erro: ${mapFirebaseAuthError(error.code)}`;
-                });
+                .catch((error) => showMessage(`Erro: ${mapFirebaseAuthError(error.code)}`));
         });
     }
+
     function mapFirebaseAuthError(errorCode) {
-        // ... (função mapFirebaseAuthError, pode ser mais genérica ou específica)
         switch (errorCode) {
             case 'auth/invalid-email': return 'Formato de email inválido.';
             case 'auth/user-not-found': return 'Nenhum usuário encontrado com este email.';
