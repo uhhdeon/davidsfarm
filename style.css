@@ -658,7 +658,7 @@ button:active, .login-button:active, .logout-button-style:active, .account-actio
     border: none;
     border-radius: 5px;
     text-align: left;
-    cursor: pointer;
+    cursor: pointer; 
     font-size: 0.95rem;
     transition: background-color 0.2s ease;
     box-sizing: border-box; /* Garante que padding não aumente a largura */
