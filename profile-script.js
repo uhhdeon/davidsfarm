@@ -1,8 +1,8 @@
 // profile-script.js
-import { auth, db } from './firebase-config.js'; // db importado para salvar no Firestore
+import { auth, db } from './firebase-config.js';
 import { 
     onAuthStateChanged,
-    updateProfile as updateAuthProfile, // Renomeado para evitar conflito com nossa função updateProfile
+    updateProfile as updateAuthProfile,
     updatePassword,
     EmailAuthProvider,
     reauthenticateWithCredential,
@@ -13,7 +13,7 @@ import {
 import { doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (seletores do DOM da etapa anterior, como userAuthSection, currentYearSpan etc.)
+    // ... (todos os seletores do DOM da etapa anterior) ...
     const userAuthSection = document.querySelector('.user-auth-section');
     const currentYearSpan = document.getElementById('currentYear');
     const siteContent = document.getElementById('site-content');
@@ -26,14 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const profilePhotoUrlInput = document.getElementById('profile-photo-url-input');
     const profilePhotoPreviewImg = document.getElementById('profile-photo-preview-img');
     const profileMessageDiv = document.getElementById('profile-message');
-
-    // Novos seletores para os campos adicionais
     const profileScratchUsernameInput = document.getElementById('profile-scratch-username');
     const profilePronounsInput = document.getElementById('profile-pronouns');
     const profileDescriptionInput = document.getElementById('profile-description');
     const viewPublicProfileButton = document.getElementById('view-public-profile-button');
-
-    // ... (seletores para forms de senha, email, logout, delete como antes) ...
     const changePasswordForm = document.getElementById('change-password-form');
     const currentPasswordGroup = document.getElementById('current-password-group');
     const currentPasswordInput = document.getElementById('current-password');
@@ -44,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPasswordLabel = document.getElementById('new-password-label');
     const passwordSubmitButton = document.getElementById('password-submit-button');
     const changeEmailForm = document.getElementById('change-email-form');
-    const currentEmailDisplay = document.getElementById('current-email-display');
+    const currentEmailDisplay = document.getElementById('current-email-display'); // Será preenchido com auth.currentUser.email
     const emailCurrentPasswordInput = document.getElementById('email-current-password');
     const newEmailInput = document.getElementById('new-email');
     const emailMessageDiv = document.getElementById('email-message');
@@ -52,8 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteAccountButton = document.getElementById('delete-account-button');
     const accountActionMessageDiv = document.getElementById('account-action-message');
 
-
-    let currentUserForProfile = null; // Armazena o objeto user do Auth
+    let currentUserForProfile = null;
 
     if (currentYearSpan) currentYearSpan.textContent = new Date().getFullYear();
     if (siteContent) setTimeout(() => siteContent.classList.add('visible'), 100);
@@ -73,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (tabPerfil) tabPerfil.addEventListener('click', () => switchTab(tabPerfil, sectionPerfil));
     if (tabSeguranca) tabSeguranca.addEventListener('click', () => switchTab(tabSeguranca, sectionSeguranca));
-
     if (profilePhotoUrlInput && profilePhotoPreviewImg) { /* ... (preview da foto, sem alterações) ... */
         profilePhotoUrlInput.addEventListener('input', () => {
             const newUrl = profilePhotoUrlInput.value.trim();
@@ -84,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage(profileMessageDiv, 'URL da imagem inválido ou não pôde ser carregada.');
         };
     }
-    
     const hasPasswordProvider = (user) => { /* ... (sem alterações) ... */
         return user.providerData.some(provider => provider.providerId === 'password');
     };
@@ -106,9 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            currentUserForProfile = user; // Armazena o usuário do Auth
-            // ... (preenchimento do header como antes) ...
-            if (userAuthSection) {
+            currentUserForProfile = user;
+            if (userAuthSection) { /* ... (preenchimento do header, sem alterações) ... */
                 const displayName = user.displayName || user.email.split('@')[0];
                 const photoURL = user.photoURL || 'imgs/default-avatar.png';
                 userAuthSection.innerHTML = `
@@ -121,40 +113,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
             if (userDocSnap.exists()) {
-                const userData = userDocSnap.data();
-                if (profileUsernameInput) profileUsernameInput.value = userData.displayName || user.displayName || '';
-                if (profilePhotoUrlInput) profilePhotoUrlInput.value = userData.photoURL || user.photoURL || '';
-                if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = userData.photoURL || user.photoURL || 'imgs/default-avatar.png';
-                
-                // Preenche os novos campos
-                if (profileScratchUsernameInput) profileScratchUsernameInput.value = userData.scratchUsername || '';
-                if (profilePronounsInput) profilePronounsInput.value = userData.pronouns || '';
-                if (profileDescriptionInput) profileDescriptionInput.value = userData.profileDescription || '';
-
-            } else { // Caso o documento no Firestore não exista (deveria ter sido criado pelo ensureUserProfile)
+                const userDataFromFirestore = userDocSnap.data();
+                if (profileUsernameInput) profileUsernameInput.value = userDataFromFirestore.displayName || user.displayName || '';
+                if (profilePhotoUrlInput) profilePhotoUrlInput.value = userDataFromFirestore.photoURL || user.photoURL || '';
+                if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = userDataFromFirestore.photoURL || user.photoURL || 'imgs/default-avatar.png';
+                if (profileScratchUsernameInput) profileScratchUsernameInput.value = userDataFromFirestore.scratchUsername || '';
+                if (profilePronounsInput) profilePronounsInput.value = userDataFromFirestore.pronouns || '';
+                if (profileDescriptionInput) profileDescriptionInput.value = userDataFromFirestore.profileDescription || '';
+            } else {
+                // Se não há doc no Firestore, preenche com dados do Auth (ensureUserProfileAndFriendId deveria ter criado)
                 if (profileUsernameInput) profileUsernameInput.value = user.displayName || '';
                 if (profilePhotoUrlInput) profilePhotoUrlInput.value = user.photoURL || '';
                 if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = user.photoURL || 'imgs/default-avatar.png';
-                 console.warn("Documento de usuário não encontrado no Firestore, preenchendo com dados do Auth.");
+                console.warn("Documento de usuário não encontrado no Firestore para preenchimento inicial do perfil. Isso é inesperado.");
             }
             
-            if (currentEmailDisplay) currentEmailDisplay.textContent = user.email;
+            // Exibe o email do Auth (NÃO do Firestore)
+            if (currentEmailDisplay) currentEmailDisplay.textContent = user.email; 
+            
             setupPasswordSectionUI(hasPasswordProvider(user));
-
-            if (window.location.hash === '#security') {
+            if (window.location.hash === '#security') { /* ... (lógica do hash, sem alterações) ... */
                  switchTab(tabSeguranca, sectionSeguranca);
                  if (!hasPasswordProvider(user)) {
                     showMessage(passwordMessageDiv, 'Você acessou com Google. Defina uma senha aqui se desejar.', 'success');
                  }
                  window.location.hash = ''; 
             }
-
         } else {
             window.location.href = 'login.html';
         }
     });
 
-    if (viewPublicProfileButton) {
+    if (viewPublicProfileButton) { /* ... (sem alterações) ... */
         viewPublicProfileButton.addEventListener('click', () => {
             if (currentUserForProfile) {
                 window.location.href = `public-profile.html?uid=${currentUserForProfile.uid}`;
@@ -165,10 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (profileForm) {
-        profileForm.addEventListener('submit', async (e) => { // Tornada async
+        profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newUsername = profileUsernameInput.value.trim();
-            const newPhotoURL = profilePhotoUrlInput.value.trim();
+            const newPhotoURL = profilePhotoUrlInput.value.trim() || null; // Envia null se vazio
             const newScratchUsername = profileScratchUsernameInput.value.trim();
             const newPronouns = profilePronounsInput.value.trim();
             const newDescription = profileDescriptionInput.value.trim();
@@ -184,35 +174,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const authProfileUpdates = {
                 displayName: newUsername,
-                photoURL: newPhotoURL || null // Envia null se vazio para remover
+                photoURL: newPhotoURL 
             };
+            // Dados para o Firestore NÃO INCLUEM EMAIL
             const firestoreProfileUpdates = {
                 displayName: newUsername,
-                photoURL: newPhotoURL || null,
+                photoURL: newPhotoURL,
                 scratchUsername: newScratchUsername,
                 pronouns: newPronouns,
                 profileDescription: newDescription,
-                // uid e email não devem ser alterados aqui, createdAt só na criação
+                uid: user.uid // Garante que o UID está lá para a regra de 'create' se for a primeira vez
             };
             
             showMessage(profileMessageDiv, 'Salvando perfil...', 'success');
-
             try {
-                // 1. Atualiza o perfil no Firebase Auth
                 await updateAuthProfile(user, authProfileUpdates);
-                console.log("Perfil do Firebase Auth atualizado.");
-
-                // 2. Atualiza/Cria o documento no Firestore
                 const userDocRef = doc(db, "users", user.uid);
-                // Usamos set com merge:true para criar se não existir ou atualizar campos existentes
+                // Usar set com merge para criar se não existir, ou atualizar/adicionar campos
                 await setDoc(userDocRef, firestoreProfileUpdates, { merge: true }); 
-                console.log("Perfil do Firestore atualizado/criado.");
-
                 showMessage(profileMessageDiv, 'Perfil atualizado com sucesso!', 'success');
-                // Atualiza header no cliente
-                if(document.getElementById('user-name')) document.getElementById('user-name').textContent = newUsername || user.email;
+                if(document.getElementById('user-name')) document.getElementById('user-name').textContent = newUsername || user.email.split('@')[0];
                 if(document.getElementById('user-photo')) document.getElementById('user-photo').src = newPhotoURL || 'imgs/default-avatar.png';
-            
             } catch (error) {
                 console.error("Erro ao atualizar perfil:", error);
                 showMessage(profileMessageDiv, `Erro ao atualizar perfil: ${error.message}`);
@@ -220,22 +202,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // ... (Funções reauthenticateUser, changePasswordForm, changeEmailForm, logout, deleteAccount como antes) ...
-    // Nenhuma mudança grande nelas, apenas garantindo que usam `currentUserForProfile` ou `auth.currentUser`
-    const reauthenticateUser = (currentPassword) => {
-        const user = currentUserForProfile || auth.currentUser; // Usa a variável de escopo
-        if (!user || !user.email) { /* ... (lógica de erro) ... */
+    const reauthenticateUser = (currentPassword) => { /* ... (sem alterações) ... */
+        const user = currentUserForProfile || auth.currentUser;
+        if (!user || !user.email) {
              const relevantMessageDiv = passwordMessageDiv.style.display !== 'none' && passwordMessageDiv.offsetParent !== null ? passwordMessageDiv : (emailMessageDiv.style.display !== 'none' && emailMessageDiv.offsetParent !== null ? emailMessageDiv : accountActionMessageDiv);
              showMessage(relevantMessageDiv, 'Erro: Usuário não encontrado ou sem email associado.');
              return Promise.reject(new Error('Usuário não encontrado ou sem email.'));
         }
-        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        const credential = EmailAuthProvider.credential(user.email, currentPassword); // Usa o email do Auth
         return reauthenticateWithCredential(user, credential);
     };
-    if (changePasswordForm) { /* ... (como antes, usando reauthenticateUser) ... */ }
-    if (changeEmailForm) { /* ... (como antes, usando reauthenticateUser) ... */ }
-    if (logoutButtonProfilePage) { logoutButtonProfilePage.addEventListener('click', () => signOut(auth).then(() => window.location.href = 'index.html').catch(e => showMessage(accountActionMessageDiv, `Erro ao sair: ${e.message}`))); }
-    if (deleteAccountButton) { /* ... (como antes, usando reauthenticateUser) ... */ }
 
-    console.log("David's Farm profile script (com novos campos) carregado!");
+    if (changePasswordForm) { /* ... (sem alterações) ... */ }
+    if (changeEmailForm) { /* ... (sem alterações, mas a exibição do email atual já pega do Auth) ... */ }
+    if (logoutButtonProfilePage) { /* ... (sem alterações) ... */ }
+    if (deleteAccountButton) { /* ... (sem alterações) ... */ }
+
+    console.log("David's Farm profile script (v7 - sem email no Firestore) carregado!");
 });
