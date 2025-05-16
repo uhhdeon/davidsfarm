@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil - David's Farm</title>
+    <title>Configurações do Perfil - David's Farm</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,11 +25,15 @@
                     <ul>
                         <li><button id="tab-perfil" class="active">Perfil</button></li>
                         <li><button id="tab-seguranca">Segurança</button></li>
-                        <li><a href="friends.html" class="profile-menu-link-button">Amigos</a></li> </ul>
+                        <li><a href="friends.html" class="profile-menu-link-button">Amigos</a></li>
+                    </ul>
                 </aside>
                 <section class="profile-content">
                     <div id="section-perfil" class="profile-section active">
-                        <h2>Meu Perfil</h2>
+                        <div class="section-header">
+                            <h2>Meu Perfil</h2>
+                            <button id="view-public-profile-button" class="view-profile-btn">Visualizar Perfil Público</button>
+                        </div>
                         <form id="profile-form">
                             <div class="form-group">
                                 <label for="profile-username">Nome de Usuário (Apelido):</label>
@@ -43,9 +47,22 @@
                                     <small>Pré-visualização</small>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="profile-scratch-username">Nome de Usuário no Scratch:</label>
+                                <input type="text" id="profile-scratch-username" name="scratchUsername" placeholder="ex: griffpatch">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-pronouns">Pronomes:</label>
+                                <input type="text" id="profile-pronouns" name="pronouns" placeholder="ex: Ele/Dele, Ela/Dela, Elu/Delu">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-description">Descrição do Perfil (Bio):</label>
+                                <textarea id="profile-description" name="profileDescription" rows="5" placeholder="Conte um pouco sobre você..."></textarea>
+                            </div>
                             <button type="submit">Salvar Alterações do Perfil</button>
                         </form>
                         <div id="profile-message" class="form-message"></div>
+
                         <hr style="margin: 30px 0; border-color: #444;">
                         <div class="account-actions">
                             <h3>Gerenciar Conta</h3>
@@ -57,6 +74,7 @@
 
                     <div id="section-seguranca" class="profile-section">
                         <h2>Segurança da Conta</h2>
+                        
                         <form id="change-password-form">
                             <h3 id="password-form-title">Alterar Senha</h3>
                             <div class="form-group" id="current-password-group">
@@ -74,10 +92,12 @@
                             <button type="submit" id="password-submit-button">Alterar Senha</button>
                         </form>
                         <div id="password-message" class="form-message"></div>
+
                         <hr style="margin: 30px 0; border-color: #444;">
+
                         <form id="change-email-form">
                             <h3>Alterar Email</h3>
-                            <p>Seu email atual: <strong id="current-email-display"></strong></p>
+                            <p>Seu email atual: <strong id="current-email-display">carregando...</strong></p>
                              <div class="form-group">
                                 <label for="email-current-password">Senha Atual (para confirmar alteração de email):</label>
                                 <input type="password" id="email-current-password" name="emailCurrentPassword" required>

@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Funções para Renderizar Listas ---
-    const renderList = (listElement, items, type) => { /* ... (sem alterações) ... */
+   const renderList = (listElement, items, type) => {
         listElement.innerHTML = '';
         if (items.length === 0) {
             let placeholderText = "Nenhum item aqui.";
@@ -169,16 +169,25 @@ document.addEventListener('DOMContentLoaded', () => {
         items.forEach(itemWrapper => {
             const li = document.createElement('li');
             li.className = 'friend-list-item';
-            const itemData = itemWrapper.data || itemWrapper;
-            const displayName = itemData.displayName || itemData.senderName || itemData.receiverName || itemWrapper.displayName || "Usuário";
-            const photoURL = itemData.photoURL || itemData.senderPhotoURL || itemData.receiverPhotoURL || itemWrapper.photoURL || 'imgs/default-avatar.png';
-            let content = `<img src="${photoURL}" alt="${displayName}" class="friend-avatar-small"> <span>${displayName}</span>`;
+            const itemData = itemWrapper.data || itemWrapper; // Acessa os dados corretos do item
+            // Prioriza nomes e fotos que podem ter sido salvos diretamente no pedido/amigo,
+            // caso contrário usa o displayName/photoURL do objeto de usuário completo (itemWrapper ou itemData se for perfil)
+            const targetUid = itemWrapper.id; // UID do usuário sendo listado
+            const displayName = itemData.displayName || itemData.senderName || itemData.receiverName || "Usuário";
+            const photoURL = itemData.photoURL || itemData.senderPhotoURL || itemData.receiverPhotoURL || 'imgs/default-avatar.png';
+
+            // Cria o link para o perfil público
+            const profileLink = `<a href="public-profile.html?uid=${targetUid}" class="profile-list-link">`;
+            
+            let content = `${profileLink}<img src="${photoURL}" alt="${displayName}" class="friend-avatar-small"> <span>${displayName}</span></a>`; // Fecha o <a>
+
             if (type === 'received') {
-                content += ` <div class="actions"><button class="accept-request" data-id="${itemWrapper.id}">Aceitar</button> <button class="decline-request" data-id="${itemWrapper.id}">Recusar</button></div>`;
+                content += ` <div class="actions"><button class="accept-request" data-id="${targetUid}">Aceitar</button> <button class="decline-request" data-id="${targetUid}">Recusar</button></div>`;
             } else if (type === 'sent') {
-                content += ` <span class="status">(${(itemData.status || 'pendente')})</span> <button class="cancel-request" data-id="${itemWrapper.id}">Cancelar</button>`;
+                // Para pedidos enviados, o targetUid é o destinatário. O 'status' vem de itemData.status.
+                content += ` <span class="status">(${(itemData.status || 'pendente')})</span> <button class="cancel-request" data-id="${targetUid}">Cancelar</button>`;
             } else if (type === 'friends') {
-                content += ` <div class="actions"><button class="remove-friend" data-id="${itemWrapper.id}">Remover</button></div>`;
+                content += ` <div class="actions"><button class="remove-friend" data-id="${targetUid}"><img src="imgs/trashbin.png" alt="Remover" class="btn-icon-small"></button></div>`;
             }
             li.innerHTML = content;
             listElement.appendChild(li);

@@ -689,3 +689,258 @@ button:active, .login-button:active, .logout-button-style:active, .account-actio
 .friend-list-item span:first-of-type { /* Para o nome do usuário */
     flex-grow: 1; /* Faz o nome ocupar o espaço restante */
 }
+
+/* ... (seu CSS existente) ... */
+
+/* Estilos para Página de Perfil Público (public-profile.html) */
+.public-profile-main {
+    max-width: 800px; /* Limita a largura do conteúdo do perfil */
+    margin: 20px auto; /* Centraliza */
+    padding: 20px;
+    background-color: #282828; /* Um pouco mais claro que o fundo geral */
+    border-radius: 8px;
+}
+
+.profile-header-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #444;
+}
+
+#profile-page-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 25px;
+    border: 3px solid #555;
+}
+
+.profile-name-details h2 { /* #profile-page-displayName */
+    font-size: 2em;
+    color: #fff;
+    margin-bottom: 2px;
+}
+
+#profile-page-scratch-link {
+    font-size: 0.95em;
+    color: #00bfff; /* Cor de link padrão */
+    display: block; /* Para ocupar a linha */
+    margin-bottom: 5px;
+}
+#profile-page-scratch-link:hover {
+    text-decoration: underline;
+}
+
+.profile-pronouns { /* #profile-page-pronouns */
+    font-size: 0.9em;
+    color: #bbb;
+    margin-bottom: 10px;
+}
+
+.profile-action-button-area {
+    margin-bottom: 25px;
+    text-align: left; /* Ou center, dependendo do design */
+}
+
+.profile-action-button-area button, 
+.profile-action-button-area a.profile-action-button { /* Para o link de Editar Perfil */
+    padding: 10px 20px;
+    margin-right: 10px; /* Espaço entre botões se houver mais de um */
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none; /* Para o link */
+    display: inline-block; /* Para o link */
+    font-size: 0.9rem;
+}
+.profile-action-button.edit { background-color: #6c757d; color: white; }
+.profile-action-button.edit:hover { background-color: #5a6268; }
+.profile-action-button.add { background-color: #007bff; color: white; }
+.profile-action-button.add:hover { background-color: #0056b3; }
+.profile-action-button.delete,
+.profile-action-button.cancel { background-color: #dc3545; color: white; }
+.profile-action-button.delete:hover,
+.profile-action-button.cancel:hover { background-color: #c82333; }
+.profile-action-button.accept { background-color: #28a745; color: white; }
+.profile-action-button.accept:hover { background-color: #1e7e34; }
+
+
+.btn-icon { /* Para o ícone de lixeira no botão de remover amigo */
+    width: 16px; /* Ajuste conforme necessário */
+    height: 16px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.btn-icon-small { /* Para ícones menores, como na lista de amigos */
+    width: 14px;
+    height: 14px;
+    vertical-align: text-bottom;
+}
+
+
+.profile-description-section {
+    margin-top: 20px;
+}
+.profile-description-section h3 {
+    color: #e0e0e0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #444;
+}
+#profile-page-description {
+    color: #ccc;
+    white-space: pre-wrap; /* Para respeitar quebras de linha da descrição */
+    line-height: 1.7;
+}
+
+/* Estilo para o botão "Visualizar Perfil Público" na página de configurações */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px; /* Mesmo que o h2 sozinho tinha */
+}
+.section-header h2 {
+    margin-bottom: 0; /* Remove a margem do h2 se ele estiver no flex container */
+}
+.view-profile-btn {
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    background-color: #444;
+    color: #e0e0e0;
+    border: 1px solid #555;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.view-profile-btn:hover {
+    background-color: #555;
+}
+
+/* Estilo para links na lista de amigos */
+.profile-list-link {
+    text-decoration: none;
+    color: inherit; /* Herda a cor do texto do item da lista */
+    display: flex; /* Para alinhar imagem e nome dentro do link */
+    align-items: center;
+    flex-grow: 1; /* Para o link ocupar o espaço disponível */
+}
+.profile-list-link:hover span { /* Apenas o nome sublinhado no hover */
+    text-decoration: underline;
+    color: #00bfff; /* Ou a cor que preferir para o hover do link */
+}
+
+/* style.css */
+
+/* ... (Todo o seu CSS existente das respostas anteriores) ... */
+
+/* --- Estilos para Página de Configurações de Perfil (profile.html) --- */
+/* Adiciona/Ajusta estilo para o textarea de descrição */
+.profile-section .form-group textarea#profile-description {
+    width: 100%;
+    max-width: 400px; /* Consistente com outros inputs */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #333; /* Fundo escuro */
+    color: #e0e0e0; /* Texto claro */
+    font-family: inherit; /* Usa a mesma fonte do restante */
+    font-size: 1rem;
+    line-height: 1.5; /* Melhor espaçamento de linha para textarea */
+    resize: vertical; /* Permite redimensionamento vertical pelo usuário */
+    min-height: 100px; /* Altura mínima */
+}
+.profile-section .form-group textarea#profile-description:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+
+/* --- Estilos para Página de Perfil Público (public-profile.html) --- */
+.public-profile-main {
+    max-width: 850px; /* Aumentado um pouco a largura máxima */
+    margin: 30px auto; /* Aumentado a margem superior/inferior */
+    padding: 25px 30px; /* Ajustado o padding */
+    background-color: #252525; /* Um tom ligeiramente diferente para destacar */
+    border-radius: 10px; /* Bordas um pouco mais arredondadas */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5); /* Sombra mais pronunciada */
+}
+
+.profile-header-info {
+    display: flex;
+    align-items: center; /* Tenta centralizar verticalmente se a descrição for muito longa */
+    margin-bottom: 30px; /* Mais espaço abaixo do header do perfil */
+    padding-bottom: 25px;
+    border-bottom: 1px solid #4a4a4a; /* Borda um pouco mais destacada */
+}
+
+#profile-page-photo {
+    width: 150px; /* Perfil de usuário maior */
+    height: 150px; /* Perfil de usuário maior */
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 30px; /* Mais espaço para o nome */
+    border: 4px solid #007bff; /* Borda azul para destacar a foto */
+    background-color: #333; /* Fundo para imagem não carregada */
+}
+
+.profile-name-details h2 { /* #profile-page-displayName */
+    font-size: 2.4em; /* Nome maior */
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+#profile-page-scratch-link {
+    font-size: 1em; /* Tamanho ajustado para @scratch */
+    color: #00bfff;
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.profile-pronouns { /* #profile-page-pronouns */
+    font-size: 0.95em; /* Um pouco maior */
+    color: #ccc;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.profile-action-button-area {
+    margin-bottom: 30px; /* Mais espaço */
+}
+/* Os botões de ação já tinham estilos, podem ser mantidos ou ajustados se necessário */
+
+
+.profile-description-section {
+    margin-top: 25px;
+    background-color: #2c2c2c; /* Fundo escuro para a descrição, como o site */
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #383838;
+}
+.profile-description-section h3 {
+    color: #00bfff; /* Cor de destaque para o título da bio */
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #4a4a4a;
+    font-size: 1.3em;
+}
+#profile-page-description {
+    color: #e0e0e0; /* Texto claro para a descrição */
+    white-space: pre-wrap; 
+    line-height: 1.7;
+    font-size: 1.05em; /* Descrição um pouco maior */
+    max-height: 400px; /* Limita altura e adiciona scroll se necessário */
+    overflow-y: auto; /* Scroll se a descrição for muito longa */
+    padding-right: 10px; /* Espaço para a barra de rolagem não cobrir o texto */
+}
+
+/* Esconde elementos não aplicáveis na página de perfil público (se vierem do CSS global) */
+body.auth-page #site-content header ~ main .profile-container { display: none; } /* Exemplo, pode não ser necessário */
+
+
+/* ... (Restante do seu CSS, incluindo animações, etc.) ... */
