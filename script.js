@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newSize = Math.random() * 10 + 5;
                 particle.style.width = `${newSize}px`; particle.style.height = `${newSize}px`;
             });
-        }
+        } 
     }
     setTimeout(() => { /* ... (sem alterações) ... */
         if (loadingScreen) {
