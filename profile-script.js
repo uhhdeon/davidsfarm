@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // A reautenticação vai falhar, mas o Firebase pode permitir deleteUser se o login social for recente.
                  console.log("Tentando deletar conta social, senha fornecida pode não ser usada para reauth se não existir.");
             }
-
+ 
 
             if (currentUserHasPasswordProvider || currentPassword !== "") { // Tenta reautenticar se ele tem senha ou forneceu uma
                 reauthenticateUser(currentPassword)
