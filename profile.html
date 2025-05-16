@@ -25,7 +25,7 @@
                     <ul>
                         <li><button id="tab-perfil" class="active">Perfil</button></li>
                         <li><button id="tab-seguranca">Segurança</button></li>
-                        <li><a href="friends.html" class="profile-menu-link-button">Amigos</a></li>
+                        <li><button id="tab-tema">Tema</button></li> <li><a href="friends.html" class="profile-menu-link-button">Amigos</a></li>
                     </ul>
                 </aside>
                 <section class="profile-content">
@@ -74,7 +74,6 @@
 
                     <div id="section-seguranca" class="profile-section">
                         <h2>Segurança da Conta</h2>
-                        
                         <form id="change-password-form">
                             <h3 id="password-form-title">Alterar Senha</h3>
                             <div class="form-group" id="current-password-group">
@@ -98,10 +97,10 @@
                         <form id="change-email-form">
                             <h3>Alterar Email</h3>
                             <p>Seu email atual: <strong id="current-email-display">carregando...</strong></p>
-                             <div class="form-group">
-                                <label for="email-current-password">Senha Atual (para confirmar alteração de email):</label>
-                                <input type="password" id="email-current-password" name="emailCurrentPassword" required>
-                            </div>
+                                <div class="form-group">
+                                    <label for="email-current-password">Senha Atual (para confirmar alteração de email):</label>
+                                    <input type="password" id="email-current-password" name="emailCurrentPassword" required>
+                                </div>
                             <div class="form-group">
                                 <label for="new-email">Novo Email:</label>
                                 <input type="email" id="new-email" name="newEmail">
@@ -110,13 +109,53 @@
                         </form>
                         <div id="email-message" class="form-message"></div>
                     </div>
+
+                    <div id="section-tema" class="profile-section">
+                        <h2>Tema do Perfil</h2>
+                        <p>Personalize a aparência do seu perfil público.</p>
+                        <div class="theme-options-container">
+                            <button id="btn-theme-profile" class="theme-option-button">
+                                <img src="imgs/temadoperfil.png" alt="Tema do Perfil Icon" class="theme-button-icon"> Tema do Perfil
+                            </button>
+                            <button id="btn-theme-site" class="theme-option-button" disabled>
+                                <img src="imgs/temadosite.png" alt="Tema do Site Icon" class="theme-button-icon"> Tema do Site (Em Breve)
+                            </button>
+                        </div>
+                        <div id="theme-message" class="form-message"></div>
+
+                        <div class="profile-theme-preview-container">
+                            <h3>Pré-visualização do Perfil:</h3>
+                            <div id="profile-theme-preview" class="public-profile-main-preview">
+                                <div class="profile-header-info-preview">
+                                    <img id="profile-preview-photo" src="imgs/default-avatar.png" alt="Foto do Perfil">
+                                    <div class="profile-name-details-preview">
+                                        <h2 id="profile-preview-displayName">Seu Nome Aqui</h2>
+                                        <p id="profile-preview-pronouns" class="profile-pronouns-preview">Seus Pronomes</p>
+                                    </div>
+                                </div>
+                                <div class="profile-description-section-preview">
+                                    <h3>Sobre Mim</h3>
+                                    <p id="profile-preview-description">Sua bio apareceria aqui...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </section>
             </div>
         </main>
         <footer>
-             <p>&copy; <span id="currentYear"></span> David's Farm. Todos os direitos reservados.</p>
+            <p>&copy; <span id="currentYear"></span> David's Farm. Todos os direitos reservados.</p>
         </footer>
     </div>
+
+    <div id="custom-popup-overlay" class="custom-popup-overlay">
+        <div id="custom-popup" class="custom-popup">
+            <button id="custom-popup-close" class="custom-popup-close-btn">&times;</button>
+            <div id="custom-popup-content" class="custom-popup-content">
+                </div>
+        </div>
+    </div>
+
     <script type="module" src="profile-script.js"></script>
 </body>
 </html>
