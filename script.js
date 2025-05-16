@@ -1,20 +1,18 @@
 // script.js
 import { auth } from './firebase-config.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const loadingScreen = document.getElementById('loading-screen');
     const siteContent = document.getElementById('site-content');
     const currentYearSpan = document.getElementById('currentYear');
     const particlesContainer = document.getElementById('background-particles');
-    const userAuthSection = document.querySelector('.user-auth-section'); // Seleciona o container
+    const userAuthSection = document.querySelector('.user-auth-section');
     const numberOfParticles = 30;
 
-    if (currentYearSpan) {
-        currentYearSpan.textContent = new Date().getFullYear();
-    }
+    if (currentYearSpan) currentYearSpan.textContent = new Date().getFullYear();
 
-    function createParticles() {
+    function createParticles() { /* ... (código createParticles) ... */ 
         if (!particlesContainer) return;
         for (let i = 0; i < numberOfParticles; i++) {
             const particle = document.createElement('div');
@@ -34,8 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    setTimeout(() => {
-        // ... (código do setTimeout para loading screen da etapa anterior - sem alterações)
+    setTimeout(() => { /* ... (código setTimeout para loading) ... */
         if (loadingScreen) {
             loadingScreen.classList.add('fade-out');
             loadingScreen.addEventListener('transitionend', () => {
@@ -44,41 +41,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     siteContent.classList.remove('hidden');
                     siteContent.classList.add('visible');
                 }
-                if (typeof createParticles === 'function') createParticles(); // Garante que a função exista
+                if (typeof createParticles === 'function') createParticles();
             }, { once: true });
+        } else { // Caso loading screen não exista, apenas mostra o conteúdo
+             if (siteContent) {
+                siteContent.classList.remove('hidden');
+                siteContent.classList.add('visible');
+            }
+            if (typeof createParticles === 'function') createParticles();
         }
     }, 1500);
 
-    // Gerenciar exibição do usuário no header
     onAuthStateChanged(auth, (user) => {
         if (userAuthSection) {
-            userAuthSection.innerHTML = ''; // Limpa a seção
+            userAuthSection.innerHTML = '';
             if (user) {
                 const displayName = user.displayName || user.email;
-                const photoURL = user.photoURL || 'imgs/default-avatar.png'; // Use um avatar padrão
-
+                const photoURL = user.photoURL || 'imgs/default-avatar.png';
                 const userInfoHTML = `
-                    <div class="user-info">
-                        <a href="profile.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                    <a href="profile.html" class="user-info-link">
+                        <div class="user-info">
                             <img id="user-photo" src="${photoURL}" alt="Foto do Usuário">
                             <span id="user-name">${displayName}</span>
-                        </a>
-                        <button id="logout-button" class="logout-button-style">Sair</button>
-                    </div>
-                `;
+                        </div>
+                    </a>`;
                 userAuthSection.innerHTML = userInfoHTML;
-
-                const logoutButton = document.getElementById('logout-button');
-                if (logoutButton) {
-                    logoutButton.addEventListener('click', () => {
-                        signOut(auth).catch((error) => console.error('Erro ao sair:', error));
-                    });
-                }
             } else {
                 const loginButtonHTML = `<a href="login.html" class="login-button">Login</a>`;
                 userAuthSection.innerHTML = loginButtonHTML;
             }
         }
     });
-    console.log("David's Farm script principal carregado!");
+    console.log("David's Farm script principal (v5) carregado!");
 });
