@@ -25,7 +25,7 @@
                     <ul>
                         <li><button id="tab-perfil" class="active">Perfil</button></li>
                         <li><button id="tab-seguranca">Segurança</button></li>
-                    </ul>
+                        <li><a href="friends.html" class="profile-menu-link-button">Amigos</a></li> </ul>
                 </aside>
                 <section class="profile-content">
                     <div id="section-perfil" class="profile-section active">
@@ -58,23 +58,25 @@
                     <div id="section-seguranca" class="profile-section">
                         <h2>Segurança da Conta</h2>
                         <form id="change-password-form">
-                            <h3 id="password-form-title">Alterar Senha</h3> <div class="form-group" id="current-password-group">
+                            <h3 id="password-form-title">Alterar Senha</h3>
+                            <div class="form-group" id="current-password-group">
                                 <label for="current-password">Senha Atual:</label>
                                 <input type="password" id="current-password" name="currentPassword">
                             </div>
                             <div class="form-group">
-                                <label for="new-password" id="new-password-label">Nova Senha:</label> <input type="password" id="new-password" name="newPassword" required>
+                                <label for="new-password" id="new-password-label">Nova Senha:</label>
+                                <input type="password" id="new-password" name="newPassword" required>
                             </div>
                             <div class="form-group">
                                 <label for="confirm-new-password">Confirmar Nova Senha:</label>
                                 <input type="password" id="confirm-new-password" name="confirmNewPassword" required>
                             </div>
-                            <button type="submit" id="password-submit-button">Alterar Senha</button> </form>
+                            <button type="submit" id="password-submit-button">Alterar Senha</button>
+                        </form>
                         <div id="password-message" class="form-message"></div>
-
                         <hr style="margin: 30px 0; border-color: #444;">
                         <form id="change-email-form">
-                           <h3>Alterar Email</h3>
+                            <h3>Alterar Email</h3>
                             <p>Seu email atual: <strong id="current-email-display"></strong></p>
                              <div class="form-group">
                                 <label for="email-current-password">Senha Atual (para confirmar alteração de email):</label>
@@ -92,7 +94,7 @@
             </div>
         </main>
         <footer>
-            <p>&copy; <span id="currentYear"></span> David's Farm. Todos os direitos reservados.</p>
+             <p>&copy; <span id="currentYear"></span> David's Farm. Todos os direitos reservados.</p>
         </footer>
     </div>
     <script type="module" src="profile-script.js"></script>

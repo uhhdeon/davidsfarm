@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 checkAndAskToSetPassword(user);
 
             } else {
-                const loginButtonHTML = `<a href="/davidsfarm/login/" class="login-button">Login</a>`;
+                const loginButtonHTML = `<a href="login.html" class="login-button">Login</a>`;
                 userAuthSection.innerHTML = loginButtonHTML;
             }
         }
