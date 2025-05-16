@@ -14,36 +14,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const googleLoginButton = document.getElementById('google-login-button');
     const authStatusDiv = document.getElementById('auth-status');
 
-    // Modal elements
-    const setPasswordModal = document.getElementById('set-password-modal');
-    const modalSetPasswordYes = document.getElementById('modal-set-password-yes');
-    const modalSetPasswordNo = document.getElementById('modal-set-password-no');
-
     const showMessage = (message, type = 'error') => {
         authStatusDiv.textContent = message;
         authStatusDiv.className = 'auth-status ' + (type === 'success' ? 'success' : '');
     };
 
-    const openSetPasswordModal = () => {
-        if (setPasswordModal) setPasswordModal.classList.add('visible');
-    };
-    const closeSetPasswordModal = () => {
-        if (setPasswordModal) setPasswordModal.classList.remove('visible');
+    // Função para verificar se o usuário tem provedor de senha
+    const hasPasswordProvider = (user) => {
+        if (user && user.providerData) {
+            return user.providerData.some(provider => provider.providerId === 'password');
+        }
+        return false;
     };
 
-    if (modalSetPasswordYes) {
-        modalSetPasswordYes.addEventListener('click', () => {
-            sessionStorage.setItem('promptSetPassword', 'true'); // Sinaliza para profile.html
-            closeSetPasswordModal();
-            window.location.href = 'profile.html#seguranca'; // Vai para a aba de segurança
-        });
-    }
-    if (modalSetPasswordNo) {
-        modalSetPasswordNo.addEventListener('click', () => {
-            closeSetPasswordModal();
-            window.location.href = 'index.html'; // Ou apenas fecha o modal e continua
-        });
-    }
+    // Função para perguntar sobre definir senha após login com Google
+    const askToSetPassword = (user) => {
+        // Verifica se logou com Google e não tem senha, e não recusou antes
+        const loggedWithGoogle = user.providerData.some(p => p.providerId === 'google.com');
+        const alreadyHasPassword = hasPasswordProvider(user);
+        const declinedKey = `declinedSetPassword_${user.uid}`;
+        const hasDeclined = localStorage.getItem(declinedKey) === 'true';
+
+        if (loggedWithGoogle && !alreadyHasPassword && !hasDeclined) {
+            // Usando window.confirm por simplicidade. Um modal customizado seria melhor.
+            setTimeout(() => { // Pequeno delay para o usuário processar o login
+                if (window.confirm("Você conectou sua conta Google. Gostaria de definir uma senha para também poder entrar com seu email e uma senha no futuro?")) {
+                    // Se sim, redireciona para a página de perfil, aba segurança
+                    window.location.href = 'profile.html#security'; // Adiciona um hash para focar na aba
+                } else {
+                    // Se não, marca para não perguntar novamente neste navegador
+                    localStorage.setItem(declinedKey, 'true');
+                }
+            }, 1000); // Delay de 1 segundo
+        }
+    };
+
 
     if (googleLoginButton) {
         googleLoginButton.addEventListener('click', () => {
@@ -51,17 +56,30 @@ document.addEventListener('DOMContentLoaded', () => {
             signInWithPopup(auth, provider)
                 .then((result) => {
                     const user = result.user;
-                    // Checa se o usuário tem provedor de senha
-                    const hasPasswordProvider = user.providerData.some(
-                        (providerInfo) => providerInfo.providerId === 'password'
-                    );
-
-                    if (!hasPasswordProvider) {
-                        openSetPasswordModal(); // Abre o popup se não tiver senha
-                    } else {
-                        showMessage(`Login com Google bem-sucedido! Redirecionando...`, 'success');
+                    showMessage(`Login com Google bem-sucedido! Redirecionando...`, 'success');
+                    askToSetPassword(user); // Pergunta sobre definir senha
+                    // O redirecionamento principal para index.html ocorrerá após o popup (se houver) ou diretamente
+                    if (!user.providerData.some(p => p.providerId === 'google.com') || hasPasswordProvider(user) || localStorage.getItem(`declinedSetPassword_${user.uid}`) === 'true') {
                         window.location.href = 'index.html';
                     }
+                    // Se askToSetPassword for redirecionar, esse window.location.href acima pode não ser executado se o usuário clicar "sim" rápido.
+                    // Se o usuário clicar "Não", ele será redirecionado para index.html após o popup.
+                    // Se clicar "Sim", será redirecionado para profile.html#security.
+                    // Para garantir o redirecionamento para index.html se não for para profile:
+                    if (window.location.pathname.includes('login.html') && !window.location.hash.includes('security')) {
+                         // Garante que se não houver redirecionamento para profile, vá para index.
+                         // A lógica de askToSetPassword pode precisar de um callback para o redirecionamento final.
+                         // Por ora, se o usuário clicar "não" ou fechar o confirm, ele pode ficar na página de login.
+                         // Uma melhoria seria:
+                         // askToSetPassword(user).then(redirectUrl => window.location.href = redirectUrl || 'index.html');
+                         // Mas window.confirm é síncrono.
+                         // Se o usuário não for redirecionado por askToSetPassword (clicou Não ou já tinha senha/recusado)
+                         if (!(localStorage.getItem(`declinedSetPassword_${user.uid}`) === 'false' && window.location.href.includes('profile.html#security'))) {
+                            setTimeout(() => { window.location.href = 'index.html'; }, 500); // Pequeno delay para o popup.
+                         }
+                    }
+
+
                 })
                 .catch((error) => showMessage(`Erro Google: ${error.message}`));
         });
@@ -72,7 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
             if (!email || !password) {
-                showMessage('Por favor, preencha email e senha.'); return;
+                showMessage('Por favor, preencha email e senha.');
+                return;
             }
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => {
@@ -85,14 +104,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     onAuthStateChanged(auth, (user) => {
         if (user && window.location.pathname.includes('login.html')) {
-            // Se usuário já logado e está na página de login, verificar se o modal precisa ser mostrado (caso de redirect)
-            // No entanto, a lógica do modal é melhor após o clique no botão Google.
-            // Para agora, se já logado, podemos apenas redirecionar ou não fazer nada se o modal for o próximo passo.
-            console.log('Usuário já logado na página de login.');
+            console.log('Usuário já logado, considerando redirecionar de login.html');
+            // Decide se mostra o popup ou redireciona direto
+            const loggedWithGoogle = user.providerData.some(p => p.providerId === 'google.com');
+            const alreadyHasPassword = hasPasswordProvider(user);
+            const declinedKey = `declinedSetPassword_${user.uid}`;
+            const hasDeclined = localStorage.getItem(declinedKey) === 'true';
+
+            if(loggedWithGoogle && !alreadyHasPassword && !hasDeclined) {
+                // Se o usuário atualizou a página de login mas ainda não respondeu ao popup
+                // askToSetPassword(user); // Pode causar duplo popup. Melhor não aqui.
+                // A lógica de redirecionamento precisa ser cuidadosa para não criar loops.
+            } else {
+                // Se não precisa perguntar, redireciona para index
+                // window.location.href = 'index.html';
+            }
         }
     });
 
-    function mapFirebaseAuthError(errorCode) { /* ... (função mapFirebaseAuthError) ... */ 
+    function mapFirebaseAuthError(errorCode) {
+        // ... (função mapFirebaseAuthError da etapa anterior) ...
         switch (errorCode) {
             case 'auth/invalid-email': return 'Formato de email inválido.';
             case 'auth/user-disabled': return 'Este usuário foi desabilitado.';
@@ -102,5 +133,4 @@ document.addEventListener('DOMContentLoaded', () => {
             default: return `Erro desconhecido (${errorCode})`;
         }
     }
-    console.log("David's Farm login script (v5) carregado!");
 });

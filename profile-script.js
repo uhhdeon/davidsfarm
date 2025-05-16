@@ -1,59 +1,58 @@
 // profile-script.js
 import { auth } from './firebase-config.js';
 import { 
-    onAuthStateChanged, updateProfile, updatePassword,
-    EmailAuthProvider, reauthenticateWithCredential,
-    verifyBeforeUpdateEmail, signOut, deleteUser
+    onAuthStateChanged,
+    updateProfile,
+    updatePassword,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    verifyBeforeUpdateEmail,
+    signOut,
+    deleteUser
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ... (seletores do DOM da etapa anterior)
     const userAuthSection = document.querySelector('.user-auth-section');
     const currentYearSpan = document.getElementById('currentYear');
     const siteContent = document.getElementById('site-content');
-
     const tabPerfil = document.getElementById('tab-perfil');
     const tabSeguranca = document.getElementById('tab-seguranca');
     const sectionPerfil = document.getElementById('section-perfil');
     const sectionSeguranca = document.getElementById('section-seguranca');
-
     const profileForm = document.getElementById('profile-form');
     const profileUsernameInput = document.getElementById('profile-username');
     const profilePhotoUrlInput = document.getElementById('profile-photo-url-input');
     const profilePhotoPreviewImg = document.getElementById('profile-photo-preview-img');
     const profileMessageDiv = document.getElementById('profile-message');
-
     const changePasswordForm = document.getElementById('change-password-form');
-    const currentPasswordGroup = document.getElementById('current-password-group'); // Grupo da senha atual
+    const currentPasswordGroup = document.getElementById('current-password-group'); // Novo seletor
     const currentPasswordInput = document.getElementById('current-password');
     const newPasswordInput = document.getElementById('new-password');
     const confirmNewPasswordInput = document.getElementById('confirm-new-password');
-    const changePasswordButton = document.getElementById('change-password-button'); // Botão de alterar/definir senha
-    const changePasswordTitle = document.getElementById('change-password-title'); // Título da seção de senha
     const passwordMessageDiv = document.getElementById('password-message');
-
+    const passwordFormTitle = document.getElementById('password-form-title'); // Novo
+    const newPasswordLabel = document.getElementById('new-password-label'); // Novo
+    const passwordSubmitButton = document.getElementById('password-submit-button'); // Novo
     const changeEmailForm = document.getElementById('change-email-form');
     const currentEmailDisplay = document.getElementById('current-email-display');
     const emailCurrentPasswordInput = document.getElementById('email-current-password');
     const newEmailInput = document.getElementById('new-email');
     const emailMessageDiv = document.getElementById('email-message');
-    
     const logoutButtonProfilePage = document.getElementById('logout-button-profile-page');
     const deleteAccountButton = document.getElementById('delete-account-button');
     const accountActionMessageDiv = document.getElementById('account-action-message');
 
-    let currentUserHasPasswordProvider = false; // Flag para controlar o estado da senha
-
     if (currentYearSpan) currentYearSpan.textContent = new Date().getFullYear();
     if (siteContent) setTimeout(() => siteContent.classList.add('visible'), 100);
 
-    const showMessage = (element, message, type = 'error') => { /* ... (função showMessage) ... */ 
+    const showMessage = (element, message, type = 'error') => { /* ... (sem alterações) ... */
         element.textContent = message;
         element.className = 'form-message ' + (type === 'success' ? 'success' : '');
         element.style.display = 'block';
         setTimeout(() => { element.style.display = 'none'; element.textContent = ''; }, 7000);
     };
-    
-    const switchTab = (activeTabButton, activeSection) => { /* ... (função switchTab) ... */ 
+    const switchTab = (activeTabButton, activeSection) => { /* ... (sem alterações) ... */
         [tabPerfil, tabSeguranca].forEach(btn => btn.classList.remove('active'));
         [sectionPerfil, sectionSeguranca].forEach(sec => sec.classList.remove('active'));
         activeTabButton.classList.add('active');
@@ -63,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tabPerfil) tabPerfil.addEventListener('click', () => switchTab(tabPerfil, sectionPerfil));
     if (tabSeguranca) tabSeguranca.addEventListener('click', () => switchTab(tabSeguranca, sectionSeguranca));
 
-    if (profilePhotoUrlInput && profilePhotoPreviewImg) { /* ... (lógica preview foto) ... */ 
+    if (profilePhotoUrlInput && profilePhotoPreviewImg) { /* ... (sem alterações) ... */
         profilePhotoUrlInput.addEventListener('input', () => {
             const newUrl = profilePhotoUrlInput.value.trim();
             profilePhotoPreviewImg.src = newUrl || 'imgs/default-avatar.png';
@@ -73,15 +72,45 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage(profileMessageDiv, 'URL da imagem inválido ou imagem não pôde ser carregada.');
         };
     }
+    
+    // Função para verificar se o usuário tem provedor de senha
+    const hasPasswordProvider = (user) => {
+        if (user && user.providerData) {
+            return user.providerData.some(provider => provider.providerId === 'password');
+        }
+        return false;
+    };
+
+    // Função para configurar a UI da seção de senha
+    const setupPasswordSectionUI = (userHasPassword) => {
+        if (userHasPassword) {
+            if (currentPasswordGroup) currentPasswordGroup.style.display = 'block';
+            if (passwordFormTitle) passwordFormTitle.textContent = 'Alterar Senha';
+            if (newPasswordLabel) newPasswordLabel.textContent = 'Nova Senha:';
+            if (passwordSubmitButton) passwordSubmitButton.textContent = 'Alterar Senha';
+            if (currentPasswordInput) currentPasswordInput.required = true;
+        } else {
+            if (currentPasswordGroup) currentPasswordGroup.style.display = 'none';
+            if (passwordFormTitle) passwordFormTitle.textContent = 'Definir Nova Senha';
+            if (newPasswordLabel) newPasswordLabel.textContent = 'Defina sua Senha:';
+            if (passwordSubmitButton) passwordSubmitButton.textContent = 'Definir Senha';
+            if (currentPasswordInput) currentPasswordInput.required = false; // Não é necessário se não tem senha atual
+        }
+    };
+
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            if (userAuthSection) { /* ... (lógica header) ... */ 
+            // ... (preenchimento do header e dados do perfil - sem alterações) ...
+            if (userAuthSection) {
                 const displayName = user.displayName || user.email;
                 const photoURL = user.photoURL || 'imgs/default-avatar.png';
                 userAuthSection.innerHTML = `
                     <a href="profile.html" class="user-info-link">
-                        <div class="user-info"><img id="user-photo" src="${photoURL}" alt="Foto"><span id="user-name">${displayName}</span></div>
+                        <div class="user-info">
+                            <img id="user-photo" src="${photoURL}" alt="Foto do Usuário">
+                            <span id="user-name">${displayName}</span>
+                        </div>
                     </a>`;
             }
             if (profileUsernameInput) profileUsernameInput.value = user.displayName || '';
@@ -89,41 +118,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = user.photoURL || 'imgs/default-avatar.png';
             if (currentEmailDisplay) currentEmailDisplay.textContent = user.email;
 
-            // Verifica se o usuário tem provedor de senha
-            currentUserHasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
-            updatePasswordSectionUI(currentUserHasPasswordProvider);
+            // Configura a UI da seção de senha com base no provedor de senha
+            setupPasswordSectionUI(hasPasswordProvider(user));
 
-            // Verifica se veio do popup para definir senha
-            if (sessionStorage.getItem('promptSetPassword') === 'true') {
-                switchTab(tabSeguranca, sectionSeguranca); // Abre a aba de segurança
-                if (newPasswordInput) newPasswordInput.focus(); // Foca no campo de nova senha
-                showMessage(passwordMessageDiv, 'Defina sua nova senha abaixo.', 'success');
-                sessionStorage.removeItem('promptSetPassword');
+            // Verifica se foi redirecionado para definir senha
+            if (window.location.hash === '#security' && !hasPasswordProvider(user)) {
+                 switchTab(tabSeguranca, sectionSeguranca); // Ativa a aba de segurança
+                 showMessage(passwordMessageDiv, 'Você acessou com Google. Defina uma senha aqui se desejar.', 'success');
+                 window.location.hash = ''; // Limpa o hash para não mostrar a mensagem de novo no refresh
             }
+
 
         } else {
             window.location.href = 'login.html';
         }
     });
 
-    function updatePasswordSectionUI(hasPassword) {
-        if (currentPasswordGroup && changePasswordButton && changePasswordTitle) {
-            if (hasPassword) {
-                currentPasswordGroup.classList.remove('hidden');
-                currentPasswordInput.required = true;
-                changePasswordButton.textContent = 'Alterar Senha';
-                changePasswordTitle.textContent = 'Alterar Senha';
-            } else {
-                currentPasswordGroup.classList.add('hidden');
-                currentPasswordInput.required = false;
-                currentPasswordInput.value = ''; // Limpa caso haja algo
-                changePasswordButton.textContent = 'Definir Senha';
-                changePasswordTitle.textContent = 'Definir Nova Senha';
-            }
-        }
-    }
-    
-    if (profileForm) { /* ... (lógica profileForm submit) ... */ 
+    if (profileForm) { /* ... (sem alterações) ... */
         profileForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const newUsername = profileUsernameInput.value.trim();
@@ -146,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    const reauthenticateUser = (currentPassword) => { /* ... (função reauthenticateUser) ... */
+    const reauthenticateUser = (currentPassword) => { /* ... (sem alterações) ... */
         const user = auth.currentUser;
         if (!user || !user.email) {
              const relevantMessageDiv = passwordMessageDiv.style.display !== 'none' && passwordMessageDiv.offsetParent !== null 
@@ -161,18 +172,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return reauthenticateWithCredential(user, credential);
     };
 
+    // Alterar/Definir Senha
     if (changePasswordForm) {
         changePasswordForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const userActuallyHasPassword = hasPasswordProvider(user);
             const currentPass = currentPasswordInput.value;
             const newPass = newPasswordInput.value;
             const confirmNewPass = confirmNewPasswordInput.value;
 
+            if (userActuallyHasPassword && !currentPass) {
+                showMessage(passwordMessageDiv, 'Por favor, insira sua senha atual para alterá-la.'); return;
+            }
             if (!newPass || !confirmNewPass) {
                 showMessage(passwordMessageDiv, 'Por favor, preencha a nova senha e a confirmação.'); return;
-            }
-            if (currentUserHasPasswordProvider && !currentPass) { // Só exige senha atual se ele tiver uma
-                showMessage(passwordMessageDiv, 'Por favor, preencha sua senha atual para alterá-la.'); return;
             }
             if (newPass !== confirmNewPass) {
                 showMessage(passwordMessageDiv, 'As novas senhas não coincidem.'); return;
@@ -181,48 +197,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage(passwordMessageDiv, 'A nova senha deve ter pelo menos 6 caracteres.'); return;
             }
             
-            showMessage(passwordMessageDiv, 'Processando...', 'success');
+            showMessage(passwordMessageDiv, userActuallyHasPassword ? 'Processando alteração de senha...' : 'Definindo nova senha...', 'success');
 
-            const operation = () => updatePassword(auth.currentUser, newPass);
-
-            if (currentUserHasPasswordProvider) { // Precisa reautenticar para *mudar* uma senha existente
-                reauthenticateUser(currentPass)
-                    .then(operation)
+            const processUpdatePassword = () => {
+                updatePassword(user, newPass)
                     .then(() => {
-                        showMessage(passwordMessageDiv, 'Senha alterada com sucesso!', 'success');
+                        showMessage(passwordMessageDiv, userActuallyHasPassword ? 'Senha alterada com sucesso!' : 'Senha definida com sucesso!', 'success');
                         changePasswordForm.reset();
-                        currentUserHasPasswordProvider = true; // Acabou de definir/alterar, então agora tem senha
-                        updatePasswordSectionUI(true); 
+                        setupPasswordSectionUI(true); // Agora o usuário TEM uma senha
+                        // Limpar o localStorage se ele tinha recusado antes
+                        localStorage.removeItem(`declinedSetPassword_${user.uid}`);
                     })
+                    .catch((error) => {
+                         showMessage(passwordMessageDiv, `Erro ao ${userActuallyHasPassword ? 'alterar' : 'definir'} senha: ${error.message}`);
+                    });
+            };
+
+            if (userActuallyHasPassword) {
+                reauthenticateUser(currentPass)
+                    .then(processUpdatePassword)
                     .catch((error) => {
                         if (error.code === 'auth/wrong-password' || error.message.includes("INVALID_LOGIN_CREDENTIALS") || error.code === 'auth/invalid-credential') {
-                            showMessage(passwordMessageDiv, 'Senha atual incorreta.');
+                             showMessage(passwordMessageDiv, 'Senha atual incorreta.');
                         } else {
-                            showMessage(passwordMessageDiv, `Erro ao alterar senha: ${error.message}`);
+                             showMessage(passwordMessageDiv, `Erro na reautenticação: ${error.message}`);
                         }
                     });
-            } else { // Não tem senha, está *definindo* uma nova
-                operation()
-                    .then(() => {
-                        showMessage(passwordMessageDiv, 'Senha definida com sucesso!', 'success');
-                        changePasswordForm.reset();
-                        currentUserHasPasswordProvider = true; // Acabou de definir, então agora tem senha
-                        updatePasswordSectionUI(true); 
-                    })
-                    .catch((error) => {
-                        // Erro auth/requires-recent-login pode acontecer aqui se o login social não for "recente" o suficiente
-                        // para o updatePassword. Se acontecer, o usuário precisa deslogar e logar de novo.
-                         if (error.code === 'auth/requires-recent-login') {
-                            showMessage(passwordMessageDiv, 'Login recente necessário. Por favor, saia e entre novamente para definir sua senha.');
-                        } else {
-                            showMessage(passwordMessageDiv, `Erro ao definir senha: ${error.message}`);
-                        }
-                    });
+            } else {
+                // Se não tem senha, pode definir diretamente (updatePassword também funciona para adicionar)
+                processUpdatePassword();
             }
         });
     }
 
-    if (changeEmailForm) { /* ... (lógica changeEmailForm com reauthenticateUser) ... */ 
+    if (changeEmailForm) { /* ... (lógica do changeEmailForm, sem grandes alterações, mas usa reauthenticateUser) ... */
         changeEmailForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const currentPass = document.getElementById('email-current-password').value;
@@ -231,6 +239,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if(!user || !currentPass || !newMail) {
                 showMessage(emailMessageDiv, 'Preencha a senha atual e o novo email.'); return;
+            }
+             // Verifica se o usuário tem senha para poder reautenticar
+            if (!hasPasswordProvider(user)) {
+                showMessage(emailMessageDiv, 'Você precisa definir uma senha para sua conta antes de poder alterar o email.');
+                // Opcional: focar na aba de segurança para definir senha
+                // switchTab(tabSeguranca, sectionSeguranca);
+                return;
             }
             showMessage(emailMessageDiv, 'Processando alteração de email...', 'success');
             reauthenticateUser(currentPass)
@@ -252,72 +267,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
     }
-
-    if (logoutButtonProfilePage) { /* ... (lógica logoutButtonProfilePage) ... */ 
+    
+    if (logoutButtonProfilePage) { /* ... (sem alterações) ... */
         logoutButtonProfilePage.addEventListener('click', () => {
-            signOut(auth).then(() => { window.location.href = 'index.html'; })
-            .catch((error) => showMessage(accountActionMessageDiv, `Erro ao sair: ${error.message}`));
+            signOut(auth)
+                .then(() => { window.location.href = 'index.html'; })
+                .catch((error) => showMessage(accountActionMessageDiv, `Erro ao sair: ${error.message}`));
         });
     }
-
-    if (deleteAccountButton) { /* ... (lógica deleteAccountButton com reauthenticateUser) ... */
+    if (deleteAccountButton) { /* ... (sem alterações, mas usa reauthenticateUser) ... */
         deleteAccountButton.addEventListener('click', () => {
             const user = auth.currentUser;
             if (!user) return;
-            if (!window.confirm('TEM CERTEZA ABSOLUTA que deseja deletar sua conta? Esta ação não pode ser desfeita e todos os seus dados associados serão perdidos.')) return;
+            if (!window.confirm('Você tem CERTEZA ABSOLUTA que deseja deletar sua conta? Esta ação não pode ser desfeita.')) return;
             
-            const currentPassword = window.prompt('Para confirmar a exclusão, por favor, digite sua senha atual (se você tiver uma definida). Se você logou com Google e não definiu uma senha, deixe em branco e clique OK, mas a exclusão pode falhar se uma autenticação recente for necessária.');
-            
-            if (currentPassword === null) return; // Cancelou
+            if (!hasPasswordProvider(user)) {
+                // Se o usuário não tem senha (ex: só logou com Google e não definiu senha),
+                // a deleção direta pode funcionar, mas é mais seguro pedir re-login recente.
+                // Para este caso, vamos permitir a deleção direta se for o único provedor.
+                // Ou, melhor ainda, forçar o logout e pedir para logar com o provedor específico
+                // antes de deletar, se a API exigir autenticação recente.
+                // Para simplificar aqui:
+                if(user.providerData.length === 1 && user.providerData[0].providerId === 'google.com') {
+                     // Se só tem Google, pode ser que deleteUser funcione sem reauth de senha.
+                     // Mas o Firebase geralmente quer reauth para delete.
+                     // Este caso pode precisar de logout e re-login com Google para ter um token recente.
+                     showMessage(accountActionMessageDiv, 'Para deletar uma conta Google, por favor, saia e entre novamente para confirmar sua identidade recente, depois tente deletar.');
+                     return;
+                } else {
+                    // Se tem outros provedores, ou se tem provedor de senha, a reautenticação com senha é necessária
+                    showMessage(accountActionMessageDiv, 'Você precisa ter uma senha definida e autenticada recentemente para deletar a conta. Se você só usa login Google, tente sair e entrar novamente.');
+                    return;
+                }
+            }
 
+            const currentPassword = window.prompt('Para confirmar a exclusão, por favor, digite sua senha atual:');
+            if (currentPassword === null) return;
+            if (currentPassword === "") {
+                showMessage(accountActionMessageDiv, 'Senha atual é necessária.'); return;
+            }
             showMessage(accountActionMessageDiv, 'Processando exclusão da conta...', 'success');
-
-            const deleteOperation = () => {
-                deleteUser(user).then(() => {
+            reauthenticateUser(currentPassword)
+                .then(() => deleteUser(user))
+                .then(() => {
                     alert('Sua conta foi deletada com sucesso.');
                     window.location.href = 'index.html';
-                }).catch(delError => {
-                     if (delError.code === 'auth/requires-recent-login') {
-                        showMessage(accountActionMessageDiv, 'Exclusão requer login recente. Saia, entre novamente e tente deletar.');
+                })
+                .catch((error) => {
+                    if (error.code === 'auth/requires-recent-login') {
+                        showMessage(accountActionMessageDiv, 'Operação sensível. Saia e entre novamente antes de deletar.');
+                    } else if (error.code === 'auth/wrong-password' || error.message.includes("INVALID_LOGIN_CREDENTIALS") || error.code === 'auth/invalid-credential') {
+                        showMessage(accountActionMessageDiv, 'Senha atual incorreta.');
                     } else {
-                        showMessage(accountActionMessageDiv, `Erro ao deletar conta: ${delError.message}`);
+                        showMessage(accountActionMessageDiv, `Erro ao deletar conta: ${error.message}`);
                     }
                 });
-            };
-            
-            // Se o usuário logou com Google e não tem senha, ou se deixou o prompt em branco
-            // a reautenticação com senha vazia vai falhar.
-            // O Firebase pode exigir reautenticação recente mesmo para contas sociais antes de deletar.
-            // Se ele tem senha, precisa fornecer.
-            if (currentUserHasPasswordProvider && currentPassword === "") {
-                 showMessage(accountActionMessageDiv, 'Senha atual é necessária para deletar a conta.');
-                 return;
-            }
-            if (!currentUserHasPasswordProvider && currentPassword !== "") {
-                // Usuário social tentando fornecer uma senha que não existe para reautenticação.
-                // A reautenticação vai falhar, mas o Firebase pode permitir deleteUser se o login social for recente.
-                 console.log("Tentando deletar conta social, senha fornecida pode não ser usada para reauth se não existir.");
-            }
- 
-
-            if (currentUserHasPasswordProvider || currentPassword !== "") { // Tenta reautenticar se ele tem senha ou forneceu uma
-                reauthenticateUser(currentPassword)
-                    .then(deleteOperation)
-                    .catch(reauthError => {
-                        if (reauthError.code === 'auth/wrong-password' || reauthError.message.includes("INVALID_LOGIN_CREDENTIALS") || reauthError.code === 'auth/invalid-credential') {
-                            showMessage(accountActionMessageDiv, 'Senha atual incorreta. Não foi possível deletar a conta.');
-                        } else if (reauthError.code === 'auth/requires-recent-login') { // Este erro pode vir da reautenticação
-                             showMessage(accountActionMessageDiv, 'Reautenticação falhou (login não recente). Saia, entre novamente e tente deletar.');
-                        }
-                         else {
-                            showMessage(accountActionMessageDiv, `Erro de reautenticação ao deletar: ${reauthError.message}`);
-                        }
-                    });
-            } else { // Usuário logado com provedor social e não inseriu senha (porque não tem)
-                // Tenta deletar diretamente. Pode falhar com 'auth/requires-recent-login'.
-                deleteOperation();
-            }
         });
     }
+
     console.log("David's Farm profile script (v5) carregado!");
 });
