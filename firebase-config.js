@@ -6,6 +6,7 @@ import {
     doc,
     getDoc,
     setDoc,
+    updateDoc, // Adicionado updateDoc para o caso de atualizar friendId em doc existente
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -24,14 +25,15 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // --- Funções Utilitárias para Friend ID ---
-const generateFriendId = () => Math.floor(100000 + Math.random() * 900000).toString();
+const generateFriendIdInternal = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-const isFriendIdTaken = async (friendId) => {
+const isFriendIdTakenInternal = async (friendId) => {
     const mappingRef = doc(db, "friendIdMappings", friendId);
     const docSnap = await getDoc(mappingRef);
     return docSnap.exists();
 };
 
+// Exporta createUniqueFriendId para ser usado se necessário externamente, embora ensureUserProfileAndFriendId o use internamente.
 export const createUniqueFriendId = async () => {
     let friendId;
     let taken = true;
@@ -39,35 +41,60 @@ export const createUniqueFriendId = async () => {
     const maxAttempts = 10; 
 
     while (taken && attempts < maxAttempts) {
-        friendId = generateFriendId();
-        taken = await isFriendIdTaken(friendId);
+        friendId = generateFriendIdInternal(); // Usa a função interna
+        taken = await isFriendIdTakenInternal(friendId); // Usa a função interna
         attempts++;
     }
     if (taken) {
-        throw new Error("FRIEND_ID_GENERATION_FAILED"); // Erro customizado
+        console.error("Falha crítica: Não foi possível gerar um ID de amigo único após várias tentativas.");
+        throw new Error("FRIEND_ID_GENERATION_FAILED"); 
     }
     return friendId;
 };
 
 // Função para garantir que o perfil do usuário e o friendId existam no Firestore
+// AGORA ESTÁ CORRETAMENTE EXPORTADA
 export const ensureUserProfileAndFriendId = async (userAuth) => {
-    if (!userAuth) return null;
+    if (!userAuth) {
+        console.warn("ensureUserProfileAndFriendId chamada com userAuth nulo.");
+        return null;
+    }
 
     const userDocRef = doc(db, "users", userAuth.uid);
     let userDocSnap = await getDoc(userDocRef);
     let userFirestoreData = userDocSnap.exists() ? userDocSnap.data() : null;
-    let friendIdToUse = userFirestoreData?.friendId;
+    let friendIdToUse = userFirestoreData?.friendId; // Pega o friendId se já existir
 
-    let needsUpdate = false;
+    let profileNeedsUpdateInFirestore = false; // Flag para indicar se houve mudança nos dados do perfil
+    let newFriendIdCreated = false;
+
+    // Garante que os dados básicos do Auth estejam refletidos no Firestore se o doc existir
+    if (userFirestoreData) {
+        const authDisplayName = userAuth.displayName || userAuth.email.split('@')[0];
+        const authPhotoURL = userAuth.photoURL || null;
+
+        if (userFirestoreData.displayName !== authDisplayName || userFirestoreData.photoURL !== authPhotoURL || userFirestoreData.email !== userAuth.email) {
+            userFirestoreData.displayName = authDisplayName;
+            userFirestoreData.photoURL = authPhotoURL;
+            userFirestoreData.email = userAuth.email; // Garante que o email está atualizado
+            // Não atualiza friendId ou createdAt aqui, apenas dados do perfil Auth
+            await updateDoc(userDocRef, {
+                displayName: userFirestoreData.displayName,
+                photoURL: userFirestoreData.photoURL,
+                email: userFirestoreData.email
+            });
+            console.log(`Perfil Firestore atualizado para ${userAuth.uid} com dados do Auth.`);
+            profileNeedsUpdateInFirestore = true; // Indica que pode ser necessário recarregar os dados
+        }
+    }
 
     if (!userDocSnap.exists()) {
-        // Usuário não existe no Firestore, cria o documento
-        console.log(`Usuário ${userAuth.uid} não encontrado no Firestore. Criando perfil...`);
+        console.log(`Usuário ${userAuth.uid} não encontrado no Firestore. Criando perfil completo...`);
         try {
-            friendIdToUse = await createUniqueFriendId();
+            friendIdToUse = await createUniqueFriendId(); // Gera um novo friendId
             userFirestoreData = {
                 uid: userAuth.uid,
-                displayName: userAuth.displayName || userAuth.email.split('@')[0], // Usa parte do email se displayName for nulo
+                displayName: userAuth.displayName || userAuth.email.split('@')[0],
                 email: userAuth.email,
                 photoURL: userAuth.photoURL || null,
                 friendId: friendIdToUse,
@@ -78,46 +105,41 @@ export const ensureUserProfileAndFriendId = async (userAuth) => {
             const mappingRef = doc(db, "friendIdMappings", friendIdToUse);
             await setDoc(mappingRef, { uid: userAuth.uid });
             
-            console.log(`Perfil e Friend ID ${friendIdToUse} criados para ${userAuth.uid}`);
-            needsUpdate = true; // Para recarregar os dados se necessário
+            console.log(`Perfil completo e Friend ID ${friendIdToUse} criados para ${userAuth.uid}`);
+            newFriendIdCreated = true;
         } catch (error) {
             console.error("Erro ao criar perfil de usuário no Firestore ou Friend ID:", error);
-            if (error.message === "FRIEND_ID_GENERATION_FAILED") {
-                // Lidar com falha na geração do ID de amigo (raro, mas possível)
-                // Poderia tentar novamente ou notificar o usuário.
-            }
-            return userFirestoreData; // Retorna o que tiver, mesmo que incompleto
+            // Retorna null ou os dados parciais se a criação falhar, para não quebrar o fluxo
+            return userFirestoreData; 
         }
     } else if (!userFirestoreData.friendId) {
-        // Usuário existe, mas não tem friendId (usuário antigo)
-        console.log(`Usuário ${userAuth.uid} não tem Friend ID. Gerando...`);
+        // Usuário existe no Firestore, mas não tem friendId (caso de usuário antigo)
+        console.log(`Usuário ${userAuth.uid} não tem Friend ID no Firestore. Gerando...`);
         try {
             friendIdToUse = await createUniqueFriendId();
-            await updateDoc(userDocRef, { friendId: friendIdToUse });
+            await updateDoc(userDocRef, { friendId: friendIdToUse }); // Atualiza apenas o friendId
 
             const mappingRef = doc(db, "friendIdMappings", friendIdToUse);
             await setDoc(mappingRef, { uid: userAuth.uid }); // Garante que o mapeamento exista
             
-            userFirestoreData.friendId = friendIdToUse; // Atualiza dados em memória
+            if(userFirestoreData) userFirestoreData.friendId = friendIdToUse; // Atualiza dados em memória
             console.log(`Friend ID ${friendIdToUse} gerado e salvo para ${userAuth.uid}`);
-            needsUpdate = true;
+            newFriendIdCreated = true;
         } catch (error) {
             console.error("Erro ao gerar e salvar Friend ID para usuário existente:", error);
-            if (error.message === "FRIEND_ID_GENERATION_FAILED") {
-                // Lidar com falha
-            }
             // Continua com os dados existentes, mesmo sem friendId se a geração falhar
         }
     }
     
-    // Se houve criação ou atualização, busca novamente para ter os dados mais recentes.
-    if (needsUpdate) {
-        userDocSnap = await getDoc(userDocRef);
+    // Se houve uma criação de perfil ou de friendId, ou atualização de dados do Auth no Firestore,
+    // é bom ter os dados mais recentes do Firestore.
+    if (!userDocSnap.exists() || newFriendIdCreated || profileNeedsUpdateInFirestore) {
+        userDocSnap = await getDoc(userDocRef); // Recarrega o snapshot
         userFirestoreData = userDocSnap.exists() ? userDocSnap.data() : userFirestoreData;
     }
     
-    return userFirestoreData; // Retorna os dados do Firestore do usuário (com friendId)
+    return userFirestoreData;
 };
 
-
+// Exporta as instâncias e a função utilitária principal
 export { app, auth, db };
