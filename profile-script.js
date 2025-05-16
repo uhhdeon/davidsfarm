@@ -2,7 +2,7 @@
 import { auth, db } from './firebase-config.js';
 import { 
     onAuthStateChanged,
-    updateProfile as updateAuthProfile,
+    updateProfile as updateAuthProfile, // Renomeado para clareza
     updatePassword,
     EmailAuthProvider,
     reauthenticateWithCredential,
@@ -10,10 +10,10 @@ import {
     signOut,
     deleteUser
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// updateDoc é usado para atualizar documentos existentes. setDoc com merge:true também funciona, mas updateDoc é mais explícito.
+import { doc, getDoc, updateDoc, setDoc /* setDoc ainda é usado em ensureUserProfileAndFriendId */ } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (todos os seletores do DOM da etapa anterior) ...
     const userAuthSection = document.querySelector('.user-auth-section');
     const currentYearSpan = document.getElementById('currentYear');
     const siteContent = document.getElementById('site-content');
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPasswordLabel = document.getElementById('new-password-label');
     const passwordSubmitButton = document.getElementById('password-submit-button');
     const changeEmailForm = document.getElementById('change-email-form');
-    const currentEmailDisplay = document.getElementById('current-email-display'); // Será preenchido com auth.currentUser.email
+    const currentEmailDisplay = document.getElementById('current-email-display');
     const emailCurrentPasswordInput = document.getElementById('email-current-password');
     const newEmailInput = document.getElementById('new-email');
     const emailMessageDiv = document.getElementById('email-message');
@@ -97,10 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, async (user) => { /* ... (sem alterações) ... */
         if (user) {
             currentUserForProfile = user;
-            if (userAuthSection) { /* ... (preenchimento do header, sem alterações) ... */
+            if (userAuthSection) {
                 const displayName = user.displayName || user.email.split('@')[0];
                 const photoURL = user.photoURL || 'imgs/default-avatar.png';
                 userAuthSection.innerHTML = `
@@ -108,8 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="user-info"> <img id="user-photo" src="${photoURL}" alt="Foto"> <span id="user-name">${displayName}</span> </div>
                     </a>`;
             }
-
-            // Carrega dados do Firestore para preencher o formulário de perfil
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
             if (userDocSnap.exists()) {
@@ -121,18 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (profilePronounsInput) profilePronounsInput.value = userDataFromFirestore.pronouns || '';
                 if (profileDescriptionInput) profileDescriptionInput.value = userDataFromFirestore.profileDescription || '';
             } else {
-                // Se não há doc no Firestore, preenche com dados do Auth (ensureUserProfileAndFriendId deveria ter criado)
                 if (profileUsernameInput) profileUsernameInput.value = user.displayName || '';
                 if (profilePhotoUrlInput) profilePhotoUrlInput.value = user.photoURL || '';
                 if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = user.photoURL || 'imgs/default-avatar.png';
-                console.warn("Documento de usuário não encontrado no Firestore para preenchimento inicial do perfil. Isso é inesperado.");
             }
-            
-            // Exibe o email do Auth (NÃO do Firestore)
             if (currentEmailDisplay) currentEmailDisplay.textContent = user.email; 
-            
             setupPasswordSectionUI(hasPasswordProvider(user));
-            if (window.location.hash === '#security') { /* ... (lógica do hash, sem alterações) ... */
+            if (window.location.hash === '#security') {
                  switchTab(tabSeguranca, sectionSeguranca);
                  if (!hasPasswordProvider(user)) {
                     showMessage(passwordMessageDiv, 'Você acessou com Google. Defina uma senha aqui se desejar.', 'success');
@@ -154,11 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // LÓGICA DO FORMULÁRIO DE PERFIL ATUALIZADA
     if (profileForm) {
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newUsername = profileUsernameInput.value.trim();
-            const newPhotoURL = profilePhotoUrlInput.value.trim() || null; // Envia null se vazio
+            // Envia null se o campo estiver vazio, para que o Firebase Auth possa remover a photoURL se desejado.
+            const newPhotoURL = profilePhotoUrlInput.value.trim() === '' ? null : profilePhotoUrlInput.value.trim();
             const newScratchUsername = profileScratchUsernameInput.value.trim();
             const newPronouns = profilePronounsInput.value.trim();
             const newDescription = profileDescriptionInput.value.trim();
@@ -166,36 +161,52 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = auth.currentUser;
             if (!user) return;
 
-            let isValidUrl = true;
-            if (newPhotoURL) { try { new URL(newPhotoURL); } catch (_) { isValidUrl = false; } }
-            if (newPhotoURL && !isValidUrl) {
-                showMessage(profileMessageDiv, 'O URL da foto de perfil parece ser inválido.'); return;
+            // Validação de URL (apenas se não for nulo ou vazio)
+            if (newPhotoURL) {
+                try {
+                    new URL(newPhotoURL); 
+                } catch (_) {
+                    showMessage(profileMessageDiv, 'O URL da foto de perfil parece ser inválido.'); 
+                    return;
+                }
             }
 
             const authProfileUpdates = {
                 displayName: newUsername,
                 photoURL: newPhotoURL 
             };
-            // Dados para o Firestore NÃO INCLUEM EMAIL
+            // Dados para o Firestore NÃO INCLUEM EMAIL, UID, CREATEDAT ou FRIENDID (a menos que seja para criar friendId)
             const firestoreProfileUpdates = {
                 displayName: newUsername,
-                photoURL: newPhotoURL,
+                photoURL: newPhotoURL, // Salva o mesmo URL (ou null) no Firestore
                 scratchUsername: newScratchUsername,
                 pronouns: newPronouns,
                 profileDescription: newDescription,
-                uid: user.uid // Garante que o UID está lá para a regra de 'create' se for a primeira vez
+                // uid, email, createdAt, friendId NÃO são atualizados aqui diretamente.
+                // friendId é gerenciado por ensureUserProfileAndFriendId
             };
             
             showMessage(profileMessageDiv, 'Salvando perfil...', 'success');
+
             try {
+                // 1. Atualiza o perfil no Firebase Auth
                 await updateAuthProfile(user, authProfileUpdates);
+                console.log("Perfil do Firebase Auth atualizado.");
+
+                // 2. Atualiza o documento no Firestore
+                //    Garantimos que o documento existe através do ensureUserProfileAndFriendId
+                //    que roda no script.js (principal) e no register-script.js.
+                //    Então, aqui, podemos usar updateDoc com segurança.
                 const userDocRef = doc(db, "users", user.uid);
-                // Usar set com merge para criar se não existir, ou atualizar/adicionar campos
-                await setDoc(userDocRef, firestoreProfileUpdates, { merge: true }); 
+                await updateDoc(userDocRef, firestoreProfileUpdates); 
+                console.log("Perfil do Firestore atualizado.");
+
                 showMessage(profileMessageDiv, 'Perfil atualizado com sucesso!', 'success');
+                // Atualiza header no cliente
                 if(document.getElementById('user-name')) document.getElementById('user-name').textContent = newUsername || user.email.split('@')[0];
                 if(document.getElementById('user-photo')) document.getElementById('user-photo').src = newPhotoURL || 'imgs/default-avatar.png';
-            } catch (error) {
+            
+            } catch (error) { // Esta é a linha ~199 se os console.logs forem removidos
                 console.error("Erro ao atualizar perfil:", error);
                 showMessage(profileMessageDiv, `Erro ao atualizar perfil: ${error.message}`);
             }
@@ -209,14 +220,14 @@ document.addEventListener('DOMContentLoaded', () => {
              showMessage(relevantMessageDiv, 'Erro: Usuário não encontrado ou sem email associado.');
              return Promise.reject(new Error('Usuário não encontrado ou sem email.'));
         }
-        const credential = EmailAuthProvider.credential(user.email, currentPassword); // Usa o email do Auth
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
         return reauthenticateWithCredential(user, credential);
     };
 
-    if (changePasswordForm) { /* ... (sem alterações) ... */ }
-    if (changeEmailForm) { /* ... (sem alterações, mas a exibição do email atual já pega do Auth) ... */ }
-    if (logoutButtonProfilePage) { /* ... (sem alterações) ... */ }
-    if (deleteAccountButton) { /* ... (sem alterações) ... */ }
+    if (changePasswordForm) { /* ... (lógica do changePasswordForm como antes, usando reauthenticateUser) ... */ }
+    if (changeEmailForm) { /* ... (lógica do changeEmailForm como antes, usando reauthenticateUser) ... */ }
+    if (logoutButtonProfilePage) { /* ... (lógica do logoutButtonProfilePage como antes) ... */ }
+    if (deleteAccountButton) { /* ... (lógica do deleteAccountButton como antes, usando reauthenticateUser) ... */ }
 
-    console.log("David's Farm profile script (v7 - sem email no Firestore) carregado!");
+    console.log("David's Farm profile script (v8 - usando updateDoc) carregado!");
 });
