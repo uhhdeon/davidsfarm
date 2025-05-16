@@ -88,6 +88,7 @@ export const ensureUserProfileAndFriendId = async (userAuth) => {
         }
     }
 
+
     if (!userDocSnap.exists()) {
         console.log(`Usuário ${userAuth.uid} não encontrado no Firestore. Criando perfil completo...`);
         try {
