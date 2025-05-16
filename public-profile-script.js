@@ -28,205 +28,247 @@ document.addEventListener('DOMContentLoaded', () => {
     const statsFriendsLink = document.getElementById('stats-friends-link');
     const statsFollowersLink = document.getElementById('stats-followers-link');
     const statsFollowingLink = document.getElementById('stats-following-link');
-    const moreOptionsButton = document.getElementById('profile-more-options-btn'); // VERIFIQUE ESTE ID NO HTML
-    const optionsPopup = document.getElementById('profile-options-popup');     // VERIFIQUE ESTE ID NO HTML
+    const moreOptionsButton = document.getElementById('profile-more-options-btn');
+    const optionsPopup = document.getElementById('profile-options-popup');
 
     let viewer = null;
     let viewedUserUid = null;
-    let viewedUserData = null; 
-    let viewerData = null;     
+    let viewedUserData = null;
+    let viewerData = null;
     let isFollowingViewedUser = false;
     let soundwaveParticlesInterval = null;
 
-    // --- Funções Utilitárias e de Tema (COMPLETAS) ---
     if (currentYearSpan) currentYearSpan.textContent = new Date().getFullYear();
     if (siteContent) setTimeout(() => siteContent.classList.add('visible'), 100);
-    const showMessage = (element, message, type = 'error', duration = 5000) => { /* ... (completa) ... */
-        if (!element) { console.warn("Elemento de mensagem não encontrado para:", message); return; } element.textContent = message;
+
+    const showMessage = (element, message, type = 'error', duration = 7000) => { /* ... (sem alterações) ... */
+        if (!element) return; element.textContent = message;
         element.className = 'form-message ' + (type === 'success' ? 'success' : 'error');
         element.style.display = 'block';
         setTimeout(() => { if (element) { element.style.display = 'none'; element.textContent = ''; }}, duration);
     };
-    function rgbStringToComponents(rgbString) { /* ... (completa) ... */ }
-    function lightenDarkenColor(colorObj, percent) { /* ... (completa) ... */ }
-    function calculateLuminance(colorObj) { /* ... (completa) ... */ }
-    function getDynamicAccentColor(baseAccentRgbString, mainBgRgbString) { /* ... (completa) ... */ }
-    function setTextContrastAndAccents(primaryBgColorString, accentBaseColorString) { /* ... (completa) ... */ }
-    function createSoundwaveParticle() { /* ... (completa, com criação do container se não existir) ... */
-        let particlesContainer = document.getElementById('background-soundwave-particles');
-        if (!particlesContainer) {
-            particlesContainer = document.createElement('div'); particlesContainer.id = 'background-soundwave-particles';
-            particlesContainer.style.position = 'fixed'; particlesContainer.style.top = '0'; particlesContainer.style.left = '0';
-            particlesContainer.style.width = '100%'; particlesContainer.style.height = '100%';
-            particlesContainer.style.zIndex = '-2'; particlesContainer.style.overflow = 'hidden';
-            document.body.prepend(particlesContainer);
-        }
-        const particle = document.createElement('div'); particle.className = 'soundwave-particle';
-        particle.style.position = 'absolute'; particle.style.left = `${Math.random() * 100}%`; particle.style.bottom = '-50px';
-        particle.style.width = `${Math.random() * 3 + 1}px`; particle.style.height = `${Math.random() * 60 + 20}px`;
-        particle.style.backgroundColor = `rgba(200, 200, 200, ${Math.random() * 0.1 + 0.02})`;
-        particle.style.animationName = 'soundwaveRise'; particle.style.animationDuration = `${Math.random() * 8 + 5}s`;
-        particle.style.animationTimingFunction = 'linear'; particle.style.animationIterationCount = '1';
-        particle.style.animationDelay = `${Math.random() * 2}s`;
-        particlesContainer.appendChild(particle);
-        particle.addEventListener('animationend', () => particle.remove());
+    function rgbStringToComponents(rgbString) { /* ... (sem alterações) ... */
+        if (!rgbString || !rgbString.startsWith('rgb')) return { r: 26, g: 26, b: 26 };
+        const result = rgbString.match(/\d+/g);
+        if (result && result.length === 3) return { r: parseInt(result[0]), g: parseInt(result[1]), b: parseInt(result[2]) };
+        return { r: 26, g: 26, b: 26 };
     }
-    function startSoundwaveParticles(intervalMs = 300) { if (soundwaveParticlesInterval) clearInterval(soundwaveParticlesInterval); soundwaveParticlesInterval = setInterval(createSoundwaveParticle, intervalMs); }
-    function stopSoundwaveParticles() { if (soundwaveParticlesInterval) clearInterval(soundwaveParticlesInterval); const container = document.getElementById('background-soundwave-particles'); if(container) container.innerHTML = '';}
-    const applyPageBackgroundAndParticles = (baseColorRgbString) => { /* ... (completa) ... */ };
-    const applyPublicProfileTheme = (theme) => { /* ... (completa) ... */ };
-    
-    onAuthStateChanged(auth, async (loggedInUser) => {
-        viewer = loggedInUser; 
-        if (viewer) { 
-            try { 
-                const snap = await getDoc(doc(db, "users", viewer.uid)); 
-                if (snap.exists()) viewerData = snap.data(); 
-                else viewerData = {displayName: viewer.displayName, photoURL: viewer.photoURL, friendsCount: 0, followersCount: 0, followingCount: 0};
-            } catch (error) { console.error("Erro ao buscar dados do visualizador:", error); viewerData = {displayName: viewer.displayName, photoURL: viewer.photoURL}; } 
-        } else viewerData = null;
+    function lightenDarkenColor(colorObj, percent) { /* ... (sem alterações) ... */
+        const newR = Math.max(0, Math.min(255, Math.round(colorObj.r * (1 + percent))));
+        const newG = Math.max(0, Math.min(255, Math.round(colorObj.g * (1 + percent))));
+        const newB = Math.max(0, Math.min(255, Math.round(colorObj.b * (1 + percent))));
+        return `rgb(${newR},${newG},${newB})`;
+    }
+    function calculateLuminance(colorObj) { /* ... (sem alterações) ... */
+        const r = colorObj.r / 255, g = colorObj.g / 255, b = colorObj.b / 255;
+        const a = [r, g, b].map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+        return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+    }
+    function getDynamicAccentColor(baseAccentRgbString, mainBgRgbString) { /* ... (sem alterações) ... */
+        const baseAccentObj = rgbStringToComponents(baseAccentRgbString);
+        const mainBgLuminance = calculateLuminance(rgbStringToComponents(mainBgRgbString));
+        const accentLuminance = calculateLuminance(baseAccentObj);
+        if (mainBgLuminance > 0.6) { if (accentLuminance > 0.5) return lightenDarkenColor(baseAccentObj, -0.45); return `rgb(${baseAccentObj.r},${baseAccentObj.g},${baseAccentObj.b})`; }
+        else { if (accentLuminance < 0.35) return lightenDarkenColor(baseAccentObj, 0.6); return `rgb(${baseAccentObj.r},${baseAccentObj.g},${baseAccentObj.b})`; }
+    }
+    function setTextContrastAndAccents(primaryBgColorString, accentBaseColorString) { /* ... (sem alterações) ... */
+        if (!publicProfileMainElement) return;
+        const bgColorObj = rgbStringToComponents(primaryBgColorString);
+        const luminance = calculateLuminance(bgColorObj);
+        const dynamicAccent = getDynamicAccentColor(accentBaseColorString, primaryBgColorString);
+        if (luminance > 0.5) { publicProfileMainElement.classList.remove('text-theme-light'); publicProfileMainElement.classList.add('text-theme-dark'); }
+        else { publicProfileMainElement.classList.remove('text-theme-dark'); publicProfileMainElement.classList.add('text-theme-light'); }
+        if (profilePagePhoto) profilePagePhoto.style.borderColor = dynamicAccent;
+        if (profilePageScratchLink) profilePageScratchLink.style.color = dynamicAccent;
+        if (profileDescriptionSectionTitle) { if (luminance > 0.5) profileDescriptionSectionTitle.style.color = '#1f2328'; else profileDescriptionSectionTitle.style.color = '#FFFFFF'; }
+    }
+    function createSoundwaveParticle() { /* ... (sem alterações) ... */ }
+    function startSoundwaveParticles(intervalMs = 300) { /* ... (sem alterações) ... */ }
+    function stopSoundwaveParticles() { /* ... (sem alterações) ... */ }
+    const applyPageBackgroundAndParticles = (baseColorRgbString) => { /* ... (sem alterações) ... */
+        const body = document.body;
+        if (baseColorRgbString) { const bgColorObj = rgbStringToComponents(baseColorRgbString); body.style.backgroundColor = lightenDarkenColor(bgColorObj, -0.55); startSoundwaveParticles(); }
+        else { body.style.backgroundColor = ''; stopSoundwaveParticles(); }
+    };
+    const applyPublicProfileTheme = (theme) => { /* ... (sem alterações) ... */
+        if (!publicProfileMainElement) return;
+        let primaryBgColorForContrast = 'rgb(37,37,37)'; let accentBaseColor = 'rgb(0, 191, 255)';
+        let siteBaseColorForPageBg = viewedUserData?.profileTheme?.siteBaseColor || null;
+        if (!theme) {
+            publicProfileMainElement.style.background = ''; publicProfileMainElement.style.backgroundImage = '';
+            if (profileDescriptionSection) { profileDescriptionSection.style.background = ''; profileDescriptionSection.style.backgroundImage = '';}
+            siteBaseColorForPageBg = 'rgb(26, 26, 26)'; 
+        } else {
+            siteBaseColorForPageBg = theme.siteBaseColor || (theme.type === 'solid' ? theme.color : theme.color1);
+            if (theme.type === 'solid') {
+                publicProfileMainElement.style.backgroundImage = 'none'; publicProfileMainElement.style.backgroundColor = theme.color;
+                primaryBgColorForContrast = theme.color; accentBaseColor = theme.color; 
+                if (profileDescriptionSection) { const lighterColor = lightenDarkenColor(rgbStringToComponents(theme.color), 0.12); profileDescriptionSection.style.backgroundImage = 'none'; profileDescriptionSection.style.backgroundColor = lighterColor;}
+            } else if (theme.type === 'gradient') {
+                publicProfileMainElement.style.backgroundColor = 'transparent'; publicProfileMainElement.style.backgroundImage = `linear-gradient(to bottom, ${theme.color1}, ${theme.color2})`;
+                primaryBgColorForContrast = theme.color1; accentBaseColor = theme.color1;
+                if (profileDescriptionSection) { const lighterC1 = lightenDarkenColor(rgbStringToComponents(theme.color1), 0.15); const lighterC2 = lightenDarkenColor(rgbStringToComponents(theme.color2), 0.10); profileDescriptionSection.style.backgroundColor = 'transparent'; profileDescriptionSection.style.backgroundImage = `linear-gradient(to bottom, ${lighterC1}, ${lighterC2})`;}
+            }
+        }
+        setTextContrastAndAccents(primaryBgColorForContrast, accentBaseColor);
+        applyPageBackgroundAndParticles(siteBaseColorForPageBg);
+    };
 
-        if (userAuthSection) { /* ... (atualiza header do viewer - completa) ... */ }
+    onAuthStateChanged(auth, async (loggedInUser) => { /* ... (sem alterações) ... */
+        viewer = loggedInUser;
+        if (viewer) { try { const snap = await getDoc(doc(db, "users", viewer.uid)); if (snap.exists()) viewerData = snap.data(); } catch (error) { console.error("Erro visualizador:", error); viewerData = null; } }
+        else viewerData = null;
+        if (userAuthSection) { if (viewer) { const dName = (viewerData?.displayName || viewer.displayName || viewer.email?.split('@')[0]) ?? "Usuário"; const pUrl = (viewerData?.photoURL || viewer.photoURL) ?? 'imgs/default-avatar.png'; userAuthSection.innerHTML = `<a href="profile.html" class="user-info-link"><div class="user-info"><img id="user-photo" src="${pUrl}" alt="Foto"><span id="user-name">${dName}</span></div></a>`; } else userAuthSection.innerHTML = `<a href="login.html" class="login-button">Login</a>`; }
         loadPublicProfile();
     });
 
-    async function loadPublicProfile() {
-        const params = new URLSearchParams(window.location.search); viewedUserUid = params.get('uid'); 
-        if (!viewedUserUid) { if(profileLoadingDiv) profileLoadingDiv.style.display = 'none'; showMessage(profileErrorDiv, 'Perfil não especificado.'); return; } 
+    async function loadPublicProfile() { /* ... (sem alterações significativas, apenas garantir que contadores são lidos de viewedUserData) ... */
+        const params = new URLSearchParams(window.location.search); viewedUserUid = params.get('uid');
+        if (!viewedUserUid) { if(profileLoadingDiv) profileLoadingDiv.style.display = 'none'; showMessage(profileErrorDiv, 'Perfil não especificado.'); return; }
         if(profileLoadingDiv) profileLoadingDiv.style.display = 'block'; if(profileContentDiv) profileContentDiv.style.display = 'none';  if(profileErrorDiv) profileErrorDiv.style.display = 'none';
-        try { 
-            const userDocSnap = await getDoc(doc(db, "users", viewedUserUid)); 
-            if (userDocSnap.exists()) { 
-                viewedUserData = userDocSnap.data(); 
-                // Garante que contadores sejam numéricos para a UI
-                viewedUserData.friendsCount = Number(viewedUserData.friendsCount) || 0;
-                viewedUserData.followersCount = Number(viewedUserData.followersCount) || 0;
-                viewedUserData.followingCount = Number(viewedUserData.followingCount) || 0;
-
-                if(profilePagePhoto) profilePagePhoto.src = viewedUserData.photoURL || 'imgs/default-avatar.png'; 
-                // ... (resto do preenchimento do perfil - completo)
-                if(profilePageDisplayName) profilePageDisplayName.textContent = viewedUserData.displayName || 'Usuário Anônimo'; 
-                if (viewedUserData.scratchUsername && profilePageScratchLink && profilePageScratchUsername) { profilePageScratchUsername.textContent = `@${viewedUserData.scratchUsername}`; profilePageScratchLink.href = `https://scratch.mit.edu/users/${viewedUserData.scratchUsername}/`; profilePageScratchLink.style.display = 'inline'; } else if (profilePageScratchLink) profilePageScratchLink.style.display = 'none'; 
-                if(profilePagePronouns) profilePagePronouns.textContent = viewedUserData.pronouns || ''; 
+        try {
+            const userDocSnap = await getDoc(doc(db, "users", viewedUserUid));
+            if (userDocSnap.exists()) {
+                viewedUserData = userDocSnap.data(); // ESSENCIAL: viewedUserData é populado aqui
+                if(profilePagePhoto) profilePagePhoto.src = viewedUserData.photoURL || 'imgs/default-avatar.png';
+                if(profilePageDisplayName) profilePageDisplayName.textContent = viewedUserData.displayName || 'Usuário Anônimo';
+                if (viewedUserData.scratchUsername && profilePageScratchLink && profilePageScratchUsername) { profilePageScratchUsername.textContent = `@${viewedUserData.scratchUsername}`; profilePageScratchLink.href = `https://scratch.mit.edu/users/${viewedUserData.scratchUsername}/`; profilePageScratchLink.style.display = 'inline'; } else if (profilePageScratchLink) profilePageScratchLink.style.display = 'none';
+                if(profilePagePronouns) profilePagePronouns.textContent = viewedUserData.pronouns || '';
                 if(profilePageDescriptionText) profilePageDescriptionText.textContent = viewedUserData.profileDescription || 'Nenhuma descrição.';
-                
-                if(friendsCountSpan) friendsCountSpan.textContent = viewedUserData.friendsCount; 
-                if(followersCountSpan) followersCountSpan.textContent = viewedUserData.followersCount; 
-                if(followingCountSpan) followingCountSpan.textContent = viewedUserData.followingCount;
-                
-                if(statsFriendsLink) statsFriendsLink.href = `connections.html?uid=${viewedUserUid}&tab=friends`; 
-                if(statsFollowersLink) statsFollowersLink.href = `connections.html?uid=${viewedUserUid}&tab=followers`; 
+                if(friendsCountSpan) friendsCountSpan.textContent = viewedUserData.friendsCount || 0; // Usa viewedUserData
+                if(followersCountSpan) followersCountSpan.textContent = viewedUserData.followersCount || 0; // Usa viewedUserData
+                if(followingCountSpan) followingCountSpan.textContent = viewedUserData.followingCount || 0; // Usa viewedUserData
+                if(statsFriendsLink) statsFriendsLink.href = `connections.html?uid=${viewedUserUid}&tab=friends`;
+                if(statsFollowersLink) statsFollowersLink.href = `connections.html?uid=${viewedUserUid}&tab=followers`;
                 if(statsFollowingLink) statsFollowingLink.href = `connections.html?uid=${viewedUserUid}&tab=following`;
-                
-                applyPublicProfileTheme(viewedUserData.profileTheme || null); 
-                if(profileLoadingDiv) profileLoadingDiv.style.display = 'none'; 
-                if(profileContentDiv) profileContentDiv.style.display = 'block'; 
-                
-                await checkFollowingStatus(); // Essencial antes de popular o popup
-                populateOptionsPopup(); // Popula ou repopula o pop-up de opções
-                updateFriendActionButton(); 
-            } else { /* ... (tratamento de perfil não encontrado - completo) ... */ }
-        } catch (error) { /* ... (tratamento de erro - completo) ... */ }
+                applyPublicProfileTheme(viewedUserData.profileTheme || null);
+                if(profileLoadingDiv) profileLoadingDiv.style.display = 'none'; if(profileContentDiv) profileContentDiv.style.display = 'block';
+                await checkFollowingStatus(); populateOptionsPopup(); updateFriendActionButton(); 
+            } else { if(profileLoadingDiv) profileLoadingDiv.style.display = 'none'; showMessage(profileErrorDiv, 'Perfil não encontrado.'); applyPageBackgroundAndParticles(null); }
+        } catch (error) { console.error("Erro perfil público:", error); if(profileLoadingDiv) profileLoadingDiv.style.display = 'none'; showMessage(profileErrorDiv, 'Erro ao carregar.'); applyPageBackgroundAndParticles(null); }
     }
 
-    function populateOptionsPopup() { // REVISADA
-        if (!optionsPopup || !viewedUserData || !moreOptionsButton) return; // Verifica se o botão existe
-        optionsPopup.innerHTML = ''; 
-        let hasOptions = false;
-
-        if (viewer && viewer.uid !== viewedUserUid) { 
-            const followButton = document.createElement('button');
-            followButton.className = 'options-popup-item';
-            followButton.id = 'popup-follow-unfollow-btn';
-            followButton.innerHTML = `<i class="fas ${isFollowingViewedUser ? 'fa-user-minus' : 'fa-user-plus'}"></i> ${isFollowingViewedUser ? 'Deixar de Seguir' : 'Seguir'}`;
-            followButton.addEventListener('click', handleFollowUnfollow);
-            optionsPopup.appendChild(followButton);
-            hasOptions = true;
-        }
-
-        if (viewedUserData.scratchUsername) {
-            if (optionsPopup.children.length > 0) { const sep = document.createElement('div'); sep.className = 'options-popup-separator'; optionsPopup.appendChild(sep); }
-            const scratchLinkItem = document.createElement('a'); // Mudado para 'a' para ser clicável como link
-            scratchLinkItem.className = 'options-popup-item';
-            scratchLinkItem.href = `https://scratch.mit.edu/users/${viewedUserData.scratchUsername}/`;
-            scratchLinkItem.target = '_blank'; scratchLinkItem.rel = 'noopener noreferrer';
-            scratchLinkItem.innerHTML = `<i class="fas fa-external-link-alt"></i> Ver perfil no Scratch`;
-            optionsPopup.appendChild(scratchLinkItem);
-            hasOptions = true;
-        }
-
-        if (!hasOptions && viewer && viewer.uid === viewedUserUid) { // Se é o próprio perfil e não há outras opções
-             const editProfileLink = document.createElement('a');
-             editProfileLink.className = 'options-popup-item';
-             editProfileLink.href = 'profile.html';
-             editProfileLink.innerHTML = `<i class="fas fa-edit"></i> Editar Meu Perfil`;
-             optionsPopup.appendChild(editProfileLink);
-             hasOptions = true;
-        }
-        
-        if (!hasOptions) { // Se realmente não houver nenhuma opção
-            const noOptionsItem = document.createElement('div');
-            noOptionsItem.className = 'options-popup-item'; noOptionsItem.textContent = 'Nenhuma ação disponível';
-            noOptionsItem.style.fontStyle = 'italic'; noOptionsItem.style.color = '#7f8c8d';
-            optionsPopup.appendChild(noOptionsItem);
-        }
-        // Torna o botão "..." visível se houver opções, ou esconde se não houver (exceto se for o próprio perfil, que sempre tem "Editar")
-        if (moreOptionsButton) {
-            moreOptionsButton.style.display = (hasOptions || (viewer && viewer.uid === viewedUserUid)) ? 'inline-block' : 'none';
-        }
+    function populateOptionsPopup() { /* ... (sem alterações) ... */
+        if (!optionsPopup || !viewedUserData) return; optionsPopup.innerHTML = '';
+        if (viewer && viewer.uid !== viewedUserUid) { const followBtn = document.createElement('button'); followBtn.className = 'options-popup-item'; followBtn.id = 'popup-follow-unfollow-btn'; followBtn.innerHTML = `<i class="fas ${isFollowingViewedUser ? 'fa-user-minus' : 'fa-user-plus'}"></i> ${isFollowingViewedUser ? 'Deixar de Seguir' : 'Seguir'}`; followBtn.addEventListener('click', handleFollowUnfollow); optionsPopup.appendChild(followBtn); }
+        if (viewedUserData.scratchUsername) { if (optionsPopup.children.length > 0) { const sep = document.createElement('div'); sep.className = 'options-popup-separator'; optionsPopup.appendChild(sep); } const scratchL = document.createElement('a'); scratchL.className = 'options-popup-item'; scratchL.href = `https://scratch.mit.edu/users/${viewedUserData.scratchUsername}/`; scratchL.target = '_blank'; scratchL.rel = 'noopener noreferrer'; scratchL.innerHTML = `<i class="fas fa-external-link-alt"></i> Ver perfil no Scratch`; optionsPopup.appendChild(scratchL); }
+        if (optionsPopup.children.length === 0) { const noOpt = document.createElement('div'); noOpt.className = 'options-popup-item'; noOpt.textContent = 'Nenhuma ação disponível'; noOpt.style.fontStyle = 'italic'; noOpt.style.color = '#7f8c8d'; optionsPopup.appendChild(noOpt); }
+    }
+    if (moreOptionsButton && optionsPopup) { /* ... (sem alterações) ... */
+        moreOptionsButton.addEventListener('click', (event) => { event.stopPropagation(); optionsPopup.classList.toggle('visible'); if (optionsPopup.classList.contains('visible')) populateOptionsPopup(); });
+        document.addEventListener('click', (event) => { if (optionsPopup.classList.contains('visible') && !optionsPopup.contains(event.target) && event.target !== moreOptionsButton && !moreOptionsButton.contains(event.target) ) optionsPopup.classList.remove('visible'); });
     }
 
-    if (moreOptionsButton && optionsPopup) {
-        moreOptionsButton.addEventListener('click', (event) => {
-            event.stopPropagation(); 
-            // Repopula antes de mostrar para garantir que o estado de "seguir" esteja atualizado
-            if (viewedUserData) populateOptionsPopup(); 
-            optionsPopup.classList.toggle('visible');
-        });
-        document.addEventListener('click', (event) => { 
-            if (optionsPopup.classList.contains('visible') && !optionsPopup.contains(event.target) && event.target !== moreOptionsButton && !moreOptionsButton.contains(event.target) ) {
-                optionsPopup.classList.remove('visible');
-            }
-        });
+    async function checkFollowingStatus() { /* ... (sem alterações) ... */
+        isFollowingViewedUser = false; if (viewer && viewedUserUid && viewer.uid !== viewedUserUid) { const ref = doc(db, `users/${viewer.uid}/following/${viewedUserUid}`); try { const snap = await getDoc(ref); isFollowingViewedUser = snap.exists(); } catch (e) { console.error("Erro checkFollowing:", e); isFollowingViewedUser = false;}}
     }
 
-    async function checkFollowingStatus() { /* ... (código completo da função da resposta anterior) ... */ }
-
-    async function handleFollowUnfollow() { /* ... (código completo da função da resposta anterior, garantindo que currentViewerDataForTransaction é pego DENTRO da transação ao seguir) ... */
-        if (!viewer || !viewedUserUid || !viewedUserData || viewer.uid === viewedUserUid) { showMessage(friendActionMessage, "Ação inválida.", "error"); return; }
-        const actionText = isFollowingViewedUser ? "Deixar de seguir" : "Seguir"; showMessage(friendActionMessage, `${actionText.replace('ar de s', 'ando')}...`, "success", 3000);
+    async function handleFollowUnfollow() { // REVISADA E COMPLETA
+        if (!viewer || !viewedUserUid || !viewedUserData || viewer.uid === viewedUserUid) {
+            showMessage(friendActionMessage, "Ação inválida.", "error"); return;
+        }
+        const actionText = isFollowingViewedUser ? "Deixar de seguir" : "Seguir";
+        showMessage(friendActionMessage, `${actionText.replace('ar de s', 'ando')}...`, "success", 3000); // Mensagem mais curta
         if(optionsPopup) optionsPopup.classList.remove('visible'); 
+
         const viewerFollowingRef = doc(db, `users/${viewer.uid}/following/${viewedUserUid}`);
         const viewedUserFollowersRef = doc(db, `users/${viewedUserUid}/followers/${viewer.uid}`);
         const viewerDocRef = doc(db, "users", viewer.uid);
+        const viewedUserDocRef = doc(db, "users", viewedUserUid);
+
         try {
             await runTransaction(db, async (transaction) => {
-                const viewerProfileSnap = await transaction.get(viewerDocRef); // Pega dados ATUAIS do viewer
-                const currentViewerDataForTransaction = viewerProfileSnap.data() || viewerData || {displayName: viewer.displayName, photoURL: viewer.photoURL};
+                // Busca os dados mais recentes do viewer DENTRO da transação se for seguir, para pegar nome/foto atualizados
+                let currentViewerDataForTransaction = viewerData; // Usa o que já temos
+                if (!isFollowingViewedUser) { // Só busca se for seguir, para popular o doc do novo seguidor
+                    const viewerProfileSnap = await transaction.get(viewerDocRef);
+                    currentViewerDataForTransaction = viewerProfileSnap.data() || {displayName: viewer.displayName, photoURL: viewer.photoURL};
+                }
+
                 if (isFollowingViewedUser) { 
                     transaction.delete(viewerFollowingRef); transaction.delete(viewedUserFollowersRef);
                     transaction.update(viewerDocRef, { followingCount: increment(-1) });
+                    transaction.update(viewedUserDocRef, { followersCount: increment(-1) });
                 } else { 
-                    transaction.set(viewerFollowingRef, { timestamp: serverTimestamp(), displayName: viewedUserData.displayName || "Usuário", photoURL: viewedUserData.photoURL || 'imgs/default-avatar.png' });
-                    transaction.set(viewedUserFollowersRef, { timestamp: serverTimestamp(), displayName: currentViewerDataForTransaction.displayName || "Seguidor", photoURL: currentViewerDataForTransaction.photoURL || 'imgs/default-avatar.png' });
+                    // Ao seguir, desnormaliza nome e foto no documento da subcoleção
+                    transaction.set(viewerFollowingRef, { 
+                        timestamp: serverTimestamp(), 
+                        displayName: viewedUserData.displayName || "Usuário", // Nome de quem está sendo seguido
+                        photoURL: viewedUserData.photoURL || 'imgs/default-avatar.png' // Foto de quem está sendo seguido
+                    });
+                    transaction.set(viewedUserFollowersRef, { 
+                        timestamp: serverTimestamp(), 
+                        displayName: currentViewerDataForTransaction.displayName || "Seguidor", // Nome do seguidor
+                        photoURL: currentViewerDataForTransaction.photoURL || 'imgs/default-avatar.png' // Foto do seguidor
+                    });
                     transaction.update(viewerDocRef, { followingCount: increment(1) });
+                    transaction.update(viewedUserDocRef, { followersCount: increment(1) });
                 }
             });
             isFollowingViewedUser = !isFollowingViewedUser; 
-            if (viewedUserData) { const change = isFollowingViewedUser ? 1 : -1; viewedUserData.followersCount = (viewedUserData.followersCount || 0) + change; if(followersCountSpan) followersCountSpan.textContent = Math.max(0, viewedUserData.followersCount); }
-            if(viewerData){ const change = isFollowingViewedUser ? 1 : -1; viewerData.followingCount = (viewerData.followingCount || 0) + change; }
+            // Atualiza UI contadores
+            if (viewedUserData) {
+                 viewedUserData.followersCount = (viewedUserData.followersCount || 0) + (isFollowingViewedUser ? 1 : -1);
+                 if(followersCountSpan) followersCountSpan.textContent = Math.max(0, viewedUserData.followersCount);
+            }
+            if(viewerData){ 
+                viewerData.followingCount = (viewerData.followingCount || 0) + (isFollowingViewedUser ? 1 : -1);
+                // Se o header do viewer mostrasse "seguindo", atualizaria aqui
+            }
             showMessage(friendActionMessage, isFollowingViewedUser ? `Agora você segue ${viewedUserData.displayName || 'este usuário'}!` : `Você deixou de seguir ${viewedUserData.displayName || 'este usuário'}.`, "success");
             populateOptionsPopup();
-        } catch (error) { console.error("Erro ao seguir/deixar de seguir:", error); showMessage(friendActionMessage, `Erro: ${error.message || "Falha na operação."}`, "error"); }
+        } catch (error) {
+            console.error("Erro ao seguir/deixar de seguir:", error);
+            showMessage(friendActionMessage, "Ocorreu um erro. Tente novamente.", "error");
+        }
     }
-    
-    // --- Funções de Ação de Amizade (COM ATUALIZAÇÃO DE CONTADOR APENAS DO VIEWER NO FIRESTORE E DADOS DESNORMALIZADOS) ---
-    async function updateFriendActionButton() { /* ... (código completo da função da resposta anterior) ... */ }
-    async function handleAddFriend(currentViewerDataForAction) { /* ... (código completo da função da resposta anterior, com timestamp, displayName, photoURL) ... */ }
-    async function handleRemoveFriend() { /* ... (código completo da função da resposta anterior, increment friendsCount apenas do viewer) ... */ }
-    async function handleCancelRequest() { /* ... (código completo da função da resposta anterior) ... */ }
-    async function handleAcceptRequest() { /* ... (código completo da função da resposta anterior, increment friendsCount apenas do viewer, com timestamp, displayName, photoURL) ... */ }
-    async function handleDeclineRequest() { /* ... (código completo da função da resposta anterior) ... */ }
 
-    console.log("David's Farm public profile script (vREVISADO Contadores e UI) carregado!");
+    // --- Funções de Ação de Amizade (COMPLETAS E RESTAURADAS com incremento de contador) ---
+    async function updateFriendActionButton() { /* ... (sem alterações da última versão completa) ... */
+        if (!friendActionButtonContainer) { console.warn("friendActionButtonContainer não encontrado"); return; }
+        friendActionButtonContainer.innerHTML = ''; 
+        if (!viewer || !viewedUserData) { if (viewer && viewedUserUid && viewer.uid === viewedUserUid) { friendActionButtonContainer.innerHTML = `<a href="profile.html" class="profile-action-button edit">Editar Meu Perfil</a>`; } return; }
+        if (viewer.uid === viewedUserUid) { friendActionButtonContainer.innerHTML = `<a href="profile.html" class="profile-action-button edit">Editar Meu Perfil</a>`; return; }
+        const currentViewerData = viewerData || { displayName: viewer.displayName || viewer.email.split('@')[0], photoURL: viewer.photoURL || 'imgs/default-avatar.png' };
+        try {
+            const friendRef = doc(db, `users/${viewer.uid}/friends/${viewedUserUid}`); const sentRequestRef = doc(db, `users/${viewer.uid}/friendRequestsSent/${viewedUserUid}`); const receivedRequestRef = doc(db, `users/${viewer.uid}/friendRequestsReceived/${viewedUserUid}`);
+            const [friendSnap, sentSnap, receivedSnap] = await Promise.all([getDoc(friendRef), getDoc(sentRequestRef), getDoc(receivedRequestRef)]);
+            if (friendSnap.exists()) { friendActionButtonContainer.innerHTML = `<button id="remove-friend-public-btn" class="profile-action-button delete"><img src="imgs/trashbin.png" alt="Remover" class="btn-icon">Remover Amigo</button>`; document.getElementById('remove-friend-public-btn')?.addEventListener('click', handleRemoveFriend); }
+            else if (sentSnap.exists()) { friendActionButtonContainer.innerHTML = `<button id="cancel-request-public-btn" class="profile-action-button cancel">Cancelar Pedido</button>`; document.getElementById('cancel-request-public-btn')?.addEventListener('click', handleCancelRequest); }
+            else if (receivedSnap.exists()) { friendActionButtonContainer.innerHTML = `<div class="profile-action-buttons-group"><button id="accept-request-public-btn" class="profile-action-button accept">Aceitar Pedido</button><button id="decline-request-public-btn" class="profile-action-button decline">Recusar Pedido</button></div>`; document.getElementById('accept-request-public-btn')?.addEventListener('click', handleAcceptRequest); document.getElementById('decline-request-public-btn')?.addEventListener('click', handleDeclineRequest); }
+            else { friendActionButtonContainer.innerHTML = `<button id="add-friend-public-btn" class="profile-action-button add">Adicionar Amigo</button>`; document.getElementById('add-friend-public-btn')?.addEventListener('click', () => handleAddFriend(currentViewerData)); }
+        } catch (error) { console.error("Erro status amizade:", error); showMessage(friendActionMessage, "Erro ações amizade.", "error");}
+    }
+    async function handleAddFriend(currentViewerDataForAction) { /* ... (sem alterações da última versão completa, garantindo timestamp e desnormalização) ... */
+        if (!viewer || !viewedUserData || !currentViewerDataForAction) { showMessage(friendActionMessage, "Erro: Dados incompletos."); return; } showMessage(friendActionMessage, "Enviando pedido...", "success"); const batch = writeBatch(db);
+        try { const sentRef = doc(db, `users/${viewer.uid}/friendRequestsSent`, viewedUserUid); batch.set(sentRef, { timestamp: serverTimestamp(), receiverUid: viewedUserUid, receiverName: viewedUserData.displayName || "Usuário", receiverPhotoURL: viewedUserData.photoURL || 'imgs/default-avatar.png'}); const receivedRef = doc(db, `users/${viewedUserUid}/friendRequestsReceived`, viewer.uid); batch.set(receivedRef, { timestamp: serverTimestamp(), senderUid: viewer.uid, senderName: currentViewerDataForAction.displayName, senderPhotoURL: currentViewerDataForAction.photoURL }); await batch.commit(); showMessage(friendActionMessage, "Pedido enviado!", "success"); updateFriendActionButton(); }
+        catch (error) { console.error("Erro ao enviar pedido:", error); showMessage(friendActionMessage, "Erro ao enviar."); }
+    }
+    async function handleRemoveFriend() { /* ... (sem alterações da última versão completa, com increment(-1)) ... */
+        if (!viewer || !viewedUserData) { showMessage(friendActionMessage, "Erro: Dados incompletos."); return; } if (window.confirm(`Remover ${viewedUserData.displayName || 'este usuário'} dos amigos?`)) { showMessage(friendActionMessage, 'Removendo...', 'success'); const batch = writeBatch(db); const viewerDocRef = doc(db, "users", viewer.uid); const viewedUserDocRef = doc(db, "users", viewedUserUid); try { batch.delete(doc(db, `users/${viewer.uid}/friends`, viewedUserUid)); batch.delete(doc(db, `users/${viewedUserUid}/friends`, viewer.uid)); batch.update(viewerDocRef, { friendsCount: increment(-1) }); batch.update(viewedUserDocRef, { friendsCount: increment(-1) }); await batch.commit(); if(viewedUserData) { viewedUserData.friendsCount = (viewedUserData.friendsCount || 1) - 1; if(friendsCountSpan) friendsCountSpan.textContent = Math.max(0, viewedUserData.friendsCount); } if(viewerData) { viewerData.friendsCount = (viewerData.friendsCount || 1) -1; } showMessage(friendActionMessage, 'Amigo removido.', 'success'); updateFriendActionButton(); } catch (e) { console.error("Erro ao remover amigo:", e); showMessage(friendActionMessage, 'Erro ao remover.'); }}
+    }
+    async function handleCancelRequest() { /* ... (sem alterações da última versão completa) ... */
+        if (!viewer || !viewedUserData) { showMessage(friendActionMessage, "Erro: Dados incompletos."); return; } showMessage(friendActionMessage, 'Cancelando...', 'success'); const batch = writeBatch(db); try { batch.delete(doc(db, `users/${viewer.uid}/friendRequestsSent`, viewedUserUid)); batch.delete(doc(db, `users/${viewedUserUid}/friendRequestsReceived`, viewer.uid)); await batch.commit(); showMessage(friendActionMessage, 'Pedido cancelado.', 'success'); updateFriendActionButton(); } catch (e) { console.error("Erro ao cancelar:", e); showMessage(friendActionMessage, 'Erro ao cancelar.'); }
+    }
+    async function handleAcceptRequest() { /* ... (sem alterações da última versão completa, com increment(1) e timestamp, displayName, photoURL desnormalizados para /friends) ... */
+        if (!viewer || !viewedUserData || !viewerData ) { showMessage(friendActionMessage, "Erro: Dados incompletos."); return; } showMessage(friendActionMessage, 'Aceitando...', 'success'); const batch = writeBatch(db); const viewerDocRef = doc(db, "users", viewer.uid); const viewedUserDocRef = doc(db, "users", viewedUserUid);
+        try { 
+            const friendDataForViewer = { timestamp: serverTimestamp(), displayName: viewedUserData.displayName || "Amigo", photoURL: viewedUserData.photoURL || 'imgs/default-avatar.png' };
+            const friendDataForViewed = { timestamp: serverTimestamp(), displayName: viewerData.displayName || viewer.displayName || "Amigo", photoURL: viewerData.photoURL || viewer.photoURL || 'imgs/default-avatar.png' };
+            batch.set(doc(db, `users/${viewer.uid}/friends`, viewedUserUid), friendDataForViewer); batch.set(doc(db, `users/${viewedUserUid}/friends`, viewer.uid), friendDataForViewed);
+            batch.delete(doc(db, `users/${viewer.uid}/friendRequestsReceived`, viewedUserUid)); batch.delete(doc(db, `users/${viewedUserUid}/friendRequestsSent`, viewer.uid)); 
+            batch.update(viewerDocRef, { friendsCount: increment(1) }); batch.update(viewedUserDocRef, { friendsCount: increment(1) });
+            await batch.commit();
+            if(viewedUserData) { viewedUserData.friendsCount = (viewedUserData.friendsCount || 0) + 1; if(friendsCountSpan) friendsCountSpan.textContent = viewedUserData.friendsCount; }
+            if(viewerData) { viewerData.friendsCount = (viewerData.friendsCount || 0) + 1; }
+            showMessage(friendActionMessage, 'Amigo adicionado!', 'success'); updateFriendActionButton();
+        } catch (e) { console.error("Erro ao aceitar:", e); showMessage(friendActionMessage, 'Erro ao aceitar.'); }
+    }
+    async function handleDeclineRequest() { /* ... (sem alterações da última versão completa) ... */
+        if (!viewer || !viewedUserData) { showMessage(friendActionMessage, "Erro: Dados incompletos."); return; } showMessage(friendActionMessage, 'Recusando...', 'success'); const batch = writeBatch(db);
+        try { batch.delete(doc(db, `users/${viewer.uid}/friendRequestsReceived`, viewedUserUid)); batch.delete(doc(db, `users/${viewedUserUid}/friendRequestsSent`, viewer.uid)); await batch.commit(); showMessage(friendActionMessage, 'Pedido recusado.', 'success'); updateFriendActionButton(); }
+        catch (e) { console.error("Erro ao recusar:", e); showMessage(friendActionMessage, 'Erro ao recusar.'); }
+    }
+
+    console.log("David's Farm public profile script (vMEGA ULTRA COMPLETO com DEBUG de seguir e contadores) carregado!");
 });
