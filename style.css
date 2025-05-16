@@ -344,3 +344,32 @@ body.auth-page { /* Classe comum para as páginas de auth */
     70% { transform: scale(0.9); } 100% { transform: scale(1); opacity: 1; }
 }
 @keyframes fadeInSlideRight { to { opacity: 1; transform: translateX(0); } }
+
+/* No seu style.css, você pode REMOVER ou ajustar estes se não forem mais usados: */
+
+/* .profile-section .form-group input[type="file"] { ... }
+.profile-section .form-group input[type="file"]::file-selector-button { ... } */
+
+/* Mantenha os estilos para a pré-visualização, adaptando o ID se necessário: */
+.photo-preview-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinha à esquerda */
+}
+
+/* Certifique-se que o ID da imagem de preview no HTML e JS corresponda a este seletor */
+#profile-photo-preview-img {
+    width: 120px; 
+    height: 120px;
+    border-radius: 50%; 
+    object-fit: cover; 
+    border: 3px solid #444;
+    margin-bottom: 5px;
+    background-color: #333; 
+}
+
+.photo-preview-container small {
+    font-size: 0.8em;
+    color: #aaa;
+}
