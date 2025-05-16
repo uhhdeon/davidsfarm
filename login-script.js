@@ -4,7 +4,7 @@ import {
     GoogleAuthProvider, 
     signInWithPopup, 
     signInWithEmailAndPassword,
-    onAuthStateChanged
+    onAuthStateChanged // Mantido para consistência, embora a lógica principal de onAuthStateChanged aqui seja simples
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,69 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
         authStatusDiv.className = 'auth-status ' + (type === 'success' ? 'success' : '');
     };
 
-    // Função para verificar se o usuário tem provedor de senha
-    const hasPasswordProvider = (user) => {
-        if (user && user.providerData) {
-            return user.providerData.some(provider => provider.providerId === 'password');
-        }
-        return false;
-    };
-
-    // Função para perguntar sobre definir senha após login com Google
-    const askToSetPassword = (user) => {
-        // Verifica se logou com Google e não tem senha, e não recusou antes
-        const loggedWithGoogle = user.providerData.some(p => p.providerId === 'google.com');
-        const alreadyHasPassword = hasPasswordProvider(user);
-        const declinedKey = `declinedSetPassword_${user.uid}`;
-        const hasDeclined = localStorage.getItem(declinedKey) === 'true';
-
-        if (loggedWithGoogle && !alreadyHasPassword && !hasDeclined) {
-            // Usando window.confirm por simplicidade. Um modal customizado seria melhor.
-            setTimeout(() => { // Pequeno delay para o usuário processar o login
-                if (window.confirm("Você conectou sua conta Google. Gostaria de definir uma senha para também poder entrar com seu email e uma senha no futuro?")) {
-                    // Se sim, redireciona para a página de perfil, aba segurança
-                    window.location.href = 'profile.html#security'; // Adiciona um hash para focar na aba
-                } else {
-                    // Se não, marca para não perguntar novamente neste navegador
-                    localStorage.setItem(declinedKey, 'true');
-                }
-            }, 1000); // Delay de 1 segundo
-        }
-    };
-
-
     if (googleLoginButton) {
         googleLoginButton.addEventListener('click', () => {
             const provider = new GoogleAuthProvider();
             signInWithPopup(auth, provider)
                 .then((result) => {
                     const user = result.user;
-                    showMessage(`Login com Google bem-sucedido! Redirecionando...`, 'success');
-                    askToSetPassword(user); // Pergunta sobre definir senha
-                    // O redirecionamento principal para index.html ocorrerá após o popup (se houver) ou diretamente
-                    if (!user.providerData.some(p => p.providerId === 'google.com') || hasPasswordProvider(user) || localStorage.getItem(`declinedSetPassword_${user.uid}`) === 'true') {
-                        window.location.href = 'index.html';
-                    }
-                    // Se askToSetPassword for redirecionar, esse window.location.href acima pode não ser executado se o usuário clicar "sim" rápido.
-                    // Se o usuário clicar "Não", ele será redirecionado para index.html após o popup.
-                    // Se clicar "Sim", será redirecionado para profile.html#security.
-                    // Para garantir o redirecionamento para index.html se não for para profile:
-                    if (window.location.pathname.includes('login.html') && !window.location.hash.includes('security')) {
-                         // Garante que se não houver redirecionamento para profile, vá para index.
-                         // A lógica de askToSetPassword pode precisar de um callback para o redirecionamento final.
-                         // Por ora, se o usuário clicar "não" ou fechar o confirm, ele pode ficar na página de login.
-                         // Uma melhoria seria:
-                         // askToSetPassword(user).then(redirectUrl => window.location.href = redirectUrl || 'index.html');
-                         // Mas window.confirm é síncrono.
-                         // Se o usuário não for redirecionado por askToSetPassword (clicou Não ou já tinha senha/recusado)
-                         if (!(localStorage.getItem(`declinedSetPassword_${user.uid}`) === 'false' && window.location.href.includes('profile.html#security'))) {
-                            setTimeout(() => { window.location.href = 'index.html'; }, 500); // Pequeno delay para o popup.
-                         }
-                    }
-
-
+                    // Sinaliza para o index.html que um login com Google ocorreu
+                    // e que a verificação para definir senha deve ser feita.
+                    // Usamos user.uid para ser específico para este login.
+                    sessionStorage.setItem('checkAssignPasswordForUser', user.uid);
+                    
+                    // Redireciona IMEDIATAMENTE para a página inicial
+                    window.location.href = 'index.html';
                 })
-                .catch((error) => showMessage(`Erro Google: ${error.message}`));
+                .catch((error) => {
+                    console.error("Erro no login com Google:", error);
+                    showMessage(`Erro Google: ${error.message}`);
+                });
         });
     }
 
@@ -95,35 +50,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => {
-                    showMessage(`Login bem-sucedido! Redirecionando...`, 'success');
+                    // Login com email/senha não precisa do popup, apenas redireciona.
                     window.location.href = 'index.html';
                 })
                 .catch((error) => showMessage(`Erro Email/Senha: ${mapFirebaseAuthError(error.code)}`));
         });
     }
 
+    // O onAuthStateChanged aqui pode ser simplificado ou removido se a única ação
+    // era redirecionar usuários já logados, pois isso pode ser feito de forma mais robusta
+    // ao tentar acessar a página de login quando já se está logado (ex: no script principal).
     onAuthStateChanged(auth, (user) => {
         if (user && window.location.pathname.includes('login.html')) {
-            console.log('Usuário já logado, considerando redirecionar de login.html');
-            // Decide se mostra o popup ou redireciona direto
-            const loggedWithGoogle = user.providerData.some(p => p.providerId === 'google.com');
-            const alreadyHasPassword = hasPasswordProvider(user);
-            const declinedKey = `declinedSetPassword_${user.uid}`;
-            const hasDeclined = localStorage.getItem(declinedKey) === 'true';
-
-            if(loggedWithGoogle && !alreadyHasPassword && !hasDeclined) {
-                // Se o usuário atualizou a página de login mas ainda não respondeu ao popup
-                // askToSetPassword(user); // Pode causar duplo popup. Melhor não aqui.
-                // A lógica de redirecionamento precisa ser cuidadosa para não criar loops.
-            } else {
-                // Se não precisa perguntar, redireciona para index
-                // window.location.href = 'index.html';
+            // Se o usuário de alguma forma chega na página de login já autenticado,
+            // e não é o fluxo de 'checkAssignPassword', redireciona para o início.
+            const checkAssignFlag = sessionStorage.getItem('checkAssignPasswordForUser');
+            if (!checkAssignFlag || checkAssignFlag !== user.uid) {
+                 console.log('Usuário já logado na página de login, redirecionando para index.html');
+                 // window.location.href = 'index.html'; // Pode causar loop se o index.html redirecionar de volta.
+                                                      // Melhor deixar o index.html lidar com o estado logado.
             }
         }
     });
 
     function mapFirebaseAuthError(errorCode) {
-        // ... (função mapFirebaseAuthError da etapa anterior) ...
         switch (errorCode) {
             case 'auth/invalid-email': return 'Formato de email inválido.';
             case 'auth/user-disabled': return 'Este usuário foi desabilitado.';
@@ -133,4 +83,5 @@ document.addEventListener('DOMContentLoaded', () => {
             default: return `Erro desconhecido (${errorCode})`;
         }
     }
+    console.log("David's Farm login script (v6 - com sessionStorage flag) carregado!");
 });
