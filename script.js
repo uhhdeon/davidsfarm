@@ -1,8 +1,9 @@
 // script.js
-import { auth } from './firebase-config.js';
+import { auth, ensureUserProfileAndFriendId } from './firebase-config.js'; // Importa ensureUserProfileAndFriendId
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ... (seletores do DOM e funções createParticles, setTimeout do loadingScreen - sem alterações)...
     const loadingScreen = document.getElementById('loading-screen');
     const siteContent = document.getElementById('site-content');
     const currentYearSpan = document.getElementById('currentYear');
@@ -13,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentYearSpan) {
         currentYearSpan.textContent = new Date().getFullYear();
     }
-
     function createParticles() { /* ... (sem alterações) ... */
         if (!particlesContainer) return;
         for (let i = 0; i < numberOfParticles; i++) {
@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-
     setTimeout(() => { /* ... (sem alterações) ... */
         if (loadingScreen) {
             loadingScreen.classList.add('fade-out');
@@ -48,49 +47,56 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 1500);
 
-    // Função para verificar se o usuário tem provedor de senha (pode ser movida para um utilitário)
-    const hasPasswordProvider = (user) => {
+
+    const hasPasswordProvider = (user) => { /* ... (sem alterações) ... */
         if (user && user.providerData) {
             return user.providerData.some(provider => provider.providerId === 'password');
         }
         return false;
     };
 
-    // Função para perguntar sobre definir senha (agora no script.js)
-    const checkAndAskToSetPassword = (user) => {
+    const checkAndAskToSetPassword = (user) => { /* ... (sem alterações, mas depende do user.uid) ... */
         if (!user) return;
-
         const checkAssignFlag = sessionStorage.getItem('checkAssignPasswordForUser');
-        if (checkAssignFlag !== user.uid) { // Só age se o flag for para o usuário atual
-            return;
-        }
-
-        // Limpa o flag para não perguntar novamente neste refresh/sessão de página
+        if (checkAssignFlag !== user.uid) { return; }
         sessionStorage.removeItem('checkAssignPasswordForUser');
-
         const loggedWithGoogle = user.providerData.some(p => p.providerId === 'google.com');
         const alreadyHasPassword = hasPasswordProvider(user);
-        const declinedKey = `declinedSetPassword_${user.uid}`; // Chave do localStorage
+        const declinedKey = `declinedSetPassword_${user.uid}`;
         const hasDeclined = localStorage.getItem(declinedKey) === 'true';
-
         if (loggedWithGoogle && !alreadyHasPassword && !hasDeclined) {
-            // Atraso para o usuário ver a página antes do popup
             setTimeout(() => {
                 if (window.confirm("Você conectou sua conta Google. Gostaria de definir uma senha para também poder entrar com seu email e uma senha no futuro?")) {
-                    window.location.href = 'profile.html#security'; // Vai para perfil > segurança
+                    window.location.href = 'profile.html#security';
                 } else {
-                    localStorage.setItem(declinedKey, 'true'); // Lembra que recusou
+                    localStorage.setItem(declinedKey, 'true');
                 }
-            }, 1200); // Popup aparece após 1.2 segundos na página inicial
+            }, 1200);
         }
     };
 
-    // Gerenciar exibição do usuário no header E CHAMAR A VERIFICAÇÃO DO POPUP
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => { // Tornada async para aguardar ensureUserProfileAndFriendId
         if (userAuthSection) {
             userAuthSection.innerHTML = '';
             if (user) {
-                const displayName = user.displayName || user.email;
+                // GARANTE/CRIA PERFIL NO FIRESTORE E FRIEND ID PARA TODOS OS USUÁRIOS LOGADOS
+                try {
+                    console.log("Verificando/Criando perfil Firestore para:", user.uid);
+                    const userProfileData = await ensureUserProfileAndFriendId(user); // Chama a função
+                    if (userProfileData) {
+                        console.log("Dados do perfil Firestore:", userProfileData);
+                        // Usa userProfileData.displayName e userProfileData.photoURL se quiser os dados do Firestore
+                        // ou user.displayName e user.photoURL para os dados do Auth.
+                        // É bom que estejam sincronizados. ensureUserProfileAndFriendId já tenta usar os do Auth.
+                    } else {
+                        console.warn("Não foi possível obter/criar dados do perfil no Firestore para o usuário:", user.uid);
+                    }
+                } catch (error) {
+                    console.error("Erro ao garantir perfil e Friend ID:", error);
+                }
+
+                // Continua com a lógica de UI do header
+                const displayName = user.displayName || user.email.split('@')[0];
                 const photoURL = user.photoURL || 'imgs/default-avatar.png';
                 const userInfoHTML = `
                     <a href="profile.html" class="user-info-link">
@@ -101,8 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </a>`;
                 userAuthSection.innerHTML = userInfoHTML;
 
-                // CHAMA A FUNÇÃO PARA VERIFICAR SE DEVE MOSTRAR O POPUP
-                checkAndAskToSetPassword(user);
+                checkAndAskToSetPassword(user); // Chama a função do popup
 
             } else {
                 const loginButtonHTML = `<a href="login.html" class="login-button">Login</a>`;
@@ -110,5 +115,5 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-    console.log("David's Farm script principal (v5 - com popup pós-redirect) carregado!");
+    console.log("David's Farm script principal (v6 - com ensureUserProfile) carregado!");
 });

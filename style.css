@@ -668,3 +668,24 @@ button:active, .login-button:active, .logout-button-style:active, .account-actio
     color: white;
     text-decoration: none; /* Remove sublinhado do link no hover */
 }
+
+/* ... (seu CSS existente, incluindo os estilos para .friend-list-item) ... */
+
+.friend-list-item {
+    /* ... estilos existentes ... */
+    display: flex;
+    align-items: center; /* Alinha avatar e nome */
+    gap: 10px; /* Espaço entre avatar e nome */
+}
+
+.friend-avatar-small {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #555;
+}
+
+.friend-list-item span:first-of-type { /* Para o nome do usuário */
+    flex-grow: 1; /* Faz o nome ocupar o espaço restante */
+}
