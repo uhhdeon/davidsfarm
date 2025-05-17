@@ -10,10 +10,10 @@ import {
     signOut,
     deleteUser
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, getDoc, updateDoc, setDoc, deleteDoc as deleteFirestoreDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, updateDoc, setDoc, deleteDoc as deleteFirestoreDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Seletores DOM (todos os seletores da versão anterior completa) ---
+    // --- Seletores DOM (COMPLETOS) ---
     const userAuthSection = document.querySelector('.user-auth-section');
     const currentYearSpan = document.getElementById('currentYear');
     const siteContent = document.getElementById('site-content');
@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteAccountButton = document.getElementById('delete-account-button');
     const accountActionMessageDiv = document.getElementById('account-action-message');
     const btnThemeProfile = document.getElementById('btn-theme-profile');
+    const btnThemeSite = document.getElementById('btn-theme-site');
     const themeMessageDiv = document.getElementById('theme-message');
     const profileThemePreview = document.getElementById('profile-theme-preview');
     const profilePreviewPhoto = document.getElementById('profile-preview-photo');
@@ -60,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupCloseButton = document.getElementById('custom-popup-close');
     const popupContent = document.getElementById('custom-popup-content');
 
-    let currentUserForProfile = null;
-    let currentUserData = null;
+    let currentUserForProfile = null; 
+    let currentUserData = null;     
 
     const defaultPaletteColors = [
         '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF', '#FF00FF',
@@ -73,12 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentYearSpan) currentYearSpan.textContent = new Date().getFullYear();
     if (siteContent) setTimeout(() => siteContent.classList.add('visible'), 100);
 
-    const showMessage = (element, message, type = 'error') => {
-        if (!element) { console.warn("Elemento de mensagem não encontrado:", element); return; }
+    const showMessage = (element, message, type = 'error', duration = 7000) => {
+        if (!element) { console.warn("Elemento de mensagem não encontrado para exibir:", message); return; }
         element.textContent = message;
         element.className = 'form-message ' + (type === 'success' ? 'success' : 'error');
         element.style.display = 'block';
-        setTimeout(() => { if (element) { element.style.display = 'none'; element.textContent = ''; }}, 7000);
+        setTimeout(() => { if (element) { element.style.display = 'none'; element.textContent = ''; }}, duration);
     };
     const switchTab = (activeTabButton, activeSection) => {
         [tabPerfil, tabSeguranca, tabTema].forEach(btn => btn?.classList.remove('active'));
@@ -106,12 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rgb || !rgb.startsWith('rgb')) return '#000000';
         const result = rgb.match(/\d+/g);
         if (!result || result.length !== 3) return '#000000';
-        return "#" + result.map(x => {
-            const hex = parseInt(x).toString(16);
-            return hex.length === 1 ? "0" + hex : hex;
-        }).join('');
+        return "#" + result.map(x => { const h = parseInt(x).toString(16); return h.length === 1 ? "0" + h : h; }).join('');
     };
-
     function rgbStringToComponents(rgbString) {
         if (!rgbString || !rgbString.startsWith('rgb')) return { r: 37, g: 37, b: 37 };
         const result = rgbString.match(/\d+/g);
@@ -133,180 +130,115 @@ document.addEventListener('DOMContentLoaded', () => {
         const baseAccentObj = rgbStringToComponents(baseAccentRgbString);
         const mainBgLuminance = calculateLuminance(rgbStringToComponents(mainBgRgbString));
         const accentLuminance = calculateLuminance(baseAccentObj);
-        if (mainBgLuminance > 0.6) { 
-            if (accentLuminance > 0.5) return lightenDarkenColor(baseAccentObj, -0.4); 
-            return `rgb(${baseAccentObj.r},${baseAccentObj.g},${baseAccentObj.b})`; 
-        } else { 
-            if (accentLuminance < 0.3) return lightenDarkenColor(baseAccentObj, 0.5); 
-            return `rgb(${baseAccentObj.r},${baseAccentObj.g},${baseAccentObj.b})`; 
-        }
+        if (mainBgLuminance > 0.6) { if (accentLuminance > 0.5) return lightenDarkenColor(baseAccentObj, -0.4); return `rgb(${baseAccentObj.r},${baseAccentObj.g},${baseAccentObj.b})`; }
+        else { if (accentLuminance < 0.3) return lightenDarkenColor(baseAccentObj, 0.5); return `rgb(${baseAccentObj.r},${baseAccentObj.g},${baseAccentObj.b})`; }
     }
-    
     const applyProfileThemeToPreview = (theme) => {
         if (!profileThemePreview) return;
-        let primaryBgColorForContrast = 'rgb(37,37,37)'; 
-        let accentColor = '#00bfff'; 
-
+        let primaryBgColorForContrast = 'rgb(37,37,37)'; let accentColor = '#00bfff'; 
         if (!theme) {
-            profileThemePreview.style.background = '';
-            profileThemePreview.style.backgroundImage = '';
-            profileThemePreview.classList.remove('text-theme-dark-preview');
-            profileThemePreview.classList.add('text-theme-light-preview'); 
+            profileThemePreview.style.background = ''; profileThemePreview.style.backgroundImage = '';
+            profileThemePreview.classList.remove('text-theme-dark-preview'); profileThemePreview.classList.add('text-theme-light-preview'); 
         } else {
-            if (theme.type === 'solid') {
-                profileThemePreview.style.backgroundImage = 'none';
-                profileThemePreview.style.backgroundColor = theme.color;
-                primaryBgColorForContrast = theme.color;
-                accentColor = theme.color; 
-            } else if (theme.type === 'gradient') {
-                profileThemePreview.style.backgroundColor = 'transparent';
-                profileThemePreview.style.backgroundImage = `linear-gradient(to bottom, ${theme.color1}, ${theme.color2})`;
-                primaryBgColorForContrast = theme.color1; 
-                accentColor = theme.color1;
-            }
-            const bgColorObj = rgbStringToComponents(primaryBgColorForContrast);
-            const luminance = calculateLuminance(bgColorObj); 
-            if (luminance > 0.45) {
-                profileThemePreview.classList.remove('text-theme-light-preview');
-                profileThemePreview.classList.add('text-theme-dark-preview');
-            } else {
-                profileThemePreview.classList.remove('text-theme-dark-preview');
-                profileThemePreview.classList.add('text-theme-light-preview');
-            }
+            if (theme.type === 'solid') { profileThemePreview.style.backgroundImage = 'none'; profileThemePreview.style.backgroundColor = theme.color; primaryBgColorForContrast = theme.color; accentColor = theme.color; }
+            else if (theme.type === 'gradient') { profileThemePreview.style.backgroundColor = 'transparent'; profileThemePreview.style.backgroundImage = `linear-gradient(to bottom, ${theme.color1}, ${theme.color2})`; primaryBgColorForContrast = theme.color1; accentColor = theme.color1; }
+            const bgColorObj = rgbStringToComponents(primaryBgColorForContrast); const luminance = calculateLuminance(bgColorObj); 
+            if (luminance > 0.45) { profileThemePreview.classList.remove('text-theme-light-preview'); profileThemePreview.classList.add('text-theme-dark-preview'); }
+            else { profileThemePreview.classList.remove('text-theme-dark-preview'); profileThemePreview.classList.add('text-theme-light-preview'); }
         }
         if (profilePreviewPhoto) profilePreviewPhoto.style.borderColor = getDynamicAccentColor(accentColor, primaryBgColorForContrast);
     };
-
     const openPopup = () => { if (popupOverlay) popupOverlay.classList.add('visible'); };
     const closePopup = () => { if (popupOverlay) popupOverlay.classList.remove('visible'); if (popupContent) popupContent.innerHTML = ''; };
     if (popupCloseButton) popupCloseButton.addEventListener('click', closePopup);
     if (popupOverlay) popupOverlay.addEventListener('click', (e) => { if (e.target === popupOverlay) closePopup(); });
 
     const createColorPickerUI_Native = (initialColorRgb, onColorChangeCallback) => {
-        const container = document.createElement('div');
-        container.className = 'color-selector-container-native';
+        const container = document.createElement('div'); container.className = 'color-selector-container-native';
         let selectedColor = initialColorRgb || 'rgb(50,50,50)';
-        const updateColor = (newRgbColor) => {
-            selectedColor = newRgbColor;
-            if (colorInput) colorInput.value = rgbStringToHex(selectedColor);
-            if (colorRgbDisplay) colorRgbDisplay.textContent = selectedColor; // Atualiza display RGB
-            onColorChangeCallback(selectedColor);
-        };
-        const paletteTitle = document.createElement('p'); /* ... */ container.appendChild(paletteTitle);
+        const updateColor = (newRgbColor) => { selectedColor = newRgbColor; if (colorInput) colorInput.value = rgbStringToHex(selectedColor); if (colorRgbDisplay) colorRgbDisplay.textContent = selectedColor; onColorChangeCallback(selectedColor); };
+        const paletteTitle = document.createElement('p'); paletteTitle.textContent="Cores Padrão:"; paletteTitle.style.color="#bdc3c7"; paletteTitle.style.marginBottom="8px"; container.appendChild(paletteTitle);
         const palette = document.createElement('div'); palette.className = 'color-palette';
-        defaultPaletteColors.forEach(colorHex => {
-            const colorDiv = document.createElement('div'); colorDiv.className = 'palette-color';
-            colorDiv.style.backgroundColor = colorHex;
-            colorDiv.addEventListener('click', () => updateColor(hexToRgbString(colorHex)));
-            palette.appendChild(colorDiv);
-        });
+        defaultPaletteColors.forEach(colorHex => { const div = document.createElement('div'); div.className = 'palette-color'; div.style.backgroundColor = colorHex; div.addEventListener('click', () => updateColor(hexToRgbString(colorHex))); palette.appendChild(div); });
         container.appendChild(palette);
-        const nativePickerTitle = document.createElement('p'); /* ... */ container.appendChild(nativePickerTitle);
-        const colorInputContainer = document.createElement('div'); /* ... */
-        const colorInput = document.createElement('input'); colorInput.type = 'color';
-        colorInput.value = rgbStringToHex(selectedColor); /* ... estilos ... */
-        const colorRgbDisplay = document.createElement('span'); 
-        colorRgbDisplay.textContent = selectedColor; /* ... estilos ... */
+        const nativePickerTitle = document.createElement('p'); nativePickerTitle.textContent="Ou escolha uma cor customizada:"; nativePickerTitle.style.color="#bdc3c7"; nativePickerTitle.style.marginTop="15px"; nativePickerTitle.style.marginBottom="8px"; container.appendChild(nativePickerTitle);
+        const inputContainer = document.createElement('div'); inputContainer.style.display='flex'; inputContainer.style.alignItems='center'; inputContainer.style.gap='10px';
+        const colorInput = document.createElement('input'); colorInput.type = 'color'; colorInput.value = rgbStringToHex(selectedColor); colorInput.style.width='80px'; colorInput.style.height='40px'; colorInput.style.border='none'; colorInput.style.padding='0'; colorInput.style.cursor='pointer';
+        const colorRgbDisplay = document.createElement('span'); colorRgbDisplay.textContent = selectedColor; colorRgbDisplay.style.fontFamily='monospace'; colorRgbDisplay.style.color='#ccc';
         colorInput.addEventListener('input', (event) => updateColor(hexToRgbString(event.target.value)));
-        colorInputContainer.append(colorInput, colorRgbDisplay); container.appendChild(colorInputContainer);
+        inputContainer.append(colorInput, colorRgbDisplay); container.appendChild(inputContainer);
         return container;
     };
-    
     const showSolidColorPicker = () => {
-        const currentSolidColor = currentUserData?.profileTheme?.type === 'solid' ? currentUserData.profileTheme.color : 'rgb(40,40,40)';
+        const currentSolidColor = currentUserData?.profileTheme?.color || (currentUserData?.profileTheme?.type === 'solid' ? currentUserData.profileTheme.color : 'rgb(40,40,40)');
         let chosenColor = currentSolidColor;
-        if (!popupContent) return;
-        popupContent.innerHTML = '<h3>Escolha uma Cor Sólida</h3>';
+        if (!popupContent) return; popupContent.innerHTML = '<h3>Escolha uma Cor Sólida</h3>';
         const colorPicker = createColorPickerUI_Native(currentSolidColor, (newColor) => { chosenColor = newColor; });
         popupContent.appendChild(colorPicker);
         const actionsDiv = document.createElement('div'); actionsDiv.className = 'popup-actions';
-        const applyButton = document.createElement('button'); applyButton.textContent = 'Aplicar Cor';
-        applyButton.className = 'popup-apply-button';
-        applyButton.addEventListener('click', async () => {
-            const theme = { type: 'solid', color: chosenColor, siteBaseColor: chosenColor }; // Salva a cor sólida como base do site também
-            await saveProfileTheme(theme);
-            closePopup();
-        });
+        const applyButton = document.createElement('button'); applyButton.textContent = 'Aplicar Cor'; applyButton.className = 'popup-apply-button';
+        applyButton.addEventListener('click', async () => { const theme = { type: 'solid', color: chosenColor, siteBaseColor: chosenColor }; await saveProfileTheme(theme); closePopup(); });
         actionsDiv.appendChild(applyButton); popupContent.appendChild(actionsDiv);
     };
-
     const showGradientColorPicker = () => {
         const currentTheme = currentUserData?.profileTheme;
         let color1 = (currentTheme?.type === 'gradient' && currentTheme.color1) ? currentTheme.color1 : 'rgb(52, 73, 94)';
         let color2 = (currentTheme?.type === 'gradient' && currentTheme.color2) ? currentTheme.color2 : 'rgb(44, 62, 80)';
         if (!popupContent) return;
-        popupContent.innerHTML = `
-            <h3>Escolha as Cores do Gradiente</h3>
-            <div id="gradient-live-preview" style="width:100%; height:60px; border-radius:6px; border:1px solid #566573; margin-bottom:15px;"></div>
-            <div class="gradient-picker-area">
-                <div class="gradient-color-control">
-                    <button id="pick-color-1" class="color-pick-trigger" style="background-color: ${color1};"></button>
-                    <span>Cor de Cima</span>
-                </div>
-                <div class="gradient-color-control">
-                    <button id="pick-color-2" class="color-pick-trigger" style="background-color: ${color2};"></button>
-                    <span>Cor de Baixo</span>
-                </div>
-            </div>
-            <div id="gradient-color-picker-slot"></div>
-            <div class="popup-actions"><button id="apply-gradient-button" class="popup-apply-button">Aplicar Gradiente</button></div>`;
-        const gradientPreview = popupContent.querySelector('#gradient-live-preview');
-        const updateGradientPreview = () => { if(gradientPreview) gradientPreview.style.background = `linear-gradient(to bottom, ${color1}, ${color2})`; };
-        updateGradientPreview();
+        popupContent.innerHTML = `<h3>Escolha as Cores do Gradiente</h3><div id="gradient-live-preview" style="width:100%; height:60px; border-radius:6px; border:1px solid #566573; margin-bottom:15px;"></div><div class="gradient-picker-area"><div class="gradient-color-control"><button id="pick-color-1" class="color-pick-trigger" style="background-color: ${color1};"></button><span>Cor de Cima</span></div><div class="gradient-color-control"><button id="pick-color-2" class="color-pick-trigger" style="background-color: ${color2};"></button><span>Cor de Baixo</span></div></div><div id="gradient-color-picker-slot"></div><div class="popup-actions"><button id="apply-gradient-button" class="popup-apply-button">Aplicar Gradiente</button></div>`;
+        const gradientPreview = popupContent.querySelector('#gradient-live-preview'); const updateGradientPreview = () => { if(gradientPreview) gradientPreview.style.background = `linear-gradient(to bottom, ${color1}, ${color2})`; }; updateGradientPreview();
         const colorPickerSlot = popupContent.querySelector('#gradient-color-picker-slot');
-        const createIndividualColorPicker_Native = (targetColorButtonId, initialColor, callback) => { /* ... como antes, usando createColorPickerUI_Native ... */
-            if(!colorPickerSlot) return; colorPickerSlot.innerHTML = ''; 
-            const pickerTitle = document.createElement('h4'); pickerTitle.textContent = targetColorButtonId==='pick-color-1'?"Cor de Cima":"Cor de Baixo"; colorPickerSlot.appendChild(pickerTitle);
-            const individualPicker = createColorPickerUI_Native(initialColor, (newColor) => { callback(newColor); document.getElementById(targetColorButtonId).style.backgroundColor = newColor; updateGradientPreview(); });
-            colorPickerSlot.appendChild(individualPicker);
-        };
-        const pickColor1Btn = popupContent.querySelector('#pick-color-1');
-        const pickColor2Btn = popupContent.querySelector('#pick-color-2');
-        if(pickColor1Btn) pickColor1Btn.addEventListener('click', () => createIndividualColorPicker_Native('pick-color-1', color1, (newColor) => { color1 = newColor; }));
-        if(pickColor2Btn) pickColor2Btn.addEventListener('click', () => createIndividualColorPicker_Native('pick-color-2', color2, (newColor) => { color2 = newColor; }));
+        const createIndividualColorPicker_Native = (targetColorButtonId, initialColor, callback) => { if(!colorPickerSlot) return; colorPickerSlot.innerHTML = ''; const pTitle = document.createElement('h4'); pTitle.textContent = targetColorButtonId==='pick-color-1'?"Cor de Cima":"Cor de Baixo"; pTitle.style.color="#ecf0f1";pTitle.style.marginBottom="10px"; colorPickerSlot.appendChild(pTitle); const iPicker = createColorPickerUI_Native(initialColor, (nColor) => { callback(nColor); document.getElementById(targetColorButtonId).style.backgroundColor = nColor; updateGradientPreview(); }); colorPickerSlot.appendChild(iPicker); };
+        const pColor1Btn = popupContent.querySelector('#pick-color-1'); const pColor2Btn = popupContent.querySelector('#pick-color-2');
+        if(pColor1Btn) pColor1Btn.addEventListener('click', () => createIndividualColorPicker_Native('pick-color-1', color1, (newColor) => { color1 = newColor; }));
+        if(pColor2Btn) pColor2Btn.addEventListener('click', () => createIndividualColorPicker_Native('pick-color-2', color2, (newColor) => { color2 = newColor; }));
         const applyGradBtn = popupContent.querySelector('#apply-gradient-button');
-        if(applyGradBtn) applyGradBtn.addEventListener('click', async () => {
-            const theme = { type: 'gradient', color1: color1, color2: color2, siteBaseColor: color1 }; // Usa color1 como base para o site
-            await saveProfileTheme(theme);
-            closePopup();
-        });
+        if(applyGradBtn) applyGradBtn.addEventListener('click', async () => { const theme = { type: 'gradient', color1: color1, color2: color2, siteBaseColor: color1 }; await saveProfileTheme(theme); closePopup(); });
     };
     
-    const saveProfileTheme = async (themeData) => {
+    const saveProfileTheme = async (themeData) => { 
         if (!currentUserForProfile) { showMessage(themeMessageDiv, 'Usuário não logado.', 'error'); return; }
+        
+        const userDocRef = doc(db, "users", currentUserForProfile.uid);
+        const dataToUpdate = { 
+            profileTheme: {
+                type: themeData.type,
+                color: themeData.color || null, 
+                color1: themeData.color1 || null,
+                color2: themeData.color2 || null,
+                siteBaseColor: themeData.siteBaseColor 
+            }
+        };
+
+        console.log("--- LOG: Tentando salvar tema ---");
+        console.log("UID do Usuário (currentUserForProfile.uid):", currentUserForProfile.uid);
+        console.log("Caminho do Documento (userDocRef.path):", userDocRef.path);
+        console.log("Dados para 'updateDoc':", JSON.stringify(dataToUpdate, null, 2));
+        console.log("Objeto currentUserData ANTES da tentativa de salvar:", JSON.stringify(currentUserData, null, 2));
+
+
         try {
-            const userDocRef = doc(db, "users", currentUserForProfile.uid);
-            // Adiciona siteBaseColor ao objeto que será salvo
-            const dataToSave = { 
-                profileTheme: {
-                    type: themeData.type,
-                    color: themeData.color, // undefined se for gradiente
-                    color1: themeData.color1, // undefined se for sólido
-                    color2: themeData.color2,  // undefined se for sólido
-                    siteBaseColor: themeData.siteBaseColor // Cor base para o fundo do site
-                }
-            };
-            await updateDoc(userDocRef, dataToSave); // Salva o objeto profileTheme inteiro
-            if(currentUserData) currentUserData.profileTheme = dataToSave.profileTheme; // Atualiza localmente
-            applyProfileThemeToPreview(dataToSave.profileTheme);
-            // Aplica o fundo do site imediatamente (na página de perfil)
-            if (dataToSave.profileTheme.siteBaseColor) {
-                const siteBgColorObj = rgbStringToComponents(dataToSave.profileTheme.siteBaseColor);
-                document.body.style.backgroundColor = lightenDarkenColor(siteBgColorObj, -0.3); // 30% mais escuro
+            await updateDoc(userDocRef, dataToUpdate); 
+            console.log("--- LOG: Tema salvo com sucesso no Firestore. ---");
+
+            if(currentUserData) currentUserData.profileTheme = dataToUpdate.profileTheme; 
+            applyProfileThemeToPreview(dataToUpdate.profileTheme);
+            if (dataToUpdate.profileTheme.siteBaseColor) {
+                const siteBgColorObj = rgbStringToComponents(dataToUpdate.profileTheme.siteBaseColor);
+                document.body.style.backgroundColor = lightenDarkenColor(siteBgColorObj, -0.3);
             }
             showMessage(themeMessageDiv, 'Tema do perfil salvo com sucesso!', 'success');
-        } catch (error) { console.error("Erro ao salvar tema:", error); showMessage(themeMessageDiv, 'Erro ao salvar tema.', 'error'); }
+        } catch (error) { 
+            console.error("Erro ao salvar tema (linha JS ~218):", error); 
+            console.error("Detalhes do erro Firestore:", error.code, error.message, error.details); 
+            showMessage(themeMessageDiv, `Erro ao salvar tema: ${error.message}`); 
+        }
     };
     
     if (btnThemeProfile) {
         btnThemeProfile.addEventListener('click', () => {
             if (!popupContent) return;
-            popupContent.innerHTML = `
-                <h3>Escolha o tipo de tema para o perfil</h3>
-                <div class="theme-type-selection">
-                    <button class="theme-type-button" data-type="solid"><img src="imgs/solidcolor.png" alt="Cor Sólida"><span>Cor Sólida</span></button>
-                    <button class="theme-type-button" data-type="gradient"><img src="imgs/gradient.png" alt="Gradiente"><span>Gradiente</span></button>
-                </div>`;
+            popupContent.innerHTML = `<h3>Escolha o tipo de tema para o perfil</h3><div class="theme-type-selection"><button class="theme-type-button" data-type="solid"><img src="imgs/solidcolor.png" alt="Cor Sólida"><span>Cor Sólida</span></button><button class="theme-type-button" data-type="gradient"><img src="imgs/gradient.png" alt="Gradiente"><span>Gradiente</span></button></div>`;
             openPopup();
             popupContent.querySelectorAll('.theme-type-button').forEach(button => {
                 button.addEventListener('click', (e) => {
@@ -316,25 +248,31 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-    const themeProfileButtonImg = document.querySelector('#btn-theme-profile img');
-    if (themeProfileButtonImg) themeProfileButtonImg.src = 'imgs/temadoperfil.png';
-    const themeSiteButtonImg = document.querySelector('#btn-theme-site img');
-    if (themeSiteButtonImg) themeSiteButtonImg.src = 'imgs/temadosite.png';
+    const themeProfileBtnImg = document.querySelector('#btn-theme-profile img'); if (themeProfileBtnImg) themeProfileBtnImg.src = 'imgs/temadoperfil.png';
+    const themeSiteBtnImg = document.querySelector('#btn-theme-site img'); if (themeSiteBtnImg) themeSiteBtnImg.src = 'imgs/temadosite.png';
 
-    // --- ON AUTH STATE CHANGED (COMPLETO) ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUserForProfile = user;
+            console.log("--- LOG: onAuthStateChanged ---");
+            console.log("Usuário autenticado (user.uid):", user.uid);
+            console.log("Email do usuário:", user.email);
+
             if (userAuthSection) {
                 const displayName = user.displayName || user.email.split('@')[0];
                 const photoURL = user.photoURL || 'imgs/default-avatar.png';
                 userAuthSection.innerHTML = `<a href="profile.html" class="user-info-link"><div class="user-info"><img id="user-photo" src="${photoURL}" alt="Foto"><span id="user-name">${displayName}</span></div></a>`;
             }
             const userDocRef = doc(db, "users", user.uid);
+            console.log("Tentando carregar dados do Firestore para o caminho:", userDocRef.path);
             try {
                 const userDocSnap = await getDoc(userDocRef);
                 if (userDocSnap.exists()) {
+                    console.log("Documento do usuário encontrado. Dados:", JSON.stringify(userDocSnap.data(), null, 2));
                     currentUserData = userDocSnap.data();
+                    currentUserData.friendsCount = currentUserData.friendsCount || 0;
+                    currentUserData.followersCount = currentUserData.followersCount || 0;
+                    currentUserData.followingCount = currentUserData.followingCount || 0;
                     if (profileUsernameInput) profileUsernameInput.value = currentUserData.displayName || user.displayName || '';
                     if (profilePhotoUrlInput) profilePhotoUrlInput.value = currentUserData.photoURL || user.photoURL || '';
                     if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = currentUserData.photoURL || user.photoURL || 'imgs/default-avatar.png';
@@ -345,26 +283,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(profilePreviewDisplayName) profilePreviewDisplayName.textContent = currentUserData.displayName || user.displayName || 'Seu Nome Aqui';
                     if(profilePreviewPronouns) profilePreviewPronouns.textContent = currentUserData.pronouns || 'Seus Pronomes';
                     if(profilePreviewDescription) profilePreviewDescription.textContent = currentUserData.profileDescription || 'Sua bio apareceria aqui...';
-                    
                     if (currentUserData.profileTheme) {
                         applyProfileThemeToPreview(currentUserData.profileTheme);
-                        // Aplica fundo do site se configurado
                         if (currentUserData.profileTheme.siteBaseColor) {
                             const siteBgColorObj = rgbStringToComponents(currentUserData.profileTheme.siteBaseColor);
-                            document.body.style.backgroundColor = lightenDarkenColor(siteBgColorObj, -0.3); // 30% mais escuro
+                            document.body.style.backgroundColor = lightenDarkenColor(siteBgColorObj, -0.3);
                         }
-                    } else {
-                        applyProfileThemeToPreview(null);
-                        document.body.style.backgroundColor = ''; // Reseta fundo do site
-                    }
+                    } else { applyProfileThemeToPreview(null); document.body.style.backgroundColor = ''; }
                 } else { 
-                    if (profileUsernameInput) profileUsernameInput.value = user.displayName || '';
-                    if (profilePhotoUrlInput) profilePhotoUrlInput.value = user.photoURL || '';
-                    if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = user.photoURL || 'imgs/default-avatar.png';
-                    applyProfileThemeToPreview(null);
-                    document.body.style.backgroundColor = '';
+                    console.warn("Documento do usuário NÃO encontrado no Firestore para UID:", user.uid, ". Tentando criar um novo documento.");
+                    currentUserData = {
+                        uid: user.uid, email: user.email, // ADICIONADO EMAIL AQUI
+                        displayName: user.displayName || user.email.split('@')[0],
+                        photoURL: user.photoURL || null,
+                        friendsCount: 0, followersCount: 0, followingCount: 0,
+                        scratchUsername: "", pronouns: "", profileDescription: "",
+                        profileTheme: null,
+                        createdAt: serverTimestamp() // Precisa importar serverTimestamp
+                    };
+                    try {
+                        console.log("Tentando CRIAR novo documento para usuário:", user.uid, " com dados:", JSON.stringify(currentUserData, null, 2));
+                        await setDoc(userDocRef, currentUserData); 
+                        console.log("Novo perfil de usuário criado no Firestore.");
+                    } catch (creationError) {
+                        console.error("Falha ao criar novo perfil de usuário no Firestore:", creationError);
+                        showMessage(profileMessageDiv, "Erro crítico: Não foi possível criar o perfil no banco de dados.");
+                    }
+                    if (profileUsernameInput) profileUsernameInput.value = currentUserData.displayName;
+                    applyProfileThemeToPreview(null); document.body.style.backgroundColor = '';
                 }
-            } catch (error) { console.error("Erro Firestore:", error); showMessage(profileMessageDiv, "Erro ao carregar dados.", "error");}
+            } catch (error) { console.error("Erro ao carregar dados do usuário do Firestore em onAuthStateChanged:", error); showMessage(profileMessageDiv, "Erro crítico ao carregar dados do perfil.", "error");}
             if (currentEmailDisplay) currentEmailDisplay.textContent = user.email;
             setupPasswordSectionUI(hasPasswordProvider(user));
             const hash = window.location.hash; 
@@ -375,7 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { window.location.href = 'login.html'; }
     });
 
-    // --- EVENT LISTENERS DE ABAS, FORMULÁRIOS E BOTÕES (COMPLETOS) ---
     if (tabPerfil) tabPerfil.addEventListener('click', () => switchTab(tabPerfil, sectionPerfil));
     if (tabSeguranca) tabSeguranca.addEventListener('click', () => switchTab(tabSeguranca, sectionSeguranca));
     if (tabTema) tabTema.addEventListener('click', () => switchTab(tabTema, sectionTema));
@@ -392,21 +339,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (profileForm) {
+    if (profileForm) { 
         profileForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); if (!currentUserForProfile) { showMessage(profileMessageDiv, "Não autenticado.", "error"); return; }
-            const newUsername = profileUsernameInput.value.trim(); const newPhotoURL = profilePhotoUrlInput.value.trim();
-            const newScratchUsername = profileScratchUsernameInput.value.trim(); const newPronouns = profilePronounsInput.value.trim();
+            e.preventDefault();
+            if (!currentUserForProfile) { showMessage(profileMessageDiv, "Não autenticado.", "error"); return; }
+
+            const newUsername = profileUsernameInput.value.trim();
+            const newPhotoURL = profilePhotoUrlInput.value.trim() || null;
+            const newScratchUsername = profileScratchUsernameInput.value.trim();
+            const newPronouns = profilePronounsInput.value.trim();
             const newDescription = profileDescriptionInput.value.trim();
-            let isValidUrl = true; if (newPhotoURL) { try { new URL(newPhotoURL); } catch (_) { isValidUrl = false; } }
+
+            let isValidUrl = true;
+            if (newPhotoURL) { try { new URL(newPhotoURL); } catch (_) { isValidUrl = false; } }
             if (newPhotoURL && !isValidUrl) { showMessage(profileMessageDiv, 'URL da foto inválido.'); return; }
-            const authUpdates = {}; if (newUsername !== (currentUserForProfile.displayName||'')) authUpdates.displayName = newUsername; if (newPhotoURL !== (currentUserForProfile.photoURL||'')) authUpdates.photoURL = newPhotoURL||null;
-            const firestoreUpdates = { displayName: newUsername, photoURL: newPhotoURL||null, scratchUsername: newScratchUsername, pronouns: newPronouns, profileDescription: newDescription};
-            showMessage(profileMessageDiv, 'Salvando...', 'success');
+
+            const authProfileUpdates = {};
+            if (newUsername !== (currentUserForProfile.displayName || '')) authProfileUpdates.displayName = newUsername;
+            if (newPhotoURL !== (currentUserForProfile.photoURL || null)) authProfileUpdates.photoURL = newPhotoURL;
+            
+            const firestoreProfileFieldsToUpdate = {
+                displayName: newUsername, photoURL: newPhotoURL,
+                scratchUsername: newScratchUsername, pronouns: newPronouns,
+                profileDescription: newDescription,
+            };
+            
+            showMessage(profileMessageDiv, 'Salvando perfil...', 'success');
+            const userDocRef = doc(db, "users", currentUserForProfile.uid);
+            console.log("--- LOG: Tentando atualizar perfil ---");
+            console.log("UID do Usuário (currentUserForProfile.uid):", currentUserForProfile.uid);
+            console.log("Caminho do Documento (userDocRef.path):", userDocRef.path);
+            console.log("Dados para 'updateDoc':", JSON.stringify(firestoreProfileFieldsToUpdate, null, 2));
+            console.log("Objeto currentUserData ANTES da tentativa de salvar:", JSON.stringify(currentUserData, null, 2));
+            
             try {
-                if (Object.keys(authUpdates).length > 0) await updateAuthProfile(currentUserForProfile, authUpdates);
-                await setDoc(doc(db, "users", currentUserForProfile.uid), firestoreUpdates, { merge: true });
-                if(currentUserData) Object.assign(currentUserData, firestoreUpdates);
+                if (Object.keys(authProfileUpdates).length > 0) {
+                    await updateAuthProfile(currentUserForProfile, authProfileUpdates);
+                }
+                await updateDoc(userDocRef, firestoreProfileFieldsToUpdate); 
+                console.log("--- LOG: Perfil do Firestore atualizado com sucesso. ---");
+
+                if(currentUserData) { Object.assign(currentUserData, firestoreProfileFieldsToUpdate); }
                 showMessage(profileMessageDiv, 'Perfil atualizado!', 'success');
                 if(document.getElementById('user-name')) document.getElementById('user-name').textContent = newUsername || currentUserForProfile.email.split('@')[0];
                 if(document.getElementById('user-photo')) document.getElementById('user-photo').src = newPhotoURL || 'imgs/default-avatar.png';
@@ -414,7 +387,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(profilePreviewDisplayName) profilePreviewDisplayName.textContent = newUsername || 'Seu Nome Aqui';
                 if(profilePreviewPronouns) profilePreviewPronouns.textContent = newPronouns || 'Seus Pronomes';
                 if(profilePreviewDescription) profilePreviewDescription.textContent = newDescription || 'Sua bio apareceria aqui...';
-            } catch (error) { console.error("Erro ao atualizar perfil:", error); showMessage(profileMessageDiv, `Erro: ${error.message}`);}
+            } catch (error) { 
+                console.error("Erro ao atualizar perfil (linha JS ~386):", error);
+                console.error("Detalhes do erro Firestore:", error.code, error.message, error.details);
+                showMessage(profileMessageDiv, `Erro ao atualizar perfil: ${error.message}`);
+            }
         });
     }
     
@@ -509,5 +486,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    console.log("David's Farm profile script (vFinal FINALISSIMO com Tudo) carregado!");
+    console.log("David's Farm profile script (vCOM LOGS DE DEPURAÇÃO DETALHADOS) carregado!");
 });
