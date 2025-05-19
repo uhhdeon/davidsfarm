@@ -191,6 +191,10 @@
 
     <script type="module" src="profile-script.js"></script>
 
-
+    <script>
+        if (window.location.pathname.endsWith("profile.html")) {
+            window.history.replaceState(null, "", "/settings");
+        }
+    </script>
 </body>
 </html>

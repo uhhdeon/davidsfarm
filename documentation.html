@@ -71,5 +71,11 @@
 
     <script type="module" src="documentation-script.js"></script>
     <script type="module" src="script.js"></script> 
+
+      <script>
+        if (window.location.pathname.endsWith("documentation.html")) {
+            window.history.replaceState(null, "", "/info");
+        }
+    </script>
 </body>
 </html>
