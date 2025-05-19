@@ -1,6 +1,5 @@
 // profile-script.js
-// ATUALIZADO: Não inclui email na criação de currentUserData se doc não existe.
-// Email para exibição na aba Segurança vem de currentUserForProfile.email (Auth).
+// ETAPA 9.1: Removendo a lógica de 'searchableProjects'. A pesquisa de jogos terá que ser feita de outra forma.
 import { auth, db } from './firebase-config.js';
 import {
     onAuthStateChanged,
@@ -15,7 +14,7 @@ import {
 import {
     doc, getDoc, updateDoc, setDoc, deleteDoc as deleteFirestoreDoc, serverTimestamp,
     collection, addDoc, getDocs, query, orderBy, where, limit,
-    onSnapshot, writeBatch 
+    onSnapshot, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -50,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPasswordLabel = document.getElementById('new-password-label');
     const passwordSubmitButton = document.getElementById('password-submit-button');
     const changeEmailForm = document.getElementById('change-email-form');
-    const currentEmailDisplay = document.getElementById('current-email-display'); // Este será preenchido pelo Auth
+    const currentEmailDisplay = document.getElementById('current-email-display');
     const emailCurrentPasswordInput = document.getElementById('email-current-password');
     const newEmailInput = document.getElementById('new-email');
     const emailMessageDiv = document.getElementById('email-message');
@@ -77,13 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const scratchProjectsListUl = document.getElementById('scratch-projects-list');
     const scratchProjectsEmptyMessageP = document.getElementById('scratch-projects-empty-message');
 
-    let currentUserForProfile = null; // Objeto User do Firebase Auth
-    let currentUserData = null;       // Dados do Firestore (/users/{uid})
+    let currentUserForProfile = null; 
+    let currentUserData = null;       
     let userScratchProjects = []; 
     let projectsListenerUnsubscribe = null; 
     let editingScratchProjectDocId = null; 
 
-    // ... (defaultPaletteColors e todas as funções de utilidade de UI, cores, pop-up, e de abas mantidas) ...
+    // ... (defaultPaletteColors e funções de utilidade de UI e cores mantidas) ...
     const defaultPaletteColors = [
         '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF', '#FF00FF',
         '#DC143C', '#FF8C00', '#FFD700', '#32CD32', '#00CED1', '#1E90FF', '#9932CC', '#FF1493',
@@ -278,36 +277,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- onAuthStateChanged ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            currentUserForProfile = user; // user do Auth
-            // Atualiza o header imediatamente com dados do Auth como fallback
+            currentUserForProfile = user; 
             if (userAuthSection) {
                 const authDisplayName = user.displayName || user.email?.split('@')[0] || "Usuário";
                 const authPhotoURL = user.photoURL || 'imgs/default-avatar.png';
                 userAuthSection.innerHTML = `<a href="profile.html" class="user-info-link"><div class="user-info"><img id="user-photo" src="${authPhotoURL}" alt="Foto"><span id="user-name">${authDisplayName}</span></div></a>`;
             }
-            // Mostra o email do Auth na aba de segurança
             if (currentEmailDisplay) currentEmailDisplay.textContent = user.email || 'Email não disponível';
-
 
             const userDocRef = doc(db, "users", user.uid);
             try {
                 const userDocSnap = await getDoc(userDocRef);
                 if (userDocSnap.exists()) {
-                    currentUserData = userDocSnap.data(); // Dados do Firestore
+                    currentUserData = userDocSnap.data(); 
                     currentUserData.uid = user.uid; 
-                    // Garante que os contadores existem no objeto currentUserData
                     currentUserData.friendsCount = currentUserData.friendsCount || 0;
                     currentUserData.followersCount = currentUserData.followersCount || 0;
                     currentUserData.followingCount = currentUserData.followingCount || 0;
 
-                    // Atualiza o header com dados do Firestore, se mais completos
                     if (userAuthSection) {
                         const displayName = currentUserData.displayName || user.displayName || user.email?.split('@')[0] || "Usuário";
                         const photoURL = currentUserData.photoURL || user.photoURL || 'imgs/default-avatar.png';
                         userAuthSection.innerHTML = `<a href="profile.html" class="user-info-link"><div class="user-info"><img id="user-photo" src="${photoURL}" alt="Foto"><span id="user-name">${displayName}</span></div></a>`;
                     }
                     
-                    // Preenche os campos do formulário de perfil
                     if (profileUsernameInput) profileUsernameInput.value = currentUserData.displayName || '';
                     if (profilePhotoUrlInput) profilePhotoUrlInput.value = currentUserData.photoURL || '';
                     if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = currentUserData.photoURL || 'imgs/default-avatar.png';
@@ -315,13 +308,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (profilePronounsInput) profilePronounsInput.value = currentUserData.pronouns || '';
                     if (profileDescriptionInput) profileDescriptionInput.value = currentUserData.profileDescription || '';
                     
-                    // Preenche o preview do tema
                     if(profilePreviewPhoto) profilePreviewPhoto.src = currentUserData.photoURL || 'imgs/default-avatar.png';
                     if(profilePreviewDisplayName) profilePreviewDisplayName.textContent = currentUserData.displayName || 'Seu Nome Aqui';
                     if(profilePreviewPronouns) profilePreviewPronouns.textContent = currentUserData.pronouns || 'Seus Pronomes';
                     if(profilePreviewDescription) profilePreviewDescription.textContent = currentUserData.profileDescription || 'Sua bio apareceria aqui...';
                     
-                    // Aplica o tema
                     if (currentUserData.profileTheme) {
                         applyProfileThemeToPreview(currentUserData.profileTheme);
                         if (currentUserData.profileTheme.siteBaseColor) {
@@ -333,18 +324,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.body.style.backgroundColor = ''; 
                     }
                 } else { 
-                    console.warn("Documento do usuário NÃO encontrado no Firestore para UID:", user.uid, ". Um novo será criado ao salvar o perfil/tema, ou pelo ensureUserProfileAndFriendId no login.");
-                    // Cria um currentUserData básico para evitar erros, mas não o salva no DB aqui.
-                    // A função ensureUserProfileAndFriendId (chamada no login/registro) é a principal responsável pela criação inicial.
+                    console.warn("Documento do usuário NÃO encontrado no Firestore para UID:", user.uid);
                     currentUserData = {
                         uid: user.uid,
-                        // Não incluir email aqui, pois ele não será salvo no doc principal
                         displayName: user.displayName || user.email?.split('@')[0] || "Usuário",
                         photoURL: user.photoURL || null,
                         friendsCount: 0, followersCount: 0, followingCount: 0,
                         scratchUsername: "", pronouns: "", profileDescription: "",
                         profileTheme: null,
-                        // createdAt e friendId seriam definidos por ensureUserProfileAndFriendId
                     };
                     applyProfileThemeToPreview(null); 
                     document.body.style.backgroundColor = '';
@@ -353,10 +340,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) { 
                 console.error("Erro ao carregar dados do usuário do Firestore:", error); 
                 showMessage(profileMessageDiv, "Erro crítico ao carregar dados do perfil.", "error");
-                currentUserData = { uid: user.uid, displayName: user.displayName, photoURL: user.photoURL }; // Fallback mínimo
+                currentUserData = { uid: user.uid, displayName: user.displayName, photoURL: user.photoURL }; 
             }
             
-            setupPasswordSectionUI(hasPasswordProvider(user)); // Configura a UI da seção de senha
+            setupPasswordSectionUI(hasPasswordProvider(user)); 
             
             const hash = window.location.hash; 
             if (hash === '#security') switchTab(tabSeguranca, sectionSeguranca);
@@ -388,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (profileForm) { 
+     if (profileForm) { 
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUserForProfile) { showMessage(profileMessageDiv, "Não autenticado.", "error"); return; }
@@ -404,40 +391,56 @@ document.addEventListener('DOMContentLoaded', () => {
             if (newPhotoURL && !isValidUrl) { showMessage(profileMessageDiv, 'URL da foto inválido.'); return; }
 
             const authProfileUpdates = {};
-            if (newUsername !== (currentUserForProfile.displayName || '')) authProfileUpdates.displayName = newUsername;
+            if (newUsername !== (currentUserForProfile.displayName || '')) {
+                authProfileUpdates.displayName = newUsername;
+            }
             const authPhotoValue = newPhotoURL === null ? (currentUserForProfile.photoURL || "") : newPhotoURL;
-            if (authPhotoValue !== (currentUserForProfile.photoURL || "")) authProfileUpdates.photoURL = authPhotoValue;
-            
+            if (authPhotoValue !== (currentUserForProfile.photoURL || "")) {
+                 authProfileUpdates.photoURL = authPhotoValue;
+            }
             
             const firestoreProfileFieldsToUpdate = {
-                displayName: newUsername, 
+                displayName: newUsername,
+                displayName_lowercase: newUsername.toLowerCase(), // SALVA VERSÃO MINÚSCULA
                 photoURL: newPhotoURL, 
                 scratchUsername: newScratchUsername, 
                 pronouns: newPronouns,
                 profileDescription: newDescription,
-                // Não atualizamos o email aqui, é feito em outra seção
             };
             
             showMessage(profileMessageDiv, 'Salvando perfil...', 'info');
             const userDocRef = doc(db, "users", currentUserForProfile.uid);
             
             try {
+                // Primeiro, atualiza/cria o documento no Firestore
                 const userDocSnap = await getDoc(userDocRef);
                 if (!userDocSnap.exists()) {
                     console.warn("Documento do usuário não existia, criando antes de atualizar perfil...");
+                    // Prepara dados iniciais, incluindo campos que ensureUserProfileAndFriendId normalmente criaria
                     const initialData = {
                         uid: currentUserForProfile.uid,
-                        // email: currentUserForProfile.email, // REMOVIDO - não salvar no doc principal
-                        friendId: currentUserData?.friendId || null, // Tenta pegar de currentUserData se já foi gerado
+                        friendId: currentUserData?.friendId || null, // Tenta pegar de currentUserData
                         createdAt: serverTimestamp(),
-                        friendsCount: currentUserData?.friendsCount || 0,
-                        followersCount: currentUserData?.followersCount || 0,
-                        followingCount: currentUserData?.followingCount || 0,
-                        profileTheme: currentUserData?.profileTheme || null,
-                        ...firestoreProfileFieldsToUpdate 
+                        friendsCount: 0,
+                        followersCount: 0,
+                        followingCount: 0,
+                        profileTheme: null,
+                        ...firestoreProfileFieldsToUpdate // Adiciona os novos dados do formulário
                     };
-                    if (!initialData.friendId) { 
-                        console.warn("Friend ID não encontrado, não será gerado nesta etapa de update de perfil. Deve ser gerado no login/registro via ensureUserProfileAndFriendId.");
+                     // Se friendId ainda não existe, idealmente seria gerado aqui também
+                    if (!initialData.friendId) {
+                        try {
+                            // Tenta chamar a lógica de criação de friendId se não existir
+                            // Esta é uma simplificação, a lógica completa está em ensureUserProfileAndFriendId
+                            const newFriendId = await createUniqueFriendId(); // Se createUniqueFriendId estiver acessível aqui
+                            if (newFriendId) {
+                                initialData.friendId = newFriendId;
+                                const mappingRef = doc(db, "friendIdMappings", newFriendId);
+                                await setDoc(mappingRef, { uid: currentUserForProfile.uid });
+                            }
+                        } catch (fidError) {
+                            console.error("Erro ao gerar friendId na criação de perfil emergencial:", fidError);
+                        }
                     }
                     await setDoc(userDocRef, initialData);
                     console.log("Novo perfil criado no Firestore durante a atualização.");
@@ -445,12 +448,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     await updateDoc(userDocRef, firestoreProfileFieldsToUpdate); 
                 }
 
+                // Depois, atualiza o perfil do Auth se houver mudanças
                 if (Object.keys(authProfileUpdates).length > 0) {
                     await updateAuthProfile(currentUserForProfile, authProfileUpdates);
                 }
                 console.log("Perfil do Firestore e Auth atualizados com sucesso.");
 
-                if(currentUserData) { Object.assign(currentUserData, firestoreProfileFieldsToUpdate); }
+                // Atualiza o objeto currentUserData local
+                if(currentUserData) { 
+                    Object.assign(currentUserData, firestoreProfileFieldsToUpdate); 
+                } else { // Se currentUserData era nulo (caso raro)
+                    currentUserData = { uid: currentUserForProfile.uid, ...firestoreProfileFieldsToUpdate };
+                }
+                
+                // Atualiza a UI
                 const finalDisplayName = newUsername || currentUserForProfile.email.split('@')[0];
                 const finalPhotoURL = newPhotoURL || 'imgs/default-avatar.png';
 
@@ -470,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // ... (Funções de reautenticação, mudança de senha, email, logout, deleteAccount mantidas) ...
-     const reauthenticateUser = (currentPassword) => {
+    const reauthenticateUser = (currentPassword) => {
         const user = currentUserForProfile; 
         if (!user || !user.email) {
             const msgDiv = passwordMessageDiv.style.display !== 'none' ? passwordMessageDiv : (emailMessageDiv.style.display !== 'none' ? emailMessageDiv : accountActionMessageDiv);
@@ -506,7 +517,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (changeEmailForm) {
         changeEmailForm.addEventListener('submit', async (e) => {
             e.preventDefault(); if (!currentUserForProfile) { showMessage(emailMessageDiv, "Não autenticado.", "error"); return; }
-            // O email atual para reautenticação vem de currentUserForProfile.email (Auth)
             if (!currentUserForProfile.email) {
                 showMessage(emailMessageDiv, "Email do usuário atual não encontrado para reautenticação.");
                 return;
@@ -519,13 +529,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             showMessage(emailMessageDiv, 'Processando...', 'info');
             try {
-                // Reautenticar com o email atual do Auth e a senha fornecida
                 const credential = EmailAuthProvider.credential(currentUserForProfile.email, currentP);
                 await reauthenticateWithCredential(currentUserForProfile, credential);
                 
                 await verifyBeforeUpdateEmail(currentUserForProfile, newE);
                 showMessage(emailMessageDiv, 'Email de verificação enviado para o novo endereço! Confirme para concluir a alteração. Seu email de login só mudará após a verificação.', 'success'); 
-                // O currentEmailDisplay será atualizado pelo onAuthStateChanged se o email do Auth mudar após verificação
                 changeEmailForm.reset();
             } catch (error) { 
                 console.error("Erro ao alterar email:", error); 
@@ -581,11 +589,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     catch (mapError) { console.error("Erro ao deletar mapeamento Friend ID:", mapError); }
                 }
                 
-                const projectsRef = collection(db, `users/${uid}/scratchProjects`);
-                const projectsSnap = await getDocs(projectsRef);
-                const deletePromises = projectsSnap.docs.map(projectDoc => deleteFirestoreDoc(projectDoc.ref));
-                await Promise.all(deletePromises);
-                console.log("Subcoleção scratchProjects deletada.");
+                // Batch para deletar projetos da subcoleção do usuário
+                const userProjectsRef = collection(db, `users/${uid}/scratchProjects`);
+                const userProjectsSnap = await getDocs(userProjectsRef);
+                const deleteUserProjectsBatch = writeBatch(db);
+                userProjectsSnap.docs.forEach(projectDoc => {
+                    deleteUserProjectsBatch.delete(projectDoc.ref);
+                });
+                await deleteUserProjectsBatch.commit();
+                console.log(`Projetos da subcoleção de ${uid} deletados.`);
+                
+                // REMOVIDO: Lógica de deleção de 'searchableProjects' pois não estamos mais usando essa coleção
+                // para a busca de jogos nesta abordagem "raiz alternativa".
 
                 await deleteFirestoreDoc(doc(db, "users", uid)); 
                 console.log("Documento do usuário no Firestore deletado.");
@@ -606,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- LÓGICA PARA PROJETOS SCRATCH (Mantida da Etapa 5, pois já está correta para inputs customizados e reordenação) ---
+    // --- LÓGICA PARA PROJETOS SCRATCH (ATUALIZADA - SEM searchableProjects) ---
     function extractScratchProjectId(url) {
         if (!url) return null;
         try {
@@ -668,8 +683,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     async function handleSaveScratchProject() { 
-        if (!currentUserForProfile) {
-            showMessage(scratchProjectMessageDiv, "Você precisa estar logado.");
+        if (!currentUserForProfile || !currentUserData) { 
+            showMessage(scratchProjectMessageDiv, "Você precisa estar logado e seus dados carregados.");
             return;
         }
         const projectLink = scratchProjectLinkInput.value.trim();
@@ -689,14 +704,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const projectId = extractScratchProjectId(projectLink);
-        // Se estiver editando, o projectId original já está em editingScratchProjectDocId ou no objeto project
-        // Se estiver adicionando um novo, precisamos extrair o projectId do link.
-        if (!projectId && !editingScratchProjectDocId) { 
-            showMessage(scratchProjectMessageDiv, "Link inválido ou ID do projeto não encontrado.");
-            return;
-        }
-
+        const projectIdFromLink = extractScratchProjectId(projectLink);
+        
         addScratchProjectButton.disabled = true;
         const actionVerb = editingScratchProjectDocId ? "Salvando alterações" : "Adicionando projeto";
         showMessage(scratchProjectMessageDiv, `${actionVerb}...`, "info");
@@ -706,16 +715,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (editingScratchProjectDocId) {
                 const projectDocRef = doc(db, `users/${currentUserForProfile.uid}/scratchProjects`, editingScratchProjectDocId);
-                await updateDoc(projectDocRef, {
+                const projectToUpdateData = {
                     customTitle: customTitle,
                     customDescription: customDescription
-                });
+                };
+                await updateDoc(projectDocRef, projectToUpdateData);
                 showMessage(scratchProjectMessageDiv, `Projeto "${customTitle}" atualizado!`, "success");
                 resetScratchProjectForm();
 
             } else {
-                // MODO ADIÇÃO (projectId é o extraído do link)
-                const qExisting = query(projectsRef, where("projectId", "==", projectId));
+                // MODO ADIÇÃO 
+                if (!projectIdFromLink) { // projectIdFromLink é necessário para adicionar novo
+                    showMessage(scratchProjectMessageDiv, "Link inválido ou ID do projeto não encontrado.");
+                    addScratchProjectButton.disabled = false;
+                    return;
+                }
+
+                const qExisting = query(projectsRef, where("projectId", "==", projectIdFromLink));
                 const existingSnap = await getDocs(qExisting);
                 if (!existingSnap.empty) {
                     showMessage(scratchProjectMessageDiv, "Este projeto Scratch já foi adicionado.", "error");
@@ -723,8 +739,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                const thumbnailUrl = `https://uploads.scratch.mit.edu/projects/thumbnails/${projectId}.png`;
-                const projectUrl = `https://scratch.mit.edu/projects/${projectId}/`;
+                const thumbnailUrl = `https://uploads.scratch.mit.edu/projects/thumbnails/${projectIdFromLink}.png`;
+                const projectUrl = `https://scratch.mit.edu/projects/${projectIdFromLink}/`;
 
                 const currentProjectsSnap = await getDocs(query(projectsRef, orderBy("orderIndex", "desc"), limit(1)));
                 let nextOrderIndex = 0;
@@ -733,8 +749,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     nextOrderIndex = (lastProject.orderIndex || 0) + 1;
                 }
 
-                const newProjectEntry = {
-                    projectId: projectId, 
+                const newProjectEntryUser = {
+                    projectId: projectIdFromLink, 
                     customTitle: customTitle,
                     customDescription: customDescription,
                     thumbnailUrl: thumbnailUrl,
@@ -742,7 +758,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     addedAt: serverTimestamp(),
                     orderIndex: nextOrderIndex
                 };
-                await addDoc(projectsRef, newProjectEntry);
+                await addDoc(projectsRef, newProjectEntryUser);
+                
                 showMessage(scratchProjectMessageDiv, `Projeto "${customTitle}" adicionado!`, "success");
                 resetScratchProjectForm(); 
             }
@@ -759,6 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addScratchProjectButton.addEventListener('click', handleSaveScratchProject);
     }
 
+    // --- RENDERIZAÇÃO E LISTENERS DE PROJETOS (mantidos da Etapa 5, com botão de edição) ---
     function renderUserScratchProjects(projects) {
         if (!scratchProjectsListUl || !scratchProjectsEmptyMessageP) return;
         scratchProjectsListUl.innerHTML = ''; 
@@ -829,11 +847,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Remover';
+            deleteButton.textContent = 'Remover'; // Ou um ícone de lixeira
             deleteButton.className = 'action-button danger'; 
             deleteButton.addEventListener('click', (e) => {
                 e.stopPropagation(); 
-                handleDeleteScratchProject(project.docId, project.customTitle);
+                handleDeleteScratchProject(project.docId, project.customTitle); 
             });
             
             actionsDiv.append(upButton, downButton, editButton, deleteButton); 
@@ -889,12 +907,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    async function handleDeleteScratchProject(docId, projectTitle) {
+    async function handleDeleteScratchProject(docId, projectTitle) { 
         if (!currentUserForProfile || !docId) return;
         if (confirm(`Tem certeza que deseja remover o projeto "${projectTitle}" da sua lista?`)) {
             try {
-                const projectDocRef = doc(db, `users/${currentUserForProfile.uid}/scratchProjects`, docId);
-                await deleteFirestoreDoc(projectDocRef);
+                const projectDocRefUser = doc(db, `users/${currentUserForProfile.uid}/scratchProjects`, docId);
+                await deleteFirestoreDoc(projectDocRefUser);
+                // Não precisa mais deletar de 'searchableProjects' com esta abordagem
                 showMessage(scratchProjectMessageDiv, `Projeto "${projectTitle}" removido.`, "success");
                 if (editingScratchProjectDocId === docId) {
                     cancelEditScratchProject();
@@ -943,5 +962,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    console.log("David's Farm profile script (vCom Aba Jogos - Etapa 5 - Edição e Scroll CSS) carregado!");
+    console.log("David's Farm profile script (vRemovido SearchableProjects) carregado!");
 });

@@ -1,5 +1,5 @@
 // firebase-config.js
-// ATUALIZADO: Removido o armazenamento do email do usuário no documento principal do Firestore.
+// ATUALIZADO: Adicionado displayName_lowercase ao criar/atualizar perfil no Firestore.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
@@ -62,10 +62,8 @@ export const ensureUserProfileAndFriendId = async (userAuth) => {
     let friendIdToUse = userFirestoreData?.friendId;
     let needsFirestoreWrite = false;
 
-    // Estes vêm do Firebase Auth e são usados para o perfil Auth e como fallback para o Firestore
     const authDisplayName = userAuth.displayName || userAuth.email?.split('@')[0] || `Usuário${userAuth.uid.substring(0,5)}`;
     const authPhotoURL = userAuth.photoURL || null; 
-    // Não vamos mais usar userAuth.email para salvar no Firestore user document
 
     if (!userDocSnap.exists()) {
         console.log(`Usuário ${userAuth.uid} não encontrado no Firestore. Criando perfil...`);
@@ -73,14 +71,14 @@ export const ensureUserProfileAndFriendId = async (userAuth) => {
             friendIdToUse = await createUniqueFriendId();
             userFirestoreData = {
                 uid: userAuth.uid,
-                // REMOVIDO: email: userAuth.email, // Não armazenar email no doc principal do usuário
                 displayName: authDisplayName,
+                displayName_lowercase: authDisplayName.toLowerCase(), // NOVO CAMPO
                 photoURL: authPhotoURL,
                 friendId: friendIdToUse,
-                scratchUsername: "", // Campo inicializado
-                pronouns: "",        // Campo inicializado
-                profileDescription: "", // Campo inicializado
-                profileTheme: null,  // Inicializa profileTheme
+                scratchUsername: "", 
+                pronouns: "",        
+                profileDescription: "", 
+                profileTheme: null,  
                 friendsCount: 0,
                 followersCount: 0,
                 followingCount: 0,
@@ -94,18 +92,16 @@ export const ensureUserProfileAndFriendId = async (userAuth) => {
             needsFirestoreWrite = true; 
         } catch (error) {
             console.error("Erro ao criar perfil de usuário no Firestore ou Friend ID:", error);
-            // Retorna os dados construídos (sem email) mesmo em caso de falha parcial,
-            // ou null se a falha for crítica na geração do friendId.
             if (error.message === "FRIEND_ID_GENERATION_FAILED") return null;
             return userFirestoreData; 
         }
     } else {
-        // Usuário existe, verifica se precisa de atualizações
         const updates = {};
-        // Sincroniza displayName e photoURL do Auth para o Firestore se diferentes
-        if (userFirestoreData.displayName !== authDisplayName) updates.displayName = authDisplayName;
+        if (userFirestoreData.displayName !== authDisplayName) {
+            updates.displayName = authDisplayName;
+            updates.displayName_lowercase = authDisplayName.toLowerCase(); // ATUALIZA TAMBÉM
+        }
         if (userFirestoreData.photoURL !== authPhotoURL) updates.photoURL = authPhotoURL;
-        // REMOVIDO: if (!userFirestoreData.email && userAuth.email) updates.email = userAuth.email;
 
         if (!userFirestoreData.friendId) {
             console.log(`Usuário ${userAuth.uid} não tem Friend ID no Firestore. Gerando...`);
@@ -117,18 +113,20 @@ export const ensureUserProfileAndFriendId = async (userAuth) => {
                 console.log(`Friend ID ${friendIdToUse} gerado e salvo para ${userAuth.uid}`);
             } catch (error) {
                 console.error("Erro ao gerar Friend ID para usuário existente:", error);
-                // Não crítico o suficiente para parar, mas o friendId pode ficar faltando.
             }
         }
-        // Inicializa contadores se não existirem (para perfis antigos que não os tinham)
         if (typeof userFirestoreData.friendsCount !== 'number') updates.friendsCount = 0;
         if (typeof userFirestoreData.followersCount !== 'number') updates.followersCount = 0;
         if (typeof userFirestoreData.followingCount !== 'number') updates.followingCount = 0;
-        // Inicializa outros campos se não existirem (para perfis antigos)
         if (typeof userFirestoreData.scratchUsername === 'undefined') updates.scratchUsername = "";
         if (typeof userFirestoreData.pronouns === 'undefined') updates.pronouns = "";
         if (typeof userFirestoreData.profileDescription === 'undefined') updates.profileDescription = "";
         if (typeof userFirestoreData.profileTheme === 'undefined') updates.profileTheme = null;
+        if (typeof userFirestoreData.displayName_lowercase === 'undefined' && updates.displayName) { // Se displayName_lowercase não existe e estamos atualizando displayName
+             updates.displayName_lowercase = updates.displayName.toLowerCase();
+        } else if (typeof userFirestoreData.displayName_lowercase === 'undefined' && userFirestoreData.displayName) { // Se não existe mas o displayName original existe
+             updates.displayName_lowercase = userFirestoreData.displayName.toLowerCase();
+        }
 
 
         if (Object.keys(updates).length > 0) {
@@ -138,18 +136,16 @@ export const ensureUserProfileAndFriendId = async (userAuth) => {
         }
     }
     
-    // Se houve escrita ou o documento não existia, recarrega os dados para retornar a versão mais atual
     if (needsFirestoreWrite || !userDocSnap.exists()) { 
         userDocSnap = await getDoc(userDocRef);
-        userFirestoreData = userDocSnap.exists() ? userDocSnap.data() : userFirestoreData; // Usa o que foi construído se ainda não existe
+        userFirestoreData = userDocSnap.exists() ? userDocSnap.data() : userFirestoreData; 
     }
     
-    // Garante que o UID está no objeto retornado, mesmo que pego do userAuth
     if (userFirestoreData && !userFirestoreData.uid) {
         userFirestoreData.uid = userAuth.uid;
     }
 
-    return userFirestoreData; // Retorna os dados do Firestore (sem o email)
+    return userFirestoreData; 
 };
 
 export { app, auth, db };

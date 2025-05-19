@@ -6,6 +6,8 @@
     <title>David's Farm - Bem Vindo!</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="/imgs/siteLogo.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/imgs/siteLogo.ico" type="image/x-icon">
 </head>
 <body>
     <div id="background-particles"></div>
@@ -23,6 +25,15 @@
                     <h1>David's Farm</h1>
                 </a>
             </div>
+            <div class="header-search">
+                <div class="search-bar-wrapper">
+                    <i class="fas fa-search search-icon-input"></i>
+                    <input type="text" id="main-search-input" placeholder="Pesquisar...">
+                    <button id="clear-search-btn" class="clear-search-button" style="display:none;">&times;</button>
+                </div>
+                <div id="search-suggestions-box" class="search-suggestions header-suggestions" style="display: none;">
+                </div>
+            </div>
             <div class="user-auth-section">
                 </div>
         </header>
@@ -31,25 +42,37 @@
             <section class="welcome-section">
                 <h1>BEM VINDO!</h1>
                 <p class="site-status-message">Este site ainda está em construção. Espere bugs ou quedas.</p>
-                
                 <img src="imgs/david-builder.svg" alt="David Construtor" class="builder-image">
 
                 <div class="main-actions">
-                    <a href="login.html" class="action-button login-main-btn">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </a>
-                    <a href="https://scratch.mit.edu/projects/1168676248/" target="_blank" rel="noopener noreferrer" class="action-button scratch-game-btn">
-                        <i class="fas fa-gamepad"></i> Jogo no Scratch
-                    </a>
-                    <a href="URL_DA_SUA_PAGINA_DE_DOACAO_AQUI" target="_blank" rel="noopener noreferrer" class="action-button donate-btn">
-                        <i class="fas fa-heart"></i> Doar
-                    </a>
+                    <div class="action-buttons-row">
+                        <a href="login.html" id="main-auth-button" class="action-button login-main-btn">
+                            <i id="main-auth-button-icon" class="fas fa-sign-in-alt"></i> <span id="main-auth-button-text">Login</span>
+                        </a>
+                        <a href="https://scratch.mit.edu/users/eusougabriel/" target="_blank" rel="noopener noreferrer" class="action-button scratch-profile-btn">
+                            <i class="fas fa-cat"></i> Perfil no Scratch
+                        </a>
+                        <a href="https://livepix.gg/eusoudeon" target="_blank" rel="noopener noreferrer" class="action-button donate-btn">
+                            <i class="fas fa-heart"></i> Doar
+                        </a>
+                    </div>
+                    <div class="action-buttons-row">
+                        <a href="documentation.html" class="action-button documentation-btn">
+                            <i class="fas fa-book-open"></i> Documentação
+                        </a>
+                         <a href="https://github.com/uhhdeon" target="_blank" rel="noopener noreferrer" class="action-button github-btn"> <i class="fab fa-github"></i> GitHub
+                        </a>
+                        <button id="downloads-btn" class="action-button downloads-btn-disabled">
+                            <i class="fas fa-download"></i> Downloads
+                        </button>
+                    </div>
                 </div>
             </section>
 
             <section class="special-message-section">
-                <div id="dev-message-card" class="message-card" style="display: none;"> 
-                    <div class="message-header" id="dev-message-header-clickable"> <img id="dev-avatar" src="imgs/default-avatar.png" alt="Avatar do Desenvolvedor" class="message-avatar">
+                <div id="dev-message-card" class="message-card" style="display: none;">
+                    <div class="message-header" id="dev-message-header-clickable">
+                        <img id="dev-avatar" src="imgs/default-avatar.png" alt="Avatar do Desenvolvedor" class="message-avatar">
                         <span id="dev-name" class="message-username">Carregando...</span>
                     </div>
                     <div class="message-content">
@@ -71,7 +94,7 @@
         <div id="custom-popup" class="custom-popup">
             <button id="custom-popup-close" class="custom-popup-close-btn">&times;</button>
             <div id="custom-popup-content" class="custom-popup-content">
-                </div>
+            </div>
         </div>
     </div>
 

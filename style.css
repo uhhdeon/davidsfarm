@@ -2949,6 +2949,1383 @@ body {
 .popup-apply-button:hover {
     opacity: 0.9;
 }
-/* Botão "Fazer Login" específico se precisar */
-/* a.popup-apply-button[href="login.html"] { background-color: #007bff; } */
-/* button.popup-apply-button { background-color: #6c757d; } */ 
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* --- Layout do Perfil Público com Projetos --- */
+.public-profile-main {
+    max-width: 1100px; /* Aumentado um pouco para telas maiores, mas ainda limitado */
+    margin: 30px auto; 
+    padding: 25px 30px; 
+    background-color: #252525; 
+    border-radius: 10px; 
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5); 
+}
+
+#public-profile-content {
+    position: relative; 
+}
+
+.profile-layout-container {
+    display: flex;
+    flex-wrap: nowrap; /* Evita quebra de linha por padrão em telas largas */
+    gap: 30px; 
+}
+
+.profile-info-column {
+    flex: 3; /* Dá mais peso inicial para a coluna de informações */
+    min-width: 320px; /* Largura mínima antes de começar a espremer ou quebrar */
+    /* position: relative; Já definido anteriormente e é bom manter */
+}
+
+.profile-projects-column {
+    flex: 2; /* Coluna de projetos também pode crescer, mas um pouco menos que a de info */
+    min-width: 300px; /* Largura mínima para a coluna de projetos */
+    display: flex; 
+    flex-direction: column;
+    /* max-height e overflow-y para a lista dentro dela, não para a coluna inteira,
+       a menos que você queira a coluna inteira com scroll. */
+}
+
+.profile-projects-column h3 {
+    color: #00bfff; 
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #444;
+    font-size: 1.4em;
+    flex-shrink: 0; 
+}
+.public-profile-main.text-theme-dark .profile-projects-column h3 { 
+     color: #1f2328;
+     border-bottom-color: #ccc;
+}
+
+/* Lista de projetos no perfil público com scroll */
+#public-scratch-projects-list.scratch-projects-list-container.public-profile-project-list {
+    display: grid;
+    /* Ajusta o minmax para ter um tamanho mínimo um pouco maior para os cards se houver mais espaço */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+    gap: 15px;
+    overflow-y: auto; 
+    max-height: 500px; /* Aumenta um pouco a altura máxima antes do scroll */
+    padding: 5px; /* Pequeno padding interno na lista */
+    flex-grow: 1; 
+    border: 1px solid #333; /* Borda sutil na lista */
+    border-radius: 4px;
+    background-color: rgba(0,0,0,0.05); /* Fundo muito sutil para a área da lista */
+}
+
+.public-profile-project-list .scratch-project-item {
+    background-color: rgba(40,40,40,0.5); /* Ajusta o fundo do card do projeto */
+    border: 1px solid #404040; /* Borda mais clara para o card */
+    /* ... outros estilos de .scratch-project-item ... */
+}
+.public-profile-project-list .scratch-project-item img {
+    max-height: 110px; 
+}
+
+/* Placeholder da lista de projetos */
+#public-scratch-projects-list .list-placeholder {
+    grid-column: 1 / -1; 
+    text-align: center;
+    color: #777;
+    padding: 30px 15px; /* Aumenta padding vertical */
+    font-style: italic;
+    background-color: transparent; 
+    border: none; /* Remove borda do placeholder se a lista tiver */
+}
+.public-profile-main.text-theme-dark #public-scratch-projects-list .list-placeholder {
+    color: #555; 
+}
+
+
+/* Ajustes para responsividade */
+@media (max-width: 880px) { /* Ponto de quebra um pouco maior para empilhar antes */
+    .profile-layout-container {
+        flex-direction: column; 
+    }
+    .profile-info-column,
+    .profile-projects-column {
+        flex: 1 1 100%; /* Permite que ocupem a largura total ao empilhar */
+        min-width: auto; /* Reseta min-width quando empilhado */
+    }
+    .profile-projects-column {
+        margin-top: 30px; 
+        max-height: 400px; /* Altura máxima para a lista de projetos em mobile pode ser menor */
+    }
+    #public-scratch-projects-list.scratch-projects-list-container.public-profile-project-list {
+         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Cards um pouco menores em mobile */
+    }
+}
+
+@media (max-width: 480px) { /* Ajustes para telas bem pequenas */
+    .public-profile-main {
+        padding: 15px; /* Menos padding na página inteira */
+    }
+    .profile-header-info {
+        flex-direction: column; /* Foto acima do nome em telas muito pequenas */
+        align-items: center;
+        text-align: center;
+    }
+    #profile-page-photo {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    .profile-name-details {
+        align-items: center; /* Centraliza o conteúdo dentro de name-details */
+    }
+    .profile-stats {
+        justify-content: center; /* Centraliza os stats */
+        gap: 10px;
+    }
+    #public-scratch-projects-list.scratch-projects-list-container.public-profile-project-list {
+         grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); /* Cards ainda menores */
+         max-height: 350px;
+    }
+     .profile-projects-column h3 {
+        font-size: 1.2em;
+        text-align:center;
+    }
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1a1a1a; /* Cor de fundo GLOBAL do site */
+    color: #e0e0e0;
+    line-height: 1.6;
+    overflow-x: hidden;
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh; /* Garante que o footer fique no final se o conteúdo for curto */
+}
+
+#site-content {
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+    /* NÃO defina uma altura fixa ou min-height que force o conteúdo a esticar desnecessariamente */
+}
+#site-content.visible { opacity: 1; }
+
+
+main.public-profile-main {
+    max-width: 1100px; 
+    margin: 30px auto; 
+    padding: 25px 30px; 
+    /* A cor de fundo aqui é definida pelo TEMA do PERFIL via JavaScript */
+    /* background-color: #252525;  Remova o fallback fixo daqui se o JS sempre aplicar um */
+    border-radius: 10px; 
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5); 
+    /* IMPORTANTE: Evitar que o main por si só tente preencher toda a altura da tela */
+    /* Se o tema do perfil aplicar um fundo, ele será contido por este elemento */
+    /* Se o body tem uma cor de fundo diferente (como #1a1a1a), o card do perfil se destacará */
+    /* Não adicione min-height: 100vh ou similar aqui, deixe o conteúdo ditar a altura */
+}
+
+/* O body já tem um background-color. O .public-profile-main terá o seu próprio BG do tema.
+   A ideia é que se o conteúdo do .public-profile-main for menor que a tela,
+   o fundo do body (#1a1a1a) seja visível abaixo do card do perfil. */
+
+
+.profile-layout-container {
+    display: flex;
+    flex-wrap: wrap; /* Mantém a quebra para telas menores */
+    gap: 30px; 
+    align-items: flex-start; /* IMPORTANTE: Alinha os itens (colunas) ao topo */
+                               /* Isso evita que a coluna menor estique para igualar a maior */
+}
+
+.profile-info-column {
+    flex: 3; 
+    min-width: 320px; 
+    /* Não precisa de altura definida, deixa o conteúdo ditar */
+}
+
+.profile-projects-column {
+    flex: 2; 
+    min-width: 300px; 
+    display: flex; 
+    flex-direction: column;
+    /* Não precisa de altura definida, deixa o conteúdo ditar. O scroll da lista é interno. */
+}
+
+.profile-projects-column h3 {
+    /* ... estilos existentes ... */
+    flex-shrink: 0; 
+}
+
+#public-scratch-projects-list.scratch-projects-list-container.public-profile-project-list {
+    /* ... estilos existentes ... */
+    overflow-y: auto; 
+    max-height: 500px; /* O scroll é AQUI, dentro da lista de projetos */
+    flex-grow: 1; /* Se a coluna de projetos precisar crescer para preencher espaço vertical no flex, a lista pode crescer */
+                   /* Mas isso pode ser problemático se .profile-layout-container tiver altura definida. */
+                   /* Melhor deixar o conteúdo ditar a altura da coluna de projetos. */
+}
+
+/* Ajustes para responsividade */
+@media (max-width: 880px) { 
+    .profile-layout-container {
+        flex-direction: column; 
+        align-items: stretch; /* Para que as colunas ocupem a largura total */
+    }
+    /* ... outros ajustes responsivos ... */
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* --- Reset Básico & Estilos Globais (Confirmar/Ajustar) --- */
+html {
+    height: 100%;
+    box-sizing: border-box; /* Boa prática */
+}
+*, *:before, *:after {
+    box-sizing: inherit; /* Herda o box-sizing do html */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    line-height: 1.6;
+    overflow-x: hidden;
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh; /* ALTERAÇÃO IMPORTANTE: Garante que o body ocupe pelo menos a altura total da viewport */
+    margin: 0; /* Remove margem padrão do body */
+}
+
+#site-content {
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+    width: 100%; /* Garante que ocupe a largura */
+}
+#site-content.visible { opacity: 1; }
+
+header {
+    /* ... estilos existentes ... */
+    flex-shrink: 0; /* Impede que o header encolha */
+}
+
+/* --- Layout do Perfil Público com Projetos --- */
+main.public-profile-main { /* Adiciona 'main' para especificidade se necessário */
+    max-width: 1100px; 
+    width: 90%; /* Usa uma porcentagem da largura da viewport, com um max-width */
+    margin: 30px auto; 
+    padding: 25px 30px; 
+    background-color: #252525; 
+    border-radius: 10px; 
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5); 
+    display: flex; /* Para que o #public-profile-content possa crescer */
+    flex-direction: column;
+    flex-grow: 1; /* PERMITE QUE O MAIN CONTENT CRESÇA DENTRO DO #site-content */
+}
+
+#public-profile-content {
+    position: relative; 
+    display: flex; /* Para que o .profile-layout-container possa crescer */
+    flex-direction: column;
+    flex-grow: 1; /* Permite que este container cresça dentro do .public-profile-main */
+}
+
+.profile-layout-container {
+    display: flex;
+    flex-wrap: nowrap; 
+    gap: 30px; 
+    flex-grow: 1; /* Permite que o container das colunas cresça */
+    /* Se o conteúdo for menor que a altura, as colunas devem tentar se esticar ou o container deve centralizar verticalmente */
+    /* Para um efeito de "esticar" as colunas para preencher altura (se desejado): */
+    /* align-items: stretch; (padrão para flex-direction: row) */
+}
+
+.profile-info-column {
+    flex: 3; 
+    min-width: 320px; 
+    position: relative;
+    display: flex; /* Adicionado para melhor controle interno */
+    flex-direction: column; /* Para que os elementos internos se alinhem verticalmente */
+}
+/* Para fazer a seção de descrição "Sobre Mim" ocupar o espaço restante na coluna de info: */
+.profile-info-column .profile-description-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.profile-info-column .profile-description-section p {
+    flex-grow: 1; /* Faz o parágrafo da descrição tentar ocupar espaço */
+}
+
+
+.profile-projects-column {
+    flex: 2; 
+    min-width: 300px; 
+    display: flex; 
+    flex-direction: column;
+    /* max-height: 500px; Removido max-height daqui, será na lista */
+}
+
+.profile-projects-column h3 {
+    /* ... estilos existentes ... */
+    flex-shrink: 0; 
+}
+
+#public-scratch-projects-list.scratch-projects-list-container.public-profile-project-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+    gap: 15px;
+    overflow-y: auto; 
+    /* max-height: 500px;  A altura máxima pode ser controlada pelo espaço disponível na coluna */
+    padding: 5px; 
+    flex-grow: 1; /* FAZ A LISTA OCUPAR O ESPAÇO VERTICAL DISPONÍVEL NA COLUNA DE PROJETOS */
+    border: 1px solid #333; 
+    border-radius: 4px;
+    background-color: rgba(0,0,0,0.05); 
+    min-height: 150px; /* Altura mínima para a lista, mesmo vazia */
+}
+
+/* ... (outros estilos existentes, incluindo media queries) ... */
+
+footer {
+    /* ... estilos existentes ... */
+    flex-shrink: 0; /* Impede que o footer encolha */
+    width: 100%; /* Garante que ocupe a largura */
+    margin-top: auto; /* Empurra para o final do #site-content se o conteúdo for curto */
+}
+
+/* Adicione ao final do seu style.css */
+
+/* --- Estilos para Barra de Pesquisa na Página Inicial --- */
+.search-container-index {
+    width: 100%;
+    max-width: 600px; /* Largura da barra de pesquisa */
+    margin: 20px auto 30px auto; /* Espaçamento */
+    position: relative; /* Para o posicionamento da caixa de sugestões */
+}
+
+.search-bar-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #2c2c2c; /* Fundo escuro para a barra */
+    border-radius: 25px; /* Bordas bem arredondadas */
+    padding: 5px 10px;
+    border: 1px solid #444;
+}
+
+.search-bar-wrapper .search-icon-input {
+    color: #777;
+    margin: 0 8px 0 5px; /* Espaçamento do ícone */
+}
+
+#main-search-input {
+    flex-grow: 1;
+    padding: 10px 5px;
+    border: none;
+    background-color: transparent; /* Input transparente */
+    color: #e0e0e0;
+    font-size: 1rem;
+    outline: none; /* Remove borda de foco padrão */
+}
+#main-search-input::placeholder {
+    color: #777;
+}
+
+.clear-search-button {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 1.5rem; /* Tamanho do 'x' */
+    cursor: pointer;
+    padding: 0 8px;
+    line-height: 1;
+}
+.clear-search-button:hover {
+    color: #fff;
+}
+
+
+.search-suggestions {
+    position: absolute;
+    top: 100%; /* Abaixo da barra de pesquisa */
+    left: 0;
+    right: 0;
+    background-color: #2c2c2c; /* Mesmo fundo da barra */
+    border: 1px solid #444;
+    border-top: none; /* Remove borda superior para juntar com a barra */
+    border-radius: 0 0 8px 8px; /* Arredonda cantos inferiores */
+    z-index: 990; /* Abaixo do header, mas acima do conteúdo */
+    max-height: 300px; /* Altura máxima com scroll */
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.suggestion-item {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    color: #ccc;
+    cursor: pointer;
+    border-bottom: 1px solid #383838; /* Separador sutil */
+    transition: background-color 0.2s ease;
+}
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+.suggestion-item:hover {
+    background-color: #383838; /* Destaque no hover */
+    color: #fff;
+}
+.suggestion-item i { /* Ícone na sugestão */
+    margin-right: 12px;
+    color: #00bfff; /* Cor dos ícones */
+    width: 20px; /* Alinhamento dos ícones */
+    text-align: center;
+}
+.suggestion-item strong {
+    color: #fff; /* Destaca o termo pesquisado */
+}
+
+/* Ajuste no welcome-section se a barra de pesquisa ficar muito colada */
+.welcome-section {
+    /* margin-top: 10px; Se precisar de mais espaço abaixo da barra de pesquisa */
+}
+
+/* Adicione ao final do seu style.css */
+
+/* --- Estilos para Página de Resultados da Pesquisa --- */
+.search-results-main {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+#search-results-title {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #00bfff;
+    font-size: 1.8em;
+}
+
+#search-results-container .user-list { /* Reutilizando estilos de connections.html */
+    list-style: none;
+    padding: 0;
+}
+#search-results-container .user-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Se houver botões de ação no futuro */
+    padding: 12px 15px;
+    background-color: #282828;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    transition: background-color 0.2s ease;
+}
+#search-results-container .user-list-item:hover {
+    background-color: #333;
+}
+#search-results-container .user-list-item a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #e0e0e0;
+    flex-grow: 1;
+}
+#search-results-container .user-list-item a:hover span {
+    text-decoration: underline;
+    color: #00bfff;
+}
+#search-results-container .user-avatar-small {
+    width: 45px; /* Um pouco maior que nas listas de conexões */
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 1px solid #555;
+}
+
+/* Para resultados de jogos (reutilizando .scratch-projects-list-container) */
+#search-results-container .scratch-projects-list-container {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Consistente com perfil */
+}
+#search-results-container .scratch-project-item .project-author-search {
+    font-size: 0.8em;
+    color: #aaa;
+    margin-top: 5px;
+}
+#search-results-container .scratch-project-item .project-author-search a {
+    color: #00bfff;
+    text-decoration: none;
+    font-weight: normal; /* Reset para não herdar de outro 'a' */
+}
+#search-results-container .scratch-project-item .project-author-search a:hover {
+    text-decoration: underline;
+}
+
+#search-no-results-message.list-placeholder {
+    text-align: center;
+    padding: 30px 15px;
+    font-style: italic;
+    color: #888; /* Cor para mensagem de "nenhum resultado" */
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* --- Header (Ajustes para incluir a barra de pesquisa) --- */
+header {
+    background-color: #000; /* Ou a cor que você usa, ex: #1c1c1c */
+    padding: 10px 20px; /* Padding pode precisar de ajuste */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Mantém espaço entre os blocos principais */
+    gap: 20px; /* Espaço entre os blocos do header */
+    /* ... (animações e outros estilos existentes do header) ... */
+}
+
+.header-left { 
+    display: flex; 
+    align-items: center;
+    flex-shrink: 0; /* Para não encolher o logo/título */
+}
+/* #logo e header h1 estilos existentes */
+
+/* NOVO: Container da Barra de Pesquisa no Header */
+.header-search {
+    flex-grow: 1; /* Permite que a barra de pesquisa ocupe o espaço central */
+    max-width: 500px; /* Limita a largura da barra de pesquisa no header */
+    position: relative; /* Para o posicionamento da caixa de sugestões */
+    margin: 0 15px; /* Adiciona margem horizontal */
+}
+
+/* Ajustes na search-bar-wrapper (que já existia) para o contexto do header */
+.search-bar-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #282828; /* Cor de fundo da barra de pesquisa no header */
+    border-radius: 20px; /* Bordas arredondadas */
+    padding: 6px 12px; /* Padding interno menor para o header */
+    border: 1px solid #404040;
+    height: 38px; /* Altura fixa para alinhar com outros itens do header */
+}
+
+.search-bar-wrapper .search-icon-input {
+    color: #888; /* Cor do ícone de lupa */
+    margin-right: 8px;
+}
+
+#main-search-input { /* O input de pesquisa */
+    flex-grow: 1;
+    padding: 5px;
+    border: none;
+    background-color: transparent;
+    color: #e0e0e0;
+    font-size: 0.9rem; /* Fonte um pouco menor no header */
+    outline: none;
+}
+#main-search-input::placeholder {
+    color: #888;
+}
+
+.clear-search-button { /* Botão 'x' para limpar */
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 1.2rem; 
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+}
+.clear-search-button:hover {
+    color: #fff;
+}
+
+/* Caixa de Sugestões no Header */
+.search-suggestions.header-suggestions {
+    position: absolute;
+    top: calc(100% + 5px); /* Abaixo da barra, com um pequeno espaço */
+    left: 0;
+    right: 0;
+    background-color: #2c2c2c; 
+    border: 1px solid #444;
+    border-top: 1px solid #3a3a3a; /* Borda superior um pouco diferente */
+    border-radius: 0 0 6px 6px; 
+    z-index: 1050; /* Acima do conteúdo, mas abaixo de modais de tela cheia se houver */
+    max-height: 350px; 
+    overflow-y: auto;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+}
+/* Estilos para .suggestion-item podem ser os mesmos que você já tinha */
+.suggestion-item {
+    padding: 10px 15px; /* Padding ajustado para header */
+    display: flex;
+    align-items: center;
+    color: #ccc;
+    cursor: pointer;
+    border-bottom: 1px solid #383838; 
+    transition: background-color 0.2s ease;
+    font-size: 0.9rem; /* Fonte um pouco menor nas sugestões do header */
+}
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover { background-color: #383838; color: #fff; }
+.suggestion-item i { margin-right: 10px; color: #00bfff; width: 18px; text-align: center; }
+.suggestion-item strong { color: #fff; }
+
+
+.user-auth-section { 
+    display: flex; 
+    align-items: center;
+    flex-shrink: 0; /* Para não encolher a seção de login/usuário */
+}
+/* ... (Estilos existentes para .user-info, #user-photo, #user-name, .login-button) ... */
+
+
+/* REMOVER OU COMENTAR o .search-container-index antigo que estava no main */
+/*
+.search-container-index {
+    width: 100%;
+    max-width: 600px; 
+    margin: 20px auto 30px auto; 
+    position: relative; 
+}
+*/
+
+/* Media query para quando a barra de pesquisa pode precisar ser escondida ou simplificada em telas muito pequenas */
+@media (max-width: 680px) { /* Ajuste este ponto de quebra conforme necessário */
+    .header-search {
+        /* Opção 1: Esconder a barra de pesquisa no header em telas muito pequenas */
+        /* display: none; */
+
+        /* Opção 2: Reduzir a largura máxima ou fazer ela ocupar menos espaço */
+        max-width: 200px; /* Exemplo */
+        /* Ou ajustar o flex-grow para ser menor */
+        /* flex-grow: 0.5; */
+    }
+    header {
+        gap: 10px; /* Reduz o gap no header */
+    }
+     #logo {
+        width: 40px; height: 40px; margin-right: 10px;
+    }
+    header h1 {
+        font-size: 1.5em; 
+    }
+}
+
+/* Ajustes no seu style.css */
+
+/* --- Header (Ajustes FINAIS MESMO para centralização e alinhamento) --- */
+header {
+    background-color: #181818;
+    padding: 0 20px; 
+    display: flex;
+    align-items: center; 
+    /* justify-content: space-between; VAMOS MUDAR ISSO */
+    gap: 20px; /* Espaço entre os elementos diretos do header */
+    position: relative; 
+    z-index: 1000;  
+    border-bottom: 1px solid #333; 
+    min-height: 60px; 
+}
+
+.header-left { 
+    display: flex; 
+    align-items: center;
+    flex-shrink: 0; /* Não deixa o logo e título encolherem */
+    /* margin-right: auto; /* Empurra os elementos da direita para a direita */
+}
+#logo {
+    width: 40px; 
+    height: 40px; 
+    margin-right: 10px;
+}
+header h1 {
+    font-size: 1.6em; 
+    white-space: nowrap; 
+    color: #fff; 
+}
+
+/* Container da Barra de Pesquisa no Header */
+.header-search {
+    flex-grow: 1; /* FAZ A BARRA DE PESQUISA TENTAR OCUPAR O ESPAÇO RESTANTE */
+    display: flex; /* Para centralizar o .search-bar-wrapper dentro dele */
+    justify-content: center; /* Centraliza horizontalmente o .search-bar-wrapper */
+    align-items: center; /* Alinha verticalmente o .search-bar-wrapper */
+    min-width: 200px; /* Largura mínima para a área de pesquisa */
+    /* max-width não é tão crucial se ele já tem flex-grow e os outros tem flex-shrink:0 */
+}
+
+.search-bar-wrapper {
+    display: flex;
+    align-items: center; 
+    width: 100%; 
+    max-width: 480px; /* Largura máxima para a barra em si, para não ficar gigante em telas largas */
+    background-color: #252525; 
+    border-radius: 20px; 
+    padding: 0 12px; 
+    border: 1px solid #383838; 
+    height: 38px; 
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.search-bar-wrapper:focus-within { 
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.search-bar-wrapper .search-icon-input {
+    color: #777;
+    margin-right: 8px;
+    font-size: 0.9em; 
+}
+
+#main-search-input { 
+    flex-grow: 1;
+    padding: 8px 5px; 
+    border: none;
+    background-color: transparent;
+    color: #e0e0e0;
+    font-size: 0.9rem; 
+    outline: none;
+    height: 100%; 
+}
+#main-search-input::placeholder {
+    color: #777;
+}
+
+.clear-search-button { 
+    /* ... estilos mantidos ... */
+}
+
+/* Caixa de Sugestões no Header */
+.search-suggestions.header-suggestions {
+    position: absolute;
+    top: calc(100% + 2px); 
+    /* A centralização da caixa de sugestões será relativa ao .search-bar-wrapper se ele for o pai posicionado,
+       ou ao .header-search. Como .header-search agora tem display:flex e justify-content:center,
+       e .search-bar-wrapper tem width:100% e max-width, a caixa de sugestões
+       precisa ser posicionada em relação ao .header-search.
+       Para simplificar, se o .header-search centraliza o .search-bar-wrapper,
+       e a caixa de sugestões está DENTRO do .header-search e tem left:0, right:0,
+       ela deve se alinhar com a largura do .search-bar-wrapper (por causa do max-width).
+    */
+    left: 0; /* Relativo ao .header-search */
+    right: 0; /* Relativo ao .header-search */
+    margin-left: auto; /* Para centralizar se a largura for menor que o pai */
+    margin-right: auto; /* Para centralizar se a largura for menor que o pai */
+    width: 100%; /* Ocupa a largura do .search-bar-wrapper */
+    max-width: 480px; /* Mesma max-width da barra de pesquisa */
+    background-color: #2c2c2c; 
+    border: 1px solid #444;
+    border-top: none; 
+    border-radius: 0 0 6px 6px; 
+    z-index: 1050; 
+    max-height: 350px; 
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+}
+
+
+.user-auth-section { 
+    display: flex; 
+    align-items: center;
+    flex-shrink: 0; /* Não deixa a seção do usuário encolher */
+    /* margin-left: auto; /* Empurra este elemento para a extrema direita */
+}
+/* ... (outros estilos) ... */
+
+/* Adicione ou ajuste no seu style.css */
+
+/* --- Reset Básico & Estilos Globais --- */
+html {
+    height: 100%;
+    box-sizing: border-box; 
+}
+*, *:before, *:after {
+    box-sizing: inherit; 
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1a1a1a; /* Cor de fundo geral */
+    color: #e0e0e0;
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* display: flex; flex-direction: column; min-height: 100vh;  -> Removido do body, será no #site-content */
+    margin: 0; 
+}
+
+#site-content {
+    /* flex-grow: 1;  -> Não mais necessário se o body não é flex column direto para esse fim */
+    /* display: flex;  -> Não mais necessário se o body não é flex column direto para esse fim */
+    /* flex-direction: column; -> Não mais necessário se o body não é flex column direto para esse fim */
+    min-height: 100vh; /* Garante que #site-content tente ocupar a altura da viewport */
+    display: flex; /* Adicionado para layout interno, se necessário (ex: footer no final) */
+    flex-direction: column; /* Adicionado para layout interno */
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+    width: 100%; 
+}
+#site-content.visible { opacity: 1; }
+
+
+/* --- Header (TORNANDO STICKY) --- */
+header {
+    background-color: #181818;
+    padding: 0 20px; 
+    display: flex;
+    align-items: center; 
+    justify-content: space-between;
+    gap: 15px;
+    
+    position: sticky; /* FAZ O HEADER GRUDAR */
+    top: 0;           /* GRUDA NO TOPO DA TELA */
+    z-index: 1000;    /* Garante que fique acima da maioria dos outros conteúdos */
+    
+    border-bottom: 1px solid #333; 
+    min-height: 60px; 
+    width: 100%; /* Garante que o header ocupe toda a largura quando sticky */
+}
+
+/* ... (Restante dos estilos para .header-left, .header-search, .user-auth-section, etc., permanecem os mesmos da última versão) ... */
+/* É importante que o z-index da caixa de sugestões (.search-suggestions.header-suggestions) 
+   seja maior que o do header se você quiser que ela apareça por cima de um header sticky,
+   mas como ela é filha do header, isso deve acontecer naturalmente se o header tiver um z-index alto.
+   Se a caixa de sugestões for posicionada em relação ao body, aí sim o z-index dela seria crucial.
+   Como está position:absolute em relação ao .header-search, o z-index:1050 já deve funcionar.
+*/
+.search-suggestions.header-suggestions {
+    /* ... estilos existentes ... */
+    z-index: 1050; /* Mantém ou ajusta para ser maior que o z-index do header se necessário, mas geralmente não é preciso se for filho */
+}
+
+
+/* Conteúdo Principal da Página */
+main.index-main-content, 
+main.public-profile-main, 
+main.search-results-main,
+main.friends-main-content,
+main.connections-main,
+.profile-container, /* Para a página de perfil */
+.auth-form-container /* Para páginas de login/registro */
+{ 
+    /* Se o header fosse 'position: fixed', precisaríamos de um padding-top aqui.
+       Com 'position: sticky', o espaço original do header é geralmente respeitado.
+       Mas se você notar sobreposição, adicione um padding-top ao seu elemento <main>
+       ou a um wrapper logo após o header.
+       padding-top: 70px; /* Exemplo: Altura do header + um pouco de margem */
+    
+    flex-grow: 1; /* Para empurrar o footer para baixo */
+    width: 100%; /* Para ocupar a largura */
+}
+
+
+footer {
+    /* ... estilos existentes ... */
+    flex-shrink: 0; 
+    width: 100%; 
+    /* margin-top: auto; -> Pode ser removido se #site-content é flex e main tem flex-grow */
+}
+
+/* Adicione ao final do seu style.css */
+
+/* --- Estilos para Novos Botões na Página Inicial --- */
+.main-actions .action-button.documentation-btn {
+    background-color: #17a2b8; /* Azul mais claro/ciano para documentação */
+}
+.main-actions .action-button.documentation-btn:hover {
+    background-color: #138496;
+}
+
+.main-actions .action-button.downloads-btn-disabled {
+    background-color: #6c757d; /* Cinza para desabilitado/manutenção */
+    color: #ccc;
+    cursor: not-allowed; /* Indica que não é para clicar diretamente, mas o JS vai pegar */
+}
+.main-actions .action-button.downloads-btn-disabled:hover {
+    background-color: #5a6268;
+}
+
+/* Ajuste para que o botão de Downloads não pareça um link desabilitado, mas um botão */
+button.action-button.downloads-btn-disabled {
+    /* Herda estilos de .action-button, mas garante que pareça um botão */
+}
+
+/* Ajustes nos botões existentes se necessário para consistência */
+.main-actions .action-button.scratch-profile-btn { /* Mudamos de scratch-game-btn para scratch-profile-btn */
+    background-color: #fd7e14; /* Um laranja diferente para o perfil Scratch */
+}
+.main-actions .action-button.scratch-profile-btn:hover {
+    background-color: #e66900;
+}
+
+/* Estilo para o pop-up de manutenção (reutilizando .popup-actions) */
+#custom-popup-content p { /* Estilo geral para parágrafos no popup */
+    color: #bdc3c7;
+    line-height: 1.6;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 10px; /* Espaçamento entre parágrafos */
+}
+#custom-popup-content p:last-of-type {
+    margin-bottom: 20px; /* Mais espaço antes dos botões */
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+.main-actions {
+    display: flex;
+    flex-direction: column; /* Mantém a direção de coluna para o container geral dos botões */
+    align-items: center;
+    gap: 15px; 
+}
+
+.action-buttons-row { /* Novo container para cada linha de botões */
+    display: flex;
+    flex-wrap: wrap; /* Permite que os botões quebrem se não couberem na linha */
+    justify-content: center; /* Centraliza os botões na linha */
+    gap: 15px; /* Espaço entre os botões na mesma linha */
+    width: 100%; /* Ocupa a largura para centralizar corretamente */
+}
+
+.main-actions .action-button {
+    padding: 12px 20px; /* Ajuste o padding se necessário para o tamanho desejado */
+    font-size: 1rem;   /* Ajuste o tamanho da fonte se necessário */
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px; /* Largura mínima para os botões, ajuste se necessário */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    flex-grow: 0; /* Impede que os botões cresçam para preencher a linha inteira se houver poucos */
+    flex-shrink: 0;
+}
+.main-actions .action-button i { 
+    margin-right: 10px;
+}
+
+/* ... (Restante dos estilos para login-main-btn, scratch-profile-btn, donate-btn, documentation-btn, downloads-btn-disabled) ... */
+
+
+/* Media query para quando os botões devem ficar lado a lado nas linhas */
+/* As media queries anteriores para .main-actions podem não ser mais necessárias se
+   .action-buttons-row já lida com a quebra (wrap) */
+
+/* Remova ou ajuste a media query antiga para .main-actions se ela conflitar */
+/* @media (min-width: 600px) {
+    .main-actions {
+        flex-direction: row; 
+        justify-content: center;
+    }
+    .main-actions .action-button {
+        min-width: 180px; 
+    }
+} */
+
+/* Adicione ao final do seu style.css */
+
+/* --- Estilos para Página de Documentação (Documentation.html) --- */
+.documentation-main {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 25px;
+    background-color: #282828; /* Fundo do card principal */
+    border-radius: 8px;
+    color: #e0e0e0;
+}
+
+.documentation-main h2 { /* Título "Documentação dos Projetos" */
+    text-align: center;
+    color: #00bfff;
+    margin-bottom: 30px;
+    font-size: 2em;
+}
+
+.doc-selector-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.doc-selector-btn {
+    padding: 10px 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #ccc;
+    background-color: #333;
+    border: 2px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.doc-selector-btn:hover {
+    background-color: #444;
+    color: #fff;
+    border-color: #555;
+}
+.doc-selector-btn.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+}
+
+.doc-content-area {
+    background-color: #1f1f1f; /* Fundo para a área de conteúdo */
+    padding: 20px;
+    border-radius: 6px;
+    min-height: 300px; /* Altura mínima para a área de conteúdo */
+}
+
+.doc-content {
+    /* display: none; é controlado pelo JS */
+    line-height: 1.7;
+}
+.doc-content h3 { /* Título do projeto dentro da documentação */
+    color: #00bfff;
+    font-size: 1.6em;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+}
+.doc-content h4 { /* Subtítulos como Agradecimentos, Avisos */
+    color: #e0e0e0;
+    font-size: 1.2em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.doc-content p {
+    margin-bottom: 12px;
+    color: #c5c5c5; /* Cor do texto principal */
+}
+.doc-content strong {
+    color: #f1c40f; /* Amarelo para destaque */
+}
+.doc-content ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+.doc-content ul li {
+    margin-bottom: 8px;
+}
+.doc-content a {
+    color: #3498db; /* Cor de link azulada */
+    text-decoration: underline;
+}
+.doc-content a:hover {
+    color: #5dade2;
+}
+
+.doc-content .inspiration-note,
+.doc-content .copyright-note {
+    font-style: italic;
+    color: #999;
+    font-size: 0.9em;
+}
+.doc-content .warning-note {
+    color: #e74c3c; /* Vermelho para avisos importantes */
+    font-weight: bold;
+}
+.doc-content .performance-note {
+    color: #f39c12; /* Laranja para notas de performance */
+}
+.doc-content .controls-note {
+    color: #2ecc71; /* Verde para notas de controles */
+    font-weight: 500;
+}
+.doc-separator {
+    border: 0;
+    border-top: 1px solid #333;
+    margin: 25px 0;
+}
+
+.doc-selection-feedback {
+    margin-top: 20px;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #2ecc71; /* Verde para o feedback */
+    background-color: rgba(46, 204, 113, 0.1);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    border-radius: 4px;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#doc-placeholder p {
+    text-align: center;
+    font-size: 1.1em;
+    color: #777;
+    padding: 40px 0;
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes para .main-actions, .action-buttons-row, .action-button) ... */
+
+/* Botão Login/Perfil dinâmico (pode precisar de uma classe específica se quiser diferenciar muito do login) */
+.main-actions .action-button.profile-main-btn {
+    background-color: #17a2b8; /* Ciano, mesma cor da documentação para consistência de "ações do site" */
+}
+.main-actions .action-button.profile-main-btn:hover {
+    background-color: #138496;
+}
+/* A classe .login-main-btn já está estilizada */
+
+
+/* Novo Botão GitHub */
+.main-actions .action-button.github-btn {
+    background-color: #333; /* Cor escura para GitHub */
+    /* Ou pode usar a cor oficial do GitHub: #181717 ou #24292e, mas pode não contrastar bem */
+}
+.main-actions .action-button.github-btn:hover {
+    background-color: #202020;
+}
+.main-actions .action-button.github-btn i.fab.fa-github {
+    font-size: 1.1em; /* Deixa o ícone do GitHub um pouco maior */
+}
+
+/* Ajuste para o ícone de perfil no botão dinâmico */
+.main-actions .action-button i.fa-user-circle {
+    /* Estilos específicos se necessário, geralmente o fas já cobre */
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes para .main-actions, .action-buttons-row, .action-button) ... */
+
+/* Botão Login/Perfil dinâmico */
+.main-actions .action-button.login-main-btn { /* Botão "Login" quando deslogado */
+    background-color: #007bff; 
+}
+.main-actions .action-button.login-main-btn:hover {
+    background-color: #0056b3;
+}
+
+.main-actions .action-button.profile-main-btn { /* Botão "Perfil" quando logado */
+    background-color: #6f42c1; /* Roxo - Ex: Bootstrap purple */
+}
+.main-actions .action-button.profile-main-btn:hover {
+    background-color: #5a2fad; /* Roxo mais escuro no hover */
+}
+
+
+/* Botão Perfil no Scratch */
+.main-actions .action-button.scratch-profile-btn { 
+    background-color: #fd7e14; 
+}
+.main-actions .action-button.scratch-profile-btn:hover {
+    background-color: #e66900;
+}
+
+/* Botão Doar */
+.main-actions .action-button.donate-btn { 
+    background-color: #e83e8c; 
+}
+.main-actions .action-button.donate-btn:hover {
+    background-color: #d93078;
+}
+
+/* Botão Documentação */
+.main-actions .action-button.documentation-btn {
+    background-color: #17a2b8; 
+}
+.main-actions .action-button.documentation-btn:hover {
+    background-color: #138496;
+}
+
+/* NOVO: Botão GitHub com cor mais clara */
+.main-actions .action-button.github-btn {
+    background-color: #adb5bd; /* Cinza claro (Bootstrap's secondary color) */
+    color: #212529; /* Texto escuro para contraste com fundo claro */
+}
+.main-actions .action-button.github-btn:hover {
+    background-color: #919ca6; /* Cinza um pouco mais escuro no hover */
+}
+.main-actions .action-button.github-btn i.fab.fa-github {
+    font-size: 1.1em; 
+    color: #212529; /* Ícone escuro para combinar com o texto */
+}
+
+
+/* Botão Downloads (desabilitado) */
+.main-actions .action-button.downloads-btn-disabled {
+    background-color: #6c757d; 
+    color: #ccc;
+    cursor: not-allowed; 
+}
+.main-actions .action-button.downloads-btn-disabled:hover {
+    background-color: #5a6268;
+}
+
+/* ... (Restante dos seus estilos) ... */
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* --- Estilos para Animações na Página de Documentação --- */
+.doc-content h3,
+.doc-content h4,
+.doc-content p,
+.doc-content ul,
+.doc-content hr,
+.doc-content .inspiration-note, /* Adiciona classes específicas se quiser animações diferentes */
+.doc-content .warning-note,
+.doc-content .performance-note,
+.doc-content .controls-note,
+.doc-content .copyright-note {
+    opacity: 0; /* Começa invisível */
+    transform: translateY(20px); /* Começa um pouco abaixo */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.doc-content.visible-content h3,
+.doc-content.visible-content h4,
+.doc-content.visible-content p,
+.doc-content.visible-content ul,
+.doc-content.visible-content hr,
+.doc-content.visible-content .inspiration-note,
+.doc-content.visible-content .warning-note,
+.doc-content.visible-content .performance-note,
+.doc-content.visible-content .controls-note,
+.doc-content.visible-content .copyright-note {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Aplicar delay escalonado para os elementos aparecerem um após o outro */
+.doc-content.visible-content h3 { transition-delay: 0.1s; }
+.doc-content.visible-content p:nth-of-type(1) { transition-delay: 0.15s; }
+.doc-content.visible-content p:nth-of-type(2) { transition-delay: 0.2s; }
+.doc-content.visible-content h4:nth-of-type(1) { transition-delay: 0.25s; } 
+/* Você pode continuar este padrão ou usar JS para delays mais complexos se tiver muitos elementos */
+
+
+/* Estilos para o Pop-up da Medalha */
+#custom-popup-content.medal-popup { /* Classe específica para este popup */
+    text-align: center;
+}
+
+#custom-popup-content.medal-popup img.medal-image {
+    width: 100px; /* Ajuste o tamanho da medalha */
+    height: 100px;
+    margin-bottom: 15px;
+    /* object-fit: contain; (se a imagem não for quadrada) */
+}
+
+#custom-popup-content.medal-popup h3 { /* Título do popup da medalha */
+    font-size: 1.5em; /* Ajuste o tamanho */
+    color: #f1c40f; /* Cor dourada para o título */
+    margin-bottom: 10px;
+}
+#custom-popup-content.medal-popup p {
+    font-size: 1em;
+    color: #ecf0f1; /* Texto claro */
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+#custom-popup-content.medal-popup p.signature {
+    margin-top: 15px;
+    font-style: italic;
+    color: #bdc3c7;
+}
+
+#custom-popup-content.medal-popup .popup-actions button {
+    background-color: #27ae60; /* Verde para o botão "Legal!" */
+    padding: 10px 25px;
+}
+#custom-popup-content.medal-popup .popup-actions button:hover {
+    background-color: #229954;
+}
+
+/* Animação para o popup da medalha */
+.custom-popup.medal-popup-animation { /* Adicionar esta classe ao popup via JS */
+    animation: medalPopupEntry 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+@keyframes medalPopupEntry {
+    0% {
+        opacity: 0;
+        transform: translateY(50px) scale(0.7);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* --- Estilos para Animações na Página de Documentação --- */
+.doc-content .animate-on-scroll { /* Nova classe para elementos que animarão com o scroll */
+    opacity: 0;
+    transform: translateY(30px); /* Começa um pouco mais abaixo */
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    /* transition-delay será controlado pelo JS se necessário, mas podemos ter um base */
+}
+
+.doc-content .animate-on-scroll.is-visible { /* Classe adicionada pelo Intersection Observer */
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* O estilo .doc-content.visible-content pode não ser mais necessário se cada elemento for animado individualmente */
+/* Se você mantiver a animação de feedback ao clicar no botão, .doc-selection-feedback permanece */
+
+/* Estilos para o Pop-up da Medalha (já devem existir, mas confirme) */
+#custom-popup-content.medal-popup { 
+    text-align: center;
+}
+#custom-popup-content.medal-popup img.medal-image {
+    width: 100px; 
+    height: 100px;
+    margin-bottom: 15px;
+}
+#custom-popup-content.medal-popup h3 { 
+    font-size: 1.5em; 
+    color: #f1c40f; 
+    margin-bottom: 10px;
+}
+#custom-popup-content.medal-popup p {
+    font-size: 1em;
+    color: #ecf0f1; 
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+#custom-popup-content.medal-popup p.signature {
+    margin-top: 15px;
+    font-style: italic;
+    color: #bdc3c7;
+}
+#custom-popup-content.medal-popup .popup-actions button {
+    background-color: #27ae60; 
+    padding: 10px 25px;
+}
+#custom-popup-content.medal-popup .popup-actions button:hover {
+    background-color: #229954;
+}
+
+/* Animação para o popup da medalha (já deve existir) */
+.custom-popup.medal-popup-animation { 
+    animation: medalPopupEntry 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+@keyframes medalPopupEntry {
+    0% { opacity: 0; transform: translateY(50px) scale(0.7); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}

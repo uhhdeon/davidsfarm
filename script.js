@@ -1,32 +1,39 @@
 // script.js (Página Inicial)
-// ETAPA 7.1: Nome do criador clicável com lógica de login/pop-up.
+// ETAPA 10: Botão Login/Perfil Dinâmico e Botão GitHub
 import { auth, db, ensureUserProfileAndFriendId } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; 
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ... (seletores DOM anteriores) ...
     const loadingScreen = document.getElementById('loading-screen');
     const siteContent = document.getElementById('site-content');
     const currentYearSpan = document.getElementById('currentYear');
     const particlesContainer = document.getElementById('background-particles');
-    const userAuthSection = document.querySelector('.user-auth-section');
+    const userAuthSection = document.querySelector('.user-auth-section'); // Header auth
     const numberOfParticles = 30;
-
     const devMessageCard = document.getElementById('dev-message-card');
     const devAvatarImg = document.getElementById('dev-avatar');
     const devNameSpan = document.getElementById('dev-name');
-    const devMessageHeaderClickable = document.getElementById('dev-message-header-clickable'); // NOVO
+    const devMessageHeaderClickable = document.getElementById('dev-message-header-clickable'); 
     const YOUR_PROFILE_UID = "DVdF28kA2ZYNs9EuqvxVDpia56t2"; 
-
-    // Seletores para o pop-up (necessários se não estiverem globais no profile-script)
     const popupOverlay = document.getElementById('custom-popup-overlay');
     const popupCloseButton = document.getElementById('custom-popup-close');
     const popupContent = document.getElementById('custom-popup-content');
+    const mainSearchInput = document.getElementById('main-search-input');
+    const searchSuggestionsBox = document.getElementById('search-suggestions-box');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+    const downloadsButton = document.getElementById('downloads-btn');
 
-    let viewer = null; // Para rastrear o usuário logado globalmente no script
-    // viewerData não é estritamente necessário para esta funcionalidade específica, mas é bom ter
+    // Seletores para o botão dinâmico Login/Perfil
+    const mainAuthButton = document.getElementById('main-auth-button');
+    const mainAuthButtonIcon = document.getElementById('main-auth-button-icon');
+    const mainAuthButtonText = document.getElementById('main-auth-button-text');
+
+    let viewer = null; 
     let viewerData = null; 
 
+    // ... (Funções createParticles, setTimeout para loadingScreen, hasPasswordProvider, checkAndAskToSetPassword, openPopup, closePopup, loadDevMessage, setupDevMessageClickHandler, updateSearchSuggestions, escapeHtml - MANTIDAS)
     if (currentYearSpan) {
         currentYearSpan.textContent = new Date().getFullYear();
     }
@@ -99,30 +106,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Funções do Pop-up (podem ser movidas para um utils.js no futuro)
     const openPopup = () => { if (popupOverlay) popupOverlay.classList.add('visible'); };
     const closePopup = () => { if (popupOverlay) popupOverlay.classList.remove('visible'); if (popupContent) popupContent.innerHTML = ''; };
     if (popupCloseButton) popupCloseButton.addEventListener('click', closePopup);
     if (popupOverlay) popupOverlay.addEventListener('click', (e) => { if (e.target === popupOverlay) closePopup(); });
 
-
     onAuthStateChanged(auth, async (user) => {
-        viewer = user; // Atualiza a variável global 'viewer'
-        if (userAuthSection) {
+        viewer = user; 
+        if (userAuthSection) { // Atualiza o header
             userAuthSection.innerHTML = '';
             if (user) {
                 let userProfileDataForHeader = null;
                 try {
                     userProfileDataForHeader = await ensureUserProfileAndFriendId(user); 
-                     if (!userProfileDataForHeader) { // Fallback se ensureUserProfileAndFriendId falhar ou não retornar dados
+                     if (!userProfileDataForHeader) { 
                         console.warn("ensureUserProfileAndFriendId não retornou dados para o header, usando Auth fallback.");
                         viewerData = { uid: user.uid, displayName: user.displayName, photoURL: user.photoURL, email: user.email };
                     } else {
-                        viewerData = userProfileDataForHeader; // Armazena os dados do Firestore do viewer
+                        viewerData = userProfileDataForHeader; 
                     }
                 } catch (error) {
                     console.error("Erro ao garantir perfil e Friend ID para header:", error);
-                     viewerData = { uid: user.uid, displayName: user.displayName, photoURL: user.photoURL, email: user.email }; // Fallback
+                     viewerData = { uid: user.uid, displayName: user.displayName, photoURL: user.photoURL, email: user.email }; 
                 }
 
                 const displayName = viewerData?.displayName || user.displayName || user.email?.split('@')[0] || "Usuário";
@@ -140,22 +145,34 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const loginButtonHTML = `<a href="login.html" class="login-button">Login</a>`;
                 userAuthSection.innerHTML = loginButtonHTML;
-                viewerData = null; // Limpa viewerData se não houver usuário
+                viewerData = null; 
             }
         }
-        // A lógica para o clique no nome do dev depende de 'viewer' estar atualizado.
-        // Se devMessageHeaderClickable já foi carregado, adiciona o listener aqui.
-        // Ou pode ser adicionado dentro de loadDevMessage após o header ser populado.
+
+        // Atualiza o botão principal de Login/Perfil na página index.html
+        if (mainAuthButton && mainAuthButtonIcon && mainAuthButtonText) {
+            if (user) {
+                mainAuthButton.href = "profile.html";
+                mainAuthButtonText.textContent = "Perfil";
+                mainAuthButtonIcon.className = "fas fa-user-circle"; // Ícone de perfil
+                mainAuthButton.classList.remove('login-main-btn'); // Remove classe de login se houver
+                mainAuthButton.classList.add('profile-main-btn'); // Adiciona classe de perfil (para estilo diferente se quiser)
+            } else {
+                mainAuthButton.href = "login.html";
+                mainAuthButtonText.textContent = "Login";
+                mainAuthButtonIcon.className = "fas fa-sign-in-alt"; // Ícone de login
+                mainAuthButton.classList.remove('profile-main-btn');
+                mainAuthButton.classList.add('login-main-btn');
+            }
+        }
         setupDevMessageClickHandler(); 
     });
 
     async function loadDevMessage() {
         if (!devMessageCard || !devAvatarImg || !devNameSpan) return;
-
         try {
             const devDocRef = doc(db, "users", YOUR_PROFILE_UID);
             const devDocSnap = await getDoc(devDocRef);
-
             if (devDocSnap.exists()) {
                 const devData = devDocSnap.data();
                 devAvatarImg.src = devData.photoURL || 'imgs/default-avatar.png';
@@ -176,14 +193,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupDevMessageClickHandler() {
         if (devMessageHeaderClickable) {
-            devMessageHeaderClickable.style.cursor = 'pointer'; // Indica que é clicável
+            devMessageHeaderClickable.style.cursor = 'pointer'; 
             devMessageHeaderClickable.title = `Ver perfil de ${devNameSpan.textContent || 'O Criador'}`;
-
             devMessageHeaderClickable.addEventListener('click', () => {
-                if (viewer) { // Se o usuário ATUAL (viewer) estiver logado
+                if (viewer) { 
                     window.location.href = `public-profile.html?uid=${YOUR_PROFILE_UID}`;
                 } else {
-                    // Usuário não está logado, mostra pop-up para fazer login
                     if (popupContent && popupOverlay) {
                         popupContent.innerHTML = `
                             <h3>Ver Perfil</h3>
@@ -198,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         openPopup();
                     } else {
                         alert("Você precisa estar logado para ver este perfil. Por favor, faça o login.");
-                        window.location.href = 'login.html'; // Fallback se o popup não estiver configurado
+                        window.location.href = 'login.html'; 
                     }
                 }
             });
@@ -207,5 +222,95 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadDevMessage(); 
 
-    console.log("David's Farm script principal (vCom Mensagem Dev Clicável) carregado!");
+    if (mainSearchInput && searchSuggestionsBox && clearSearchBtn) {
+        mainSearchInput.addEventListener('input', () => {
+            const searchTerm = mainSearchInput.value.trim();
+            if (searchTerm) {
+                updateSearchSuggestions(searchTerm);
+                searchSuggestionsBox.style.display = 'block';
+                clearSearchBtn.style.display = 'inline-block';
+            } else {
+                searchSuggestionsBox.style.display = 'none';
+                clearSearchBtn.style.display = 'none';
+            }
+        });
+        mainSearchInput.addEventListener('focus', () => {
+            if (mainSearchInput.value.trim()) {
+                searchSuggestionsBox.style.display = 'block';
+            }
+        });
+        mainSearchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                const searchTerm = mainSearchInput.value.trim();
+                if (searchTerm) {
+                    window.location.href = `search-results.html?term=${encodeURIComponent(searchTerm)}&category=people`;
+                }
+            }
+        });
+        clearSearchBtn.addEventListener('click', () => {
+            mainSearchInput.value = '';
+            searchSuggestionsBox.style.display = 'none';
+            clearSearchBtn.style.display = 'none';
+            mainSearchInput.focus();
+        });
+        document.addEventListener('click', (event) => {
+            if (searchSuggestionsBox && mainSearchInput && !mainSearchInput.contains(event.target) && !searchSuggestionsBox.contains(event.target)) {
+                searchSuggestionsBox.style.display = 'none';
+            }
+        });
+    }
+
+    function updateSearchSuggestions(term) {
+        if (!searchSuggestionsBox) return;
+        searchSuggestionsBox.innerHTML = ''; 
+        const categories = [
+            { name: "Pessoas", icon: "fa-users", type: "people" },
+            { name: "Grupos", icon: "fa-user-friends", type: "groups" }, 
+            { name: "Jogos", icon: "fa-gamepad", type: "games" } 
+        ];
+        categories.forEach(category => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.className = 'suggestion-item';
+            suggestionItem.innerHTML = `
+                <i class="fas ${category.icon}"></i>
+                <span>Pesquisar "<strong>${escapeHtml(term)}</strong>" em ${category.name}</span>
+            `;
+            suggestionItem.addEventListener('click', () => {
+                window.location.href = `search-results.html?term=${encodeURIComponent(term)}&category=${category.type}`;
+            });
+            searchSuggestionsBox.appendChild(suggestionItem);
+        });
+    }
+
+    function escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return '';
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
+    if (downloadsButton) {
+        downloadsButton.addEventListener('click', () => {
+            if (popupContent && popupOverlay) {
+                popupContent.innerHTML = `
+                    <h3>Downloads</h3>
+                    <p>A seção de downloads ainda está sendo feita.</p>
+                    <p>Volte mais tarde!</p>
+                    <div class="popup-actions" style="text-align:center; margin-top:20px;">
+                        <button id="popup-close-maintenance-btn" type="button" class="popup-apply-button" style="background-color:#6c757d;">Entendido</button>
+                    </div>
+                `;
+                const closeMaintenanceBtn = popupContent.querySelector('#popup-close-maintenance-btn');
+                if(closeMaintenanceBtn) closeMaintenanceBtn.addEventListener('click', closePopup);
+                openPopup();
+            } else {
+                alert("A seção de downloads está em manutenção. Volte mais tarde!");
+            }
+        });
+    }
+
+    console.log("David's Farm script principal (vBotão Auth Dinâmico e GitHub) carregado!");
 });
