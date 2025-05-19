@@ -1,12 +1,12 @@
 // documentation-script.js
-// ETAPA 10.2: Corrigindo erro de docContentArea e pop-up da medalha
+// ETAPA 10.2: Atualizando o texto do pop-up da medalha.
 document.addEventListener('DOMContentLoaded', () => {
     const btnDavidsFarm = document.getElementById('doc-btn-davidsfarm');
     const btnPollutionZero = document.getElementById('doc-btn-pollutionzero');
     
     const contentDavidsFarm = document.getElementById('doc-content-davidsfarm');
     const contentPollutionZero = document.getElementById('doc-content-pollutionzero');
-    const docContentArea = document.querySelector('.doc-content-area'); // VERIFIQUE SE ESTE SELETOR ESTÁ CORRETO E O ELEMENTO EXISTE
+    const docContentArea = document.querySelector('.doc-content-area'); 
     const docPlaceholder = document.getElementById('doc-placeholder');
     
     const selectionFeedback = document.getElementById('doc-selection-feedback');
@@ -19,15 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let hasScrolledToBottomOnce = false;
     let intersectionObserver;
 
-    // Verifica se os elementos principais do pop-up foram encontrados
     if (!popupOverlay || !popupCloseButton || !popupContent) {
-        console.error("Elementos do pop-up não encontrados! Verifique os IDs em Documentation.html.");
+        console.error("Elementos do pop-up não encontrados! Verifique os IDs em Documentation.html e se o HTML do pop-up está presente.");
     }
-    // Verifica se docContentArea foi encontrado
     if (!docContentArea) {
         console.error("Elemento '.doc-content-area' não encontrado! Verifique a classe no HTML.");
     }
-
 
     const davidsFarmText = `
         <h3>David's Farm - Documentação Completa</h3>
@@ -84,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     if (popupCloseButton) popupCloseButton.addEventListener('click', closeGlobalPopup);
-    if (popupOverlay) { // Garante que popupOverlay existe antes de adicionar listener
+    if (popupOverlay) { 
         popupOverlay.addEventListener('click', (e) => { 
             if (e.target === popupOverlay && popupContent && !popupContent.contains(e.target)) {
                 closeGlobalPopup();
@@ -92,12 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     function setupIntersectionObserver(contentElement) {
         if (intersectionObserver) {
             intersectionObserver.disconnect(); 
         }
-        if (!contentElement) return; // Adiciona verificação
+        if (!contentElement) return; 
 
         const elements = contentElement.querySelectorAll('h3, h4, p, ul, hr, .inspiration-note, .warning-note, .performance-note, .controls-note, .copyright-note');
         elements.forEach(el => {
@@ -128,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showDocContent(contentType) {
         if (activeContentElement) {
-            // Não precisa mais de hideContent aqui, o observer cuida disso ao sair da viewport
+            // Não precisa esconder, o observer lida com isso ao sair da viewport
         }
         
         if (contentDavidsFarm) contentDavidsFarm.style.display = 'none';
@@ -150,19 +146,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (contentType === 'pollutionzero' && contentPollutionZero) {
             contentPollutionZero.style.display = 'block';
             if (btnPollutionZero) btnPollutionZero.classList.add('active');
-            feedbackText = "POLLUTION ZERO: 1";
+            feedbackText = "POLLUTION ZERO: 1"; // Ajuste o nome se necessário
             activeContentElement = contentPollutionZero;
         } else if (docPlaceholder) {
             docPlaceholder.style.display = 'block';
         }
 
         if (activeContentElement) {
-            // Força o reflow antes de adicionar a classe para garantir que a transição aconteça
-            // activeContentElement.offsetHeight; 
-            // setTimeout(() => setupIntersectionObserver(activeContentElement), 10); // Pequeno delay
-            setupIntersectionObserver(activeContentElement); // Configura o observer para o novo conteúdo
+            setupIntersectionObserver(activeContentElement); 
         }
-
 
         if (selectionFeedback && feedbackText) {
             selectionFeedback.textContent = feedbackText;
@@ -174,16 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => { if (selectionFeedback) selectionFeedback.style.display = 'none';}, 500);
             }, 2000); 
         }
-        hasScrolledToBottomOnce = false; 
+        hasScrolledToBottomOnce = false; // Reseta para o pop-up da medalha poder aparecer no novo conteúdo
         
-        // Scroll para o topo da área de conteúdo
-        if (docContentArea) { // <<<<---- ADICIONADA VERIFICAÇÃO AQUI
-             // Um pequeno timeout pode ajudar se o display:block não for processado instantaneamente
+        if (docContentArea) { 
             setTimeout(() => {
-                const headerHeight = document.querySelector('header')?.offsetHeight || 60; // Pega a altura do header dinamicamente
-                const targetScrollPosition = docContentArea.offsetTop - headerHeight - 10; // 10px de margem
+                const headerHeight = document.querySelector('header')?.offsetHeight || 60; 
+                const targetScrollPosition = docContentArea.offsetTop - headerHeight - 10; 
                 window.scrollTo({ top: targetScrollPosition, behavior: 'smooth' });
-            }, 50); // 50ms de delay, ajuste se necessário
+            }, 50); 
         } else {
             console.error(".doc-content-area não encontrado para scroll.");
         }
@@ -198,25 +188,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (docPlaceholder) docPlaceholder.style.display = 'block';
 
+    // Lógica para o pop-up da medalha
     function checkScrollPositionForMedal() {
         const scrollPosition = window.innerHeight + window.scrollY;
         const pageHeight = document.documentElement.scrollHeight;
         
-        // console.log(`Scroll: ${Math.round(scrollPosition)}, Page Height: ${pageHeight}`);
-
-        // Aumenta a tolerância para o final da página
-        if (!hasScrolledToBottomOnce && (scrollPosition >= pageHeight - 20)) { // 20px de tolerância
-            if (popupContent && popupOverlay && !popupOverlay.classList.contains('visible')) { // Só mostra se outro popup não estiver ativo
+        if (!hasScrolledToBottomOnce && (scrollPosition >= pageHeight - 20)) { 
+            if (popupContent && popupOverlay && !popupOverlay.classList.contains('visible')) { 
                 hasScrolledToBottomOnce = true; 
-                console.log("Disparando pop-up da medalha!");
+                console.log("Disparando pop-up da medalha com novo texto!");
                 
+                // NOVO TEXTO PARA O POP-UP DA MEDALHA
                 popupContent.innerHTML = `
                     <div class="medal-popup">
-                        <img src="imgs/medalha-agrinho.png" alt="Medalha Agrinho 2025" class="medal-image" onerror="this.style.display='none'; console.error('Imagem da medalha não encontrada: imgs/medalha-agrinho.png')">
-                        <h3>Parabéns, Explorador!</h3>
-                        <p>Você sabia que o 'David's Farm' ganhou a edição do Agrinho de 2025?</p>
+                        <img src="imgs/medalha-agrinho.png" alt="Medalha Agrinho" class="medal-image" onerror="this.style.display='none'; console.error('Imagem da medalha não encontrada: imgs/medalha-agrinho.png')">
+                        <h3>Uma Conquista para Celebrar!</h3>
+                        <p>Você sabia que o 'David's Farm' ganhou a edição do Agrinho de 2024?</p>
                         <p>Pois é! Legal, não é?</p>
-                        <p class="signature">Vamos tentar ganhar novamente!<br>- Deon</p>
+                        <hr style="border-color: #444; margin: 15px 0;">
+                        <p style="font-size: 0.95em; color: #ccc;"><em>Em nome de toda a equipe que trabalhou com carinho e dedicação neste projeto, queremos agradecer de coração a cada pessoa que entrou, explorou e se divertiu no mundo da nossa fazenda!</em></p>
+                        <p style="font-size: 0.95em; color: #ccc;"><em>David's Farm foi feito com muito amor para o concurso Agrinho, com o objetivo de ensinar, entreter e mostrar a importância do campo, do cuidado com a natureza e da união entre as pessoas. Ver vocês jogando, rindo, descobrindo cada cantinho da fazenda e compartilhando a experiência fez tudo valer a pena.</em></p>
+                        <p style="font-size: 0.95em; color: #ccc;"><em>Cada jogador, cada minuto jogado, cada feedback e apoio... tudo isso fez parte da nossa história.</em></p>
+                        <p style="font-size: 0.95em; color: #ccc;"><em>Muito obrigado por fazerem parte dessa jornada.</em></p>
+                        <p class="signature" style="margin-top: 20px;">E lembrem-se: o futuro do campo também está nas nossas mãos! 🌱<br>- Deon</p>
                         <div class="popup-actions" style="margin-top:25px;">
                             <button id="popup-medal-close-btn" class="popup-apply-button">Legal!</button>
                         </div>
@@ -237,8 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Adiciona listener de scroll uma vez
     window.addEventListener('scroll', checkScrollPositionForMedal, { passive: true });
     
-    console.log("Documentation Script (vCom Animação Scroll e PopUp Medalha Corrigido) Carregado!");
+    console.log("Documentation Script (vCom Texto Medalha Atualizado) Carregado!");
 });
