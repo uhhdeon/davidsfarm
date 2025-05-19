@@ -4329,3 +4329,332 @@ button.action-button.downloads-btn-disabled {
     0% { opacity: 0; transform: translateY(50px) scale(0.7); }
     100% { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* Estilos para o Pop-up da Medalha (Ajustes de tamanho) */
+.custom-popup.medal-popup-animation { /* Usado quando o popup da medalha é mostrado */
+    max-width: 550px; /* Reduz a largura máxima do pop-up da medalha */
+    /* A altura será automática baseada no conteúdo */
+    animation: medalPopupEntry 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+#custom-popup-content.medal-popup { 
+    text-align: center;
+    padding: 20px; /* Reduz um pouco o padding interno */
+}
+
+#custom-popup-content.medal-popup img.medal-image {
+    width: 80px; /* Reduz tamanho da medalha */
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+#custom-popup-content.medal-popup h3 { 
+    font-size: 1.3em; /* Reduz um pouco o título */
+    color: #f1c40f; 
+    margin-bottom: 8px;
+}
+#custom-popup-content.medal-popup p {
+    font-size: 0.9em; /* Reduz o tamanho da fonte do texto principal */
+    color: #e0e0e0; /* Ajusta a cor para um pouco mais clara que #ccc */
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+#custom-popup-content.medal-popup p.signature {
+    margin-top: 12px;
+    font-style: italic;
+    font-size: 0.85em; /* Reduz assinatura */
+    color: #b0b0b0;
+}
+
+#custom-popup-content.medal-popup .popup-actions button {
+    background-color: #27ae60; 
+    padding: 8px 20px; /* Reduz padding do botão */
+    font-size: 0.95em;
+}
+#custom-popup-content.medal-popup .popup-actions button:hover {
+    background-color: #229954;
+}
+
+/* Animação de entrada (pode manter a mesma) */
+@keyframes medalPopupEntry {
+    0% { opacity: 0; transform: translateY(40px) scale(0.8); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* Estilos para o Pop-up da Medalha (Ajustes MAIS DRÁSTICOS de tamanho) */
+.custom-popup.medal-popup-animation { 
+    max-width: 480px; /* Reduz AINDA MAIS a largura máxima do pop-up */
+    /* A altura será controlada pelo conteúdo e pelo max-height do #custom-popup-content */
+    animation: medalPopupEntry 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; /* Animação um pouco mais rápida */
+}
+
+#custom-popup-content.medal-popup { 
+    text-align: center;
+    padding: 15px 20px; /* Padding interno um pouco menor */
+    max-height: 70vh; /* Altura máxima do conteúdo do popup (70% da altura da viewport) */
+    overflow-y: auto;   /* Adiciona scroll se o conteúdo exceder max-height */
+}
+
+#custom-popup-content.medal-popup img.medal-image {
+    width: 70px; /* Medalha menor */
+    height: 70px;
+    margin-bottom: 10px;
+}
+
+#custom-popup-content.medal-popup h3 { 
+    font-size: 1.2em; /* Título do popup menor */
+    color: #f1c40f; 
+    margin-bottom: 10px;
+}
+
+/* Todos os parágrafos dentro do popup da medalha */
+#custom-popup-content.medal-popup p {
+    font-size: 0.85em; /* Fonte do texto principal bem menor */
+    color: #d0d0d0; 
+    margin-bottom: 6px; /* Menos espaço entre parágrafos */
+    line-height: 1.45;  /* Linha um pouco mais apertada */
+}
+
+/* Parágrafos específicos do agradecimento mais longo */
+#custom-popup-content.medal-popup p.agradecimento-longo { 
+    font-size: 0.8em; /* Ainda menor para o bloco de texto grande */
+    color: #b5b5b5; 
+    line-height: 1.4;
+    margin-bottom: 8px;
+    /* text-align: justify; /* Opcional: justificar o texto longo */
+}
+
+
+#custom-popup-content.medal-popup hr {
+    border-color: #333; /* Torna o hr mais sutil */
+    margin: 10px 0 10px 0;
+}
+
+#custom-popup-content.medal-popup p.signature {
+    margin-top: 10px;
+    font-style: italic;
+    font-size: 0.8em; 
+    color: #a0a0a0;
+}
+
+#custom-popup-content.medal-popup .popup-actions button {
+    background-color: #27ae60; 
+    padding: 8px 18px; 
+    font-size: 0.9em; /* Botão "Legal!" menor */
+}
+#custom-popup-content.medal-popup .popup-actions button:hover {
+    background-color: #229954;
+}
+
+/* Animação de entrada (ajustada) */
+@keyframes medalPopupEntry {
+    0% { opacity: 0; transform: translateY(30px) scale(0.85); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* Estilos para o Pop-up da Medalha (Ajustes MAIS DRÁSTICOS de tamanho) */
+.custom-popup.medal-popup-animation { 
+    max-width: 480px; /* Reduz AINDA MAIS a largura máxima do pop-up */
+    /* A altura será controlada pelo conteúdo e pelo max-height do #custom-popup-content */
+    animation: medalPopupEntry 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; /* Animação um pouco mais rápida */
+}
+
+#custom-popup-content.medal-popup { 
+    text-align: center;
+    padding: 15px 20px; /* Padding interno um pouco menor */
+    max-height: 70vh; /* Altura máxima do conteúdo do popup (70% da altura da viewport) */
+    overflow-y: auto;   /* Adiciona scroll se o conteúdo exceder max-height */
+}
+
+#custom-popup-content.medal-popup img.medal-image {
+    width: 70px; /* Medalha menor */
+    height: 70px;
+    margin-bottom: 10px;
+}
+
+#custom-popup-content.medal-popup h3 { 
+    font-size: 1.2em; /* Título do popup menor */
+    color: #f1c40f; 
+    margin-bottom: 10px;
+}
+
+/* Todos os parágrafos dentro do popup da medalha */
+#custom-popup-content.medal-popup p {
+    font-size: 0.85em; /* Fonte do texto principal bem menor */
+    color: #d0d0d0; 
+    margin-bottom: 6px; /* Menos espaço entre parágrafos */
+    line-height: 1.45;  /* Linha um pouco mais apertada */
+}
+
+/* Parágrafos específicos do agradecimento mais longo */
+#custom-popup-content.medal-popup p.agradecimento-longo { 
+    font-size: 0.8em; /* Ainda menor para o bloco de texto grande */
+    color: #b5b5b5; 
+    line-height: 1.4;
+    margin-bottom: 8px;
+    /* text-align: justify; /* Opcional: justificar o texto longo */
+}
+
+
+#custom-popup-content.medal-popup hr {
+    border-color: #333; /* Torna o hr mais sutil */
+    margin: 10px 0 10px 0;
+}
+
+#custom-popup-content.medal-popup p.signature {
+    margin-top: 10px;
+    font-style: italic;
+    font-size: 0.8em; 
+    color: #a0a0a0;
+}
+
+#custom-popup-content.medal-popup .popup-actions button {
+    background-color: #27ae60; 
+    padding: 8px 18px; 
+    font-size: 0.9em; /* Botão "Legal!" menor */
+}
+#custom-popup-content.medal-popup .popup-actions button:hover {
+    background-color: #229954;
+}
+
+/* Animação de entrada (ajustada) */
+@keyframes medalPopupEntry {
+    0% { opacity: 0; transform: translateY(30px) scale(0.85); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Estilos para Barra de Scroll no Firefox (mais limitado) */
+/* Aplique ao elemento que tem o scroll */
+#custom-popup-content.medal-popup, 
+.scratch-projects-list-container, 
+#public-scratch-projects-list,
+.friend-list {
+    scrollbar-width: thin;          /* Pode ser 'auto', 'thin', ou 'none' */
+    scrollbar-color: #555 #2c2c2c;  /* Cor do thumb (barra) e cor da track (trilha) */
+}
+
+/* Exemplo específico para o popup da medalha no Firefox */
+#custom-popup-content.medal-popup {
+    scrollbar-color: #4a5568 #222831; 
+}
+
+/* Exemplo específico para listas de projetos no Firefox */
+.scratch-projects-list-container, 
+#public-scratch-projects-list {
+    scrollbar-color: #4f4f4f #1f1f1f;
+}
+
+/* Adicione ao final do seu style.css */
+
+/* --- Estilos para Barra de Scroll Personalizada (WebKit/Blink Browsers) --- */
+
+/* Para o elemento que tem o scroll (ex: #custom-popup-content.medal-popup ou outras listas) */
+/* Você pode aplicar isso globalmente ou a seletores específicos. */
+/* Aplicando globalmente a todos os elementos com scroll: */
+::-webkit-scrollbar {
+    width: 8px;  /* Largura da barra de scroll vertical */
+    height: 8px; /* Altura da barra de scroll horizontal (se houver) */
+}
+
+::-webkit-scrollbar-track {
+    background: #2c2c2c; /* Cor de fundo da trilha (onde a barra desliza) - um pouco mais escura que o conteúdo do popup */
+    border-radius: 10px; /* Cantos arredondados para a trilha */
+    /* margin: 2px; /* Pequena margem interna, opcional */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #555; /* Cor da barra de scroll em si - um cinza médio */
+    border-radius: 10px;    /* Cantos arredondados para a barra */
+    border: 2px solid #2c2c2c; /* Cria um efeito de "borda" com a cor da trilha, fazendo o thumb parecer mais fino */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #777; /* Cor da barra ao passar o mouse */
+}
+
+::-webkit-scrollbar-corner { /* O canto onde as barras vertical e horizontal se encontram (raro) */
+    background: #202020;
+}
+
+/* Especificamente para o popup da medalha, se quiser diferenciar */
+#custom-popup-content.medal-popup::-webkit-scrollbar-track {
+    background: #222831; /* Um azul bem escuro para o popup da medalha */
+    /* Exemplo: #222831 (cor do seu popup) ou um tom ligeiramente mais claro/escuro */
+}
+
+#custom-popup-content.medal-popup::-webkit-scrollbar-thumb {
+    background-color: #4a5568; /* Um cinza azulado para o thumb */
+    border: 2px solid #222831;
+}
+
+#custom-popup-content.medal-popup::-webkit-scrollbar-thumb:hover {
+    background-color: #606f82;
+}
+
+/* Para outras listas com scroll, como a de projetos no perfil */
+.scratch-projects-list-container::-webkit-scrollbar-track,
+#public-scratch-projects-list::-webkit-scrollbar-track,
+.friend-list::-webkit-scrollbar-track { /* Se você adicionou scroll a .friend-list */
+    background: #1f1f1f; /* Cor de fundo da trilha consistente com o fundo da lista */
+}
+
+.scratch-projects-list-container::-webkit-scrollbar-thumb,
+#public-scratch-projects-list::-webkit-scrollbar-thumb,
+.friend-list::-webkit-scrollbar-thumb {
+    background-color: #4f4f4f; 
+    border: 2px solid #1f1f1f;
+}
+
+.scratch-projects-list-container::-webkit-scrollbar-thumb:hover,
+#public-scratch-projects-list::-webkit-scrollbar-thumb:hover,
+.friend-list::-webkit-scrollbar-thumb:hover {
+    background-color: #6a6a6a;
+}
+
+/* Adicione ao seu style.css (pode ser no início, com os resets globais) */
+
+html {
+    height: 100%;
+    box-sizing: border-box;
+    scroll-behavior: smooth; /* <<<--- SCROLL SUAVE PARA A PÁGINA INTEIRA */
+}
+
+/* ... (Restante dos seus estilos) ... */
+
+/* Adicione ao seu style.css */
+
+/* Scroll Suave para a Página de Documentação */
+html#documentation-page-html {
+    scroll-behavior: smooth;
+}
+
+/* Garante que o body também não interfira se tiver seu próprio scroll forçado */
+/* body {
+    scroll-behavior: smooth; /* Você pode colocar no body se preferir,
+                               mas no html é mais comum para o scroll da página inteira */
+/* } */
+
+
+/* ... (Estilos existentes da documentação, pop-up da medalha, etc.) ... */
+
+/* Estilo para a mensagem "Sendo Desenvolvido" na documentação */
+#doc-content-pollutionzero p.development-notice {
+    font-style: italic;
+    color: #f39c12; /* Laranja/amarelo para destaque */
+    text-align: center;
+    font-size: 1.1em;
+    padding: 30px 0;
+}
+

@@ -1,5 +1,5 @@
 // documentation-script.js
-// ETAPA 10.2: Atualizando o texto do pop-up da medalha.
+// ETAPA 10.3: Scroll Suave CSS e Mensagem "Sendo Desenvolvido" para Pollution Zero
 document.addEventListener('DOMContentLoaded', () => {
     const btnDavidsFarm = document.getElementById('doc-btn-davidsfarm');
     const btnPollutionZero = document.getElementById('doc-btn-pollutionzero');
@@ -15,12 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupCloseButton = document.getElementById('custom-popup-close');
     const popupContent = document.getElementById('custom-popup-content');
 
-    let activeContentElement = null; 
+    let currentVisibleDocType = null; 
     let hasScrolledToBottomOnce = false;
     let intersectionObserver;
 
     if (!popupOverlay || !popupCloseButton || !popupContent) {
-        console.error("Elementos do pop-up não encontrados! Verifique os IDs em Documentation.html e se o HTML do pop-up está presente.");
+        console.error("Elementos do pop-up não encontrados! Verifique os IDs em Documentation.html.");
     }
     if (!docContentArea) {
         console.error("Elemento '.doc-content-area' não encontrado! Verifique a classe no HTML.");
@@ -67,9 +67,20 @@ document.addEventListener('DOMContentLoaded', () => {
         <p style="text-align:center; margin-top:20px;">Com amor, Gab :)</p>
     `;
 
+    const pollutionZeroText = `
+        <h3>Pollution Zero</h3>
+        <p class="development-notice">Este projeto está atualmente sendo desenvolvido.</p>
+        <p class="development-notice">Mais informações e detalhes da documentação estarão disponíveis em breve!</p>
+        <p class="development-notice">Agradecemos a sua paciência e entusiasmo. Volte em breve! <i class="fas fa-tools"></i></p>
+    `; // NOVO TEXTO
+
     if (contentDavidsFarm) {
         contentDavidsFarm.innerHTML = davidsFarmText;
     }
+    if (contentPollutionZero) { // Preenche o conteúdo de Pollution Zero
+        contentPollutionZero.innerHTML = pollutionZeroText;
+    }
+
 
     const openGlobalPopup = () => { if (popupOverlay) popupOverlay.classList.add('visible'); };
     const closeGlobalPopup = () => { 
@@ -112,7 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('is-visible');
                 } else {
-                    entry.target.classList.remove('is-visible');
+                    if (currentVisibleDocType === 'davidsfarm') { // Animação de sumir/reaparecer só para David's Farm
+                        entry.target.classList.remove('is-visible');
+                    }
                 }
             });
         }, observerOptions);
@@ -122,11 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
     function showDocContent(contentType) {
-        if (activeContentElement) {
-            // Não precisa esconder, o observer lida com isso ao sair da viewport
-        }
-        
+        currentVisibleDocType = contentType; 
+
         if (contentDavidsFarm) contentDavidsFarm.style.display = 'none';
         if (contentPollutionZero) contentPollutionZero.style.display = 'none';
         if (docPlaceholder) docPlaceholder.style.display = 'none';
@@ -136,25 +148,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnPollutionZero) btnPollutionZero.classList.remove('active');
 
         let feedbackText = "";
-        activeContentElement = null; 
+        let currentContentElement = null; 
 
         if (contentType === 'davidsfarm' && contentDavidsFarm) {
             contentDavidsFarm.style.display = 'block';
             if (btnDavidsFarm) btnDavidsFarm.classList.add('active');
             feedbackText = "DAVID'S FARM: 1";
-            activeContentElement = contentDavidsFarm;
+            currentContentElement = contentDavidsFarm;
         } else if (contentType === 'pollutionzero' && contentPollutionZero) {
             contentPollutionZero.style.display = 'block';
             if (btnPollutionZero) btnPollutionZero.classList.add('active');
-            feedbackText = "POLLUTION ZERO: 1"; // Ajuste o nome se necessário
-            activeContentElement = contentPollutionZero;
+            feedbackText = "POLLUTION ZERO: 1";
+            currentContentElement = contentPollutionZero;
+            if (intersectionObserver) { // Desconecta observer se não for David's Farm
+                intersectionObserver.disconnect();
+                // Garante que os textos de Pollution Zero (que não usam observer) estejam visíveis
+                 const pollutionElements = contentPollutionZero.querySelectorAll('h3, p');
+                 pollutionElements.forEach(el => {
+                    el.classList.remove('animate-on-scroll'); // Remove classes de animação por scroll
+                    el.classList.add('is-visible'); // Torna visível diretamente
+                    el.style.opacity = '1'; // Garante opacidade
+                    el.style.transform = 'translateY(0)'; // Garante posição
+                 });
+            }
         } else if (docPlaceholder) {
             docPlaceholder.style.display = 'block';
+            if (intersectionObserver) { 
+                intersectionObserver.disconnect();
+            }
         }
 
-        if (activeContentElement) {
-            setupIntersectionObserver(activeContentElement); 
+        if (currentContentElement && contentType === 'davidsfarm') { 
+            setupIntersectionObserver(currentContentElement); 
         }
+
 
         if (selectionFeedback && feedbackText) {
             selectionFeedback.textContent = feedbackText;
@@ -166,13 +193,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => { if (selectionFeedback) selectionFeedback.style.display = 'none';}, 500);
             }, 2000); 
         }
-        hasScrolledToBottomOnce = false; // Reseta para o pop-up da medalha poder aparecer no novo conteúdo
+        hasScrolledToBottomOnce = false; 
         
         if (docContentArea) { 
             setTimeout(() => {
-                const headerHeight = document.querySelector('header')?.offsetHeight || 60; 
-                const targetScrollPosition = docContentArea.offsetTop - headerHeight - 10; 
-                window.scrollTo({ top: targetScrollPosition, behavior: 'smooth' });
+                const headerElement = document.querySelector('header');
+                const headerHeight = headerElement ? headerElement.offsetHeight : 60; 
+                const targetScrollPosition = docContentArea.offsetTop - headerHeight - 10; // 10px de margem
+                window.scrollTo({ top: targetScrollPosition, behavior: 'smooth' }); // 'smooth' já está aqui
             }, 50); 
         } else {
             console.error(".doc-content-area não encontrado para scroll.");
@@ -188,33 +216,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (docPlaceholder) docPlaceholder.style.display = 'block';
 
-    // Lógica para o pop-up da medalha
     function checkScrollPositionForMedal() {
+        if (currentVisibleDocType !== 'davidsfarm') { // Só mostra medalha para David's Farm
+            return;
+        }
+
         const scrollPosition = window.innerHeight + window.scrollY;
         const pageHeight = document.documentElement.scrollHeight;
         
         if (!hasScrolledToBottomOnce && (scrollPosition >= pageHeight - 20)) { 
             if (popupContent && popupOverlay && !popupOverlay.classList.contains('visible')) { 
                 hasScrolledToBottomOnce = true; 
-                console.log("Disparando pop-up da medalha com novo texto!");
+                console.log("Disparando pop-up da medalha para David's Farm!");
                 
-                // NOVO TEXTO PARA O POP-UP DA MEDALHA
                 popupContent.innerHTML = `
                     <div class="medal-popup">
                         <img src="imgs/medalha-agrinho.png" alt="Medalha Agrinho" class="medal-image" onerror="this.style.display='none'; console.error('Imagem da medalha não encontrada: imgs/medalha-agrinho.png')">
                         <h3>Uma Conquista para Celebrar!</h3>
-                        <p>Você sabia que o 'David's Farm' ganhou a edição do Agrinho de 2024?</p>
+                        <p>Você sabia que o 'David's Farm' ganhou a edição do Agrinho de 2025?</p>
                         <p>Pois é! Legal, não é?</p>
-                        <hr style="border-color: #444; margin: 15px 0;">
-                        <p style="font-size: 0.95em; color: #ccc;"><em>Em nome de toda a equipe que trabalhou com carinho e dedicação neste projeto, queremos agradecer de coração a cada pessoa que entrou, explorou e se divertiu no mundo da nossa fazenda!</em></p>
-                        <p style="font-size: 0.95em; color: #ccc;"><em>David's Farm foi feito com muito amor para o concurso Agrinho, com o objetivo de ensinar, entreter e mostrar a importância do campo, do cuidado com a natureza e da união entre as pessoas. Ver vocês jogando, rindo, descobrindo cada cantinho da fazenda e compartilhando a experiência fez tudo valer a pena.</em></p>
-                        <p style="font-size: 0.95em; color: #ccc;"><em>Cada jogador, cada minuto jogado, cada feedback e apoio... tudo isso fez parte da nossa história.</em></p>
-                        <p style="font-size: 0.95em; color: #ccc;"><em>Muito obrigado por fazerem parte dessa jornada.</em></p>
-                        <p class="signature" style="margin-top: 20px;">E lembrem-se: o futuro do campo também está nas nossas mãos! 🌱<br>- Deon</p>
-                        <div class="popup-actions" style="margin-top:25px;">
+                        <hr style="border-color: #444; margin: 10px 0 12px 0;">
+                        <p class="agradecimento-longo"><em>Em nome de toda a equipe que trabalhou com carinho e dedicação neste projeto, queremos agradecer de coração a cada pessoa que entrou, explorou e se divertiu no mundo da nossa fazenda!</em></p>
+                        <p class="agradecimento-longo"><em>David's Farm foi feito com muito amor para o concurso Agrinho, com o objetivo de ensinar, entreter e mostrar a importância do campo, do cuidado com a natureza e da união entre as pessoas. Ver vocês jogando, rindo, descobrindo cada cantinho da fazenda e compartilhando a experiência fez tudo valer a pena.</em></p>
+                        <p class="agradecimento-longo"><em>Cada jogador, cada minuto jogado, cada feedback e apoio... tudo isso fez parte da nossa história.</em></p>
+                        <p class="agradecimento-longo"><em>Muito obrigado por fazerem parte dessa jornada.</em></p>
+                        <p class="signature" style="margin-top: 15px; font-size:0.9em;">E lembrem-se: o futuro do campo também está nas nossas mãos! 🌱<br>- Deon</p>
+                        <div class="popup-actions" style="margin-top:20px;">
                             <button id="popup-medal-close-btn" class="popup-apply-button">Legal!</button>
                         </div>
-                    </div> 
+                    </div>
                 `;
                 const popupDialog = popupOverlay.querySelector('.custom-popup');
                 if(popupDialog) {
@@ -233,5 +263,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.addEventListener('scroll', checkScrollPositionForMedal, { passive: true });
     
-    console.log("Documentation Script (vCom Texto Medalha Atualizado) Carregado!");
+    console.log("Documentation Script (vCom Scroll Suave CSS e Condicionais) Carregado!");
 });
