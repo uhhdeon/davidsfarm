@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (typeof createParticles === 'function') createParticles();
         }
-    }, 1000); 
+    }, 0); 
 
     const hasPasswordProvider = (user) => {
         if (user && user.providerData) {
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mainAuthButton && mainAuthButtonIcon && mainAuthButtonText) {
             if (user) {
                 mainAuthButton.href = "profile.html";
-                mainAuthButtonText.textContent = "Perfil";
+                mainAuthButtonText.textContent = "Teu Perfil";
                 mainAuthButtonIcon.className = "fas fa-user-circle"; // Ícone de perfil
                 mainAuthButton.classList.remove('login-main-btn'); // Remove classe de login se houver
                 mainAuthButton.classList.add('profile-main-btn'); // Adiciona classe de perfil (para estilo diferente se quiser)
