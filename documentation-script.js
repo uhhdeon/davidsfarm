@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="popup-actions" style="margin-top:25px;">
                             <button id="popup-medal-close-btn" class="popup-apply-button">Legal!</button>
                         </div>
-                    </div>
+                    </div> 
                 `;
                 const popupDialog = popupOverlay.querySelector('.custom-popup');
                 if(popupDialog) {
