@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="medal-popup">
                         <img src="imgs/medalha-agrinho.png" alt="Medalha Agrinho" class="medal-image" onerror="this.style.display='none'; console.error('Imagem da medalha não encontrada: imgs/medalha-agrinho.png')">
                         <h3>Uma Conquista para Celebrar!</h3>
-                        <p>Você sabia que o 'David's Farm' ganhou a edição do Agrinho de 2025?</p>
+                        <p>Você sabia que o 'David's Farm' ganhou a edição do Agrinho de 2024?</p>
                         <p>Pois é! Legal, não é?</p>
                         <hr style="border-color: #444; margin: 10px 0 12px 0;">
                         <p class="agradecimento-longo"><em>Em nome de toda a equipe que trabalhou com carinho e dedicação neste projeto, queremos agradecer de coração a cada pessoa que entrou, explorou e se divertiu no mundo da nossa fazenda!</em></p>
