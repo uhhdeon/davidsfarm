@@ -2728,3 +2728,227 @@ body {
 .popup-action-button i { /* Estilo para ícones Font Awesome nos botões */
     font-size: 0.9em; /* Ajusta tamanho do ícone em relação ao texto */
 }
+/* Adicione ou ajuste no seu style.css */
+
+/* --- Estilos para a Nova Página Inicial (index.html) --- */
+.index-main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.welcome-section {
+    background-color: rgba(44, 44, 44, 0.7); /* Fundo semi-transparente para destacar */
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    max-width: 700px;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.welcome-section h1 {
+    font-size: 2.8em;
+    color: #00bfff; /* Azul vibrante */
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.site-status-message {
+    font-size: 1.1em;
+    color: #f1c40f; /* Amarelo para aviso */
+    margin-bottom: 25px;
+    font-style: italic;
+}
+
+.builder-image {
+    width: 100%;
+    max-width: 256px; /* Ajustado para um tamanho razoável, o SVG escalará */
+    height: auto;
+    margin: 10px auto 30px auto; /* Centraliza e adiciona margem */
+    display: block;
+}
+
+.main-actions {
+    display: flex;
+    flex-direction: column; /* Botões empilhados em telas menores */
+    align-items: center;
+    gap: 15px; /* Espaço entre os botões */
+}
+
+.main-actions .action-button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px; /* Largura mínima para os botões */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.main-actions .action-button i { /* Ícones nos botões */
+    margin-right: 10px;
+}
+
+.main-actions .action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+.main-actions .action-button:active {
+    transform: translateY(0px);
+}
+
+.login-main-btn { background-color: #007bff; }
+.login-main-btn:hover { background-color: #0056b3; }
+
+.scratch-game-btn { background-color: #ff9900; } /* Laranja para o jogo */
+.scratch-game-btn:hover { background-color: #e68a00; }
+
+.donate-btn { background-color: #e83e8c; } /* Rosa/Roxo para doação */
+.donate-btn:hover { background-color: #d93078; }
+
+
+/* Seção da Mensagem Especial do Desenvolvedor */
+.special-message-section {
+    width: 100%;
+    max-width: 700px; /* Mesma largura do welcome-section */
+    margin-top: 20px; /* Espaço acima da mensagem */
+}
+
+.message-card {
+    background-color: #2c2c2c; /* Fundo do card de mensagem */
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    opacity: 0; /* Começa invisível */
+    transform: translateY(20px); /* Começa um pouco abaixo */
+    animation: fadeInSlideUpMessage 0.8s 0.5s ease-out forwards; /* Animação com delay */
+}
+
+@keyframes fadeInSlideUpMessage {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.message-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.message-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid #00bfff; /* Borda azul no avatar */
+}
+
+.message-username {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.message-content p {
+    font-size: 1em;
+    color: #ccc;
+    line-height: 1.7;
+    text-align: left; /* Alinha o texto da mensagem à esquerda */
+    font-style: italic;
+}
+
+.message-timestamp {
+    margin-top: 15px;
+    text-align: right;
+    font-size: 0.8em;
+    color: #777;
+}
+
+/* Responsividade para os botões da página inicial */
+@media (min-width: 600px) {
+    .main-actions {
+        flex-direction: row; /* Botões lado a lado em telas maiores */
+        justify-content: center;
+    }
+    .main-actions .action-button {
+        min-width: 180px; /* Podem ser um pouco menores lado a lado */
+    }
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* Para a mensagem especial do desenvolvedor */
+.message-header#dev-message-header-clickable {
+    cursor: pointer; /* Indica que a área do header da mensagem é clicável */
+    transition: background-color 0.2s ease-in-out;
+    border-radius: 6px; /* Para o hover ficar bonito */
+    padding: 5px; /* Pequeno padding interno para o hover */
+    margin: -5px; /* Compensa o padding para manter o alinhamento */
+}
+
+.message-header#dev-message-header-clickable:hover {
+    background-color: rgba(255, 255, 255, 0.05); /* Leve destaque no hover */
+}
+
+.message-username { /* O nome dentro do header */
+    /* ... (estilos existentes) ... */
+    /* Se quiser que só o nome pareça um link, pode adicionar: */
+    /* text-decoration: underline; */
+    /* color: #00bfff; */ 
+}
+
+/* Estilos para o pop-up de "Fazer Login" (reutilizando classes se possível) */
+#custom-popup-content h3 {
+    color: #ecf0f1;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.6rem;
+}
+#custom-popup-content p {
+    color: #bdc3c7;
+    line-height: 1.6;
+    font-size: 1rem; /* Aumentado um pouco para melhor leitura */
+    text-align: center;
+    margin-bottom: 20px;
+}
+/* .popup-actions e .popup-apply-button já devem ter estilos de profile-script.js */
+/* Se não, adicione-os: */
+.popup-actions {
+    text-align: right; 
+    margin-top: 20px;
+    display: flex; /* Para alinhar botões */
+    justify-content: center; /* Centraliza os botões */
+    gap: 10px; /* Espaço entre botões */
+}
+.popup-apply-button { /* Estilo genérico para botões de ação no popup */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none; /* Para links estilizados como botões */
+    color: white; /* Cor de texto padrão para botões */
+    transition: background-color 0.2s;
+}
+.popup-apply-button:hover {
+    opacity: 0.9;
+}
+/* Botão "Fazer Login" específico se precisar */
+/* a.popup-apply-button[href="login.html"] { background-color: #007bff; } */
+/* button.popup-apply-button { background-color: #6c757d; } */

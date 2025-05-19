@@ -1,6 +1,6 @@
 // profile-script.js
-// ETAPA 5: Scroll no Perfil Público (feito via CSS) e Edição de Projetos na Aba Jogos
-
+// ATUALIZADO: Não inclui email na criação de currentUserData se doc não existe.
+// Email para exibição na aba Segurança vem de currentUserForProfile.email (Auth).
 import { auth, db } from './firebase-config.js';
 import {
     onAuthStateChanged,
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPasswordLabel = document.getElementById('new-password-label');
     const passwordSubmitButton = document.getElementById('password-submit-button');
     const changeEmailForm = document.getElementById('change-email-form');
-    const currentEmailDisplay = document.getElementById('current-email-display');
+    const currentEmailDisplay = document.getElementById('current-email-display'); // Este será preenchido pelo Auth
     const emailCurrentPasswordInput = document.getElementById('email-current-password');
     const newEmailInput = document.getElementById('new-email');
     const emailMessageDiv = document.getElementById('email-message');
@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupOverlay = document.getElementById('custom-popup-overlay');
     const popupCloseButton = document.getElementById('custom-popup-close');
     const popupContent = document.getElementById('custom-popup-content');
-    
     const scratchProjectLinkInput = document.getElementById('scratch-project-link-input');
     const scratchProjectTitleInput = document.getElementById('scratch-project-title-input'); 
     const scratchProjectDescInput = document.getElementById('scratch-project-desc-input');   
@@ -78,13 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const scratchProjectsListUl = document.getElementById('scratch-projects-list');
     const scratchProjectsEmptyMessageP = document.getElementById('scratch-projects-empty-message');
 
-    let currentUserForProfile = null;
-    let currentUserData = null;
+    let currentUserForProfile = null; // Objeto User do Firebase Auth
+    let currentUserData = null;       // Dados do Firestore (/users/{uid})
     let userScratchProjects = []; 
     let projectsListenerUnsubscribe = null; 
-    let editingScratchProjectDocId = null; // Para rastrear se estamos editando um projeto
+    let editingScratchProjectDocId = null; 
 
-    // ... (defaultPaletteColors e funções de utilidade de UI e cores mantidas) ...
+    // ... (defaultPaletteColors e todas as funções de utilidade de UI, cores, pop-up, e de abas mantidas) ...
     const defaultPaletteColors = [
         '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#8B00FF', '#FF00FF',
         '#DC143C', '#FF8C00', '#FFD700', '#32CD32', '#00CED1', '#1E90FF', '#9932CC', '#FF1493',
@@ -119,12 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 projectsListenerUnsubscribe = null;
             }
         }
-        // Se sair da aba de jogos e estiver editando, cancela a edição
         if (activeSection !== sectionJogos && editingScratchProjectDocId) {
             cancelEditScratchProject();
         }
     };
-    // ... (demais funções utilitárias como hasPasswordProvider, setupPasswordSectionUI, hexToRgbString, etc.)
     const hasPasswordProvider = (user) => {
         if (!user || !user.providerData) return false;
         return user.providerData.some(provider => provider.providerId === 'password');
@@ -278,68 +275,88 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeProfileBtnImg = document.querySelector('#btn-theme-profile img'); if (themeProfileBtnImg) themeProfileBtnImg.src = 'imgs/temadoperfil.png';
     const themeSiteBtnImg = document.querySelector('#btn-theme-site img'); if (themeSiteBtnImg) themeSiteBtnImg.src = 'imgs/temadosite.png';
     
-    // ... (onAuthStateChanged e o restante das funções de perfil, segurança e conta) ...
+    // --- onAuthStateChanged ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            currentUserForProfile = user;
+            currentUserForProfile = user; // user do Auth
+            // Atualiza o header imediatamente com dados do Auth como fallback
             if (userAuthSection) {
                 const authDisplayName = user.displayName || user.email?.split('@')[0] || "Usuário";
                 const authPhotoURL = user.photoURL || 'imgs/default-avatar.png';
                 userAuthSection.innerHTML = `<a href="profile.html" class="user-info-link"><div class="user-info"><img id="user-photo" src="${authPhotoURL}" alt="Foto"><span id="user-name">${authDisplayName}</span></div></a>`;
             }
+            // Mostra o email do Auth na aba de segurança
+            if (currentEmailDisplay) currentEmailDisplay.textContent = user.email || 'Email não disponível';
+
 
             const userDocRef = doc(db, "users", user.uid);
             try {
                 const userDocSnap = await getDoc(userDocRef);
                 if (userDocSnap.exists()) {
-                    currentUserData = userDocSnap.data();
+                    currentUserData = userDocSnap.data(); // Dados do Firestore
                     currentUserData.uid = user.uid; 
+                    // Garante que os contadores existem no objeto currentUserData
                     currentUserData.friendsCount = currentUserData.friendsCount || 0;
                     currentUserData.followersCount = currentUserData.followersCount || 0;
                     currentUserData.followingCount = currentUserData.followingCount || 0;
 
+                    // Atualiza o header com dados do Firestore, se mais completos
                     if (userAuthSection) {
                         const displayName = currentUserData.displayName || user.displayName || user.email?.split('@')[0] || "Usuário";
                         const photoURL = currentUserData.photoURL || user.photoURL || 'imgs/default-avatar.png';
                         userAuthSection.innerHTML = `<a href="profile.html" class="user-info-link"><div class="user-info"><img id="user-photo" src="${photoURL}" alt="Foto"><span id="user-name">${displayName}</span></div></a>`;
                     }
                     
-                    if (profileUsernameInput) profileUsernameInput.value = currentUserData.displayName || user.displayName || '';
-                    if (profilePhotoUrlInput) profilePhotoUrlInput.value = currentUserData.photoURL || user.photoURL || '';
-                    if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = currentUserData.photoURL || user.photoURL || 'imgs/default-avatar.png';
+                    // Preenche os campos do formulário de perfil
+                    if (profileUsernameInput) profileUsernameInput.value = currentUserData.displayName || '';
+                    if (profilePhotoUrlInput) profilePhotoUrlInput.value = currentUserData.photoURL || '';
+                    if (profilePhotoPreviewImg) profilePhotoPreviewImg.src = currentUserData.photoURL || 'imgs/default-avatar.png';
                     if (profileScratchUsernameInput) profileScratchUsernameInput.value = currentUserData.scratchUsername || '';
                     if (profilePronounsInput) profilePronounsInput.value = currentUserData.pronouns || '';
                     if (profileDescriptionInput) profileDescriptionInput.value = currentUserData.profileDescription || '';
                     
-                    if(profilePreviewPhoto) profilePreviewPhoto.src = currentUserData.photoURL || user.photoURL || 'imgs/default-avatar.png';
-                    if(profilePreviewDisplayName) profilePreviewDisplayName.textContent = currentUserData.displayName || user.displayName || 'Seu Nome Aqui';
+                    // Preenche o preview do tema
+                    if(profilePreviewPhoto) profilePreviewPhoto.src = currentUserData.photoURL || 'imgs/default-avatar.png';
+                    if(profilePreviewDisplayName) profilePreviewDisplayName.textContent = currentUserData.displayName || 'Seu Nome Aqui';
                     if(profilePreviewPronouns) profilePreviewPronouns.textContent = currentUserData.pronouns || 'Seus Pronomes';
                     if(profilePreviewDescription) profilePreviewDescription.textContent = currentUserData.profileDescription || 'Sua bio apareceria aqui...';
                     
+                    // Aplica o tema
                     if (currentUserData.profileTheme) {
                         applyProfileThemeToPreview(currentUserData.profileTheme);
                         if (currentUserData.profileTheme.siteBaseColor) {
                             const siteBgColorObj = rgbStringToComponents(currentUserData.profileTheme.siteBaseColor);
                             document.body.style.backgroundColor = lightenDarkenColor(siteBgColorObj, -0.3);
                         }
-                    } else { applyProfileThemeToPreview(null); document.body.style.backgroundColor = ''; }
+                    } else { 
+                        applyProfileThemeToPreview(null); 
+                        document.body.style.backgroundColor = ''; 
+                    }
                 } else { 
-                    console.warn("Documento do usuário NÃO encontrado no Firestore para UID:", user.uid);
+                    console.warn("Documento do usuário NÃO encontrado no Firestore para UID:", user.uid, ". Um novo será criado ao salvar o perfil/tema, ou pelo ensureUserProfileAndFriendId no login.");
+                    // Cria um currentUserData básico para evitar erros, mas não o salva no DB aqui.
+                    // A função ensureUserProfileAndFriendId (chamada no login/registro) é a principal responsável pela criação inicial.
                     currentUserData = {
-                        uid: user.uid, email: user.email,
-                        displayName: user.displayName || user.email.split('@')[0],
+                        uid: user.uid,
+                        // Não incluir email aqui, pois ele não será salvo no doc principal
+                        displayName: user.displayName || user.email?.split('@')[0] || "Usuário",
                         photoURL: user.photoURL || null,
                         friendsCount: 0, followersCount: 0, followingCount: 0,
                         scratchUsername: "", pronouns: "", profileDescription: "",
                         profileTheme: null,
+                        // createdAt e friendId seriam definidos por ensureUserProfileAndFriendId
                     };
-                    applyProfileThemeToPreview(null); document.body.style.backgroundColor = '';
+                    applyProfileThemeToPreview(null); 
+                    document.body.style.backgroundColor = '';
                     if (profileUsernameInput) profileUsernameInput.value = currentUserData.displayName;
                 }
-            } catch (error) { console.error("Erro ao carregar dados do usuário do Firestore:", error); showMessage(profileMessageDiv, "Erro crítico ao carregar dados do perfil.", "error");}
+            } catch (error) { 
+                console.error("Erro ao carregar dados do usuário do Firestore:", error); 
+                showMessage(profileMessageDiv, "Erro crítico ao carregar dados do perfil.", "error");
+                currentUserData = { uid: user.uid, displayName: user.displayName, photoURL: user.photoURL }; // Fallback mínimo
+            }
             
-            if (currentEmailDisplay) currentEmailDisplay.textContent = user.email;
-            setupPasswordSectionUI(hasPasswordProvider(user));
+            setupPasswordSectionUI(hasPasswordProvider(user)); // Configura a UI da seção de senha
             
             const hash = window.location.hash; 
             if (hash === '#security') switchTab(tabSeguranca, sectionSeguranca);
@@ -348,9 +365,12 @@ document.addEventListener('DOMContentLoaded', () => {
             else switchTab(tabPerfil, sectionPerfil);
             if (hash) window.location.hash = ''; 
 
-        } else { window.location.href = 'login.html'; }
+        } else { 
+            window.location.href = 'login.html'; 
+        }
     });
 
+    // ... (Listeners de abas e lógica de formulário de perfil mantidos) ...
     if (tabPerfil) tabPerfil.addEventListener('click', () => switchTab(tabPerfil, sectionPerfil));
     if (tabSeguranca) tabSeguranca.addEventListener('click', () => switchTab(tabSeguranca, sectionSeguranca));
     if (tabTema) tabTema.addEventListener('click', () => switchTab(tabTema, sectionTema));
@@ -395,6 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scratchUsername: newScratchUsername, 
                 pronouns: newPronouns,
                 profileDescription: newDescription,
+                // Não atualizamos o email aqui, é feito em outra seção
             };
             
             showMessage(profileMessageDiv, 'Salvando perfil...', 'info');
@@ -406,8 +427,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.warn("Documento do usuário não existia, criando antes de atualizar perfil...");
                     const initialData = {
                         uid: currentUserForProfile.uid,
-                        email: currentUserForProfile.email,
-                        friendId: currentUserData?.friendId || null, 
+                        // email: currentUserForProfile.email, // REMOVIDO - não salvar no doc principal
+                        friendId: currentUserData?.friendId || null, // Tenta pegar de currentUserData se já foi gerado
                         createdAt: serverTimestamp(),
                         friendsCount: currentUserData?.friendsCount || 0,
                         followersCount: currentUserData?.followersCount || 0,
@@ -416,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ...firestoreProfileFieldsToUpdate 
                     };
                     if (!initialData.friendId) { 
-                        console.warn("Friend ID não encontrado, não será gerado nesta etapa de update de perfil.");
+                        console.warn("Friend ID não encontrado, não será gerado nesta etapa de update de perfil. Deve ser gerado no login/registro via ensureUserProfileAndFriendId.");
                     }
                     await setDoc(userDocRef, initialData);
                     console.log("Novo perfil criado no Firestore durante a atualização.");
@@ -448,7 +469,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    const reauthenticateUser = (currentPassword) => {
+    // ... (Funções de reautenticação, mudança de senha, email, logout, deleteAccount mantidas) ...
+     const reauthenticateUser = (currentPassword) => {
         const user = currentUserForProfile; 
         if (!user || !user.email) {
             const msgDiv = passwordMessageDiv.style.display !== 'none' ? passwordMessageDiv : (emailMessageDiv.style.display !== 'none' ? emailMessageDiv : accountActionMessageDiv);
@@ -484,15 +506,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (changeEmailForm) {
         changeEmailForm.addEventListener('submit', async (e) => {
             e.preventDefault(); if (!currentUserForProfile) { showMessage(emailMessageDiv, "Não autenticado.", "error"); return; }
-            const currentP = emailCurrentPasswordInput.value, newE = newEmailInput.value.trim();
+            // O email atual para reautenticação vem de currentUserForProfile.email (Auth)
+            if (!currentUserForProfile.email) {
+                showMessage(emailMessageDiv, "Email do usuário atual não encontrado para reautenticação.");
+                return;
+            }
+            const currentP = emailCurrentPasswordInput.value;
+            const newE = newEmailInput.value.trim();
             if (!currentP) { showMessage(emailMessageDiv, 'Senha atual necessária.'); return; }
             if (!newE) { showMessage(emailMessageDiv, 'Novo email necessário.'); return; }
             if (newE === currentUserForProfile.email) { showMessage(emailMessageDiv, 'Email igual ao atual.'); return; }
+            
             showMessage(emailMessageDiv, 'Processando...', 'info');
             try {
-                await reauthenticateUser(currentP); 
+                // Reautenticar com o email atual do Auth e a senha fornecida
+                const credential = EmailAuthProvider.credential(currentUserForProfile.email, currentP);
+                await reauthenticateWithCredential(currentUserForProfile, credential);
+                
                 await verifyBeforeUpdateEmail(currentUserForProfile, newE);
-                showMessage(emailMessageDiv, 'Email de verificação enviado para o novo endereço! Confirme para concluir a alteração. O email antigo permanecerá ativo até a confirmação.', 'success'); 
+                showMessage(emailMessageDiv, 'Email de verificação enviado para o novo endereço! Confirme para concluir a alteração. Seu email de login só mudará após a verificação.', 'success'); 
+                // O currentEmailDisplay será atualizado pelo onAuthStateChanged se o email do Auth mudar após verificação
                 changeEmailForm.reset();
             } catch (error) { 
                 console.error("Erro ao alterar email:", error); 
@@ -529,7 +562,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (hasPasswordProvider(currentUserForProfile)) {
                     if (!confirmationInput) { showMessage(accountActionMessageDiv, "Senha atual é obrigatória para deletar a conta."); return; }
-                    await reauthenticateUser(confirmationInput);
+                    const credential = EmailAuthProvider.credential(currentUserForProfile.email, confirmationInput);
+                    await reauthenticateWithCredential(currentUserForProfile, credential);
                 } else {
                     if (confirmationInput.toUpperCase() !== 'DELETAR') {
                         showMessage(accountActionMessageDiv, "Confirmação incorreta. Exclusão cancelada."); return;
@@ -572,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- LÓGICA PARA PROJETOS SCRATCH (COM EDIÇÃO) ---
+    // --- LÓGICA PARA PROJETOS SCRATCH (Mantida da Etapa 5, pois já está correta para inputs customizados e reordenação) ---
     function extractScratchProjectId(url) {
         if (!url) return null;
         try {
@@ -596,10 +630,9 @@ document.addEventListener('DOMContentLoaded', () => {
         scratchProjectTitleInput.value = '';
         scratchProjectDescInput.value = '';
         addScratchProjectButton.textContent = 'Adicionar Projeto';
-        scratchProjectLinkInput.disabled = false; // Habilita link ao cancelar/salvar
+        scratchProjectLinkInput.disabled = false; 
         editingScratchProjectDocId = null;
 
-        // Remove o botão "Cancelar Edição" se existir
         const cancelButton = document.getElementById('cancel-edit-scratch-project-button');
         if (cancelButton) {
             cancelButton.remove();
@@ -611,22 +644,21 @@ document.addEventListener('DOMContentLoaded', () => {
         editingScratchProjectDocId = project.docId;
 
         scratchProjectLinkInput.value = project.projectUrl || `https://scratch.mit.edu/projects/${project.projectId}/`;
-        scratchProjectLinkInput.disabled = true; // Não permite editar o link/ID do projeto
+        scratchProjectLinkInput.disabled = true; 
         scratchProjectTitleInput.value = project.customTitle || '';
         scratchProjectDescInput.value = project.customDescription || '';
 
         addScratchProjectButton.textContent = 'Salvar Alterações';
 
-        // Adiciona botão de cancelar edição se não existir
         if (!document.getElementById('cancel-edit-scratch-project-button')) {
             const cancelButton = document.createElement('button');
             cancelButton.id = 'cancel-edit-scratch-project-button';
             cancelButton.textContent = 'Cancelar Edição';
-            cancelButton.type = 'button'; // Impede submit do formulário
+            cancelButton.type = 'button'; 
             cancelButton.addEventListener('click', cancelEditScratchProject);
             addScratchProjectButton.parentNode.insertBefore(cancelButton, addScratchProjectButton.nextSibling);
         }
-        scratchProjectTitleInput.focus(); // Foca no campo de título
+        scratchProjectTitleInput.focus(); 
     }
 
     function cancelEditScratchProject() {
@@ -635,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    async function handleSaveScratchProject() { // Renomeada de handleAddScratchProject
+    async function handleSaveScratchProject() { 
         if (!currentUserForProfile) {
             showMessage(scratchProjectMessageDiv, "Você precisa estar logado.");
             return;
@@ -644,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const customTitle = scratchProjectTitleInput.value.trim(); 
         const customDescription = scratchProjectDescInput.value.trim(); 
 
-        if (!projectLink && !editingScratchProjectDocId) { // Link é obrigatório apenas ao adicionar novo
+        if (!projectLink && !editingScratchProjectDocId) { 
             showMessage(scratchProjectMessageDiv, "Por favor, insira o link do projeto Scratch.");
             return;
         }
@@ -658,7 +690,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const projectId = extractScratchProjectId(projectLink);
-        if (!projectId && !editingScratchProjectDocId) { // ID é obrigatório ao adicionar
+        // Se estiver editando, o projectId original já está em editingScratchProjectDocId ou no objeto project
+        // Se estiver adicionando um novo, precisamos extrair o projectId do link.
+        if (!projectId && !editingScratchProjectDocId) { 
             showMessage(scratchProjectMessageDiv, "Link inválido ou ID do projeto não encontrado.");
             return;
         }
@@ -671,18 +705,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const projectsRef = collection(db, `users/${currentUserForProfile.uid}/scratchProjects`);
 
             if (editingScratchProjectDocId) {
-                // MODO EDIÇÃO
                 const projectDocRef = doc(db, `users/${currentUserForProfile.uid}/scratchProjects`, editingScratchProjectDocId);
                 await updateDoc(projectDocRef, {
                     customTitle: customTitle,
                     customDescription: customDescription
-                    // projectId, thumbnailUrl, projectUrl, addedAt, orderIndex não são alterados na edição aqui
                 });
                 showMessage(scratchProjectMessageDiv, `Projeto "${customTitle}" atualizado!`, "success");
                 resetScratchProjectForm();
 
             } else {
-                // MODO ADIÇÃO
+                // MODO ADIÇÃO (projectId é o extraído do link)
                 const qExisting = query(projectsRef, where("projectId", "==", projectId));
                 const existingSnap = await getDocs(qExisting);
                 if (!existingSnap.empty) {
@@ -712,10 +744,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 await addDoc(projectsRef, newProjectEntry);
                 showMessage(scratchProjectMessageDiv, `Projeto "${customTitle}" adicionado!`, "success");
-                resetScratchProjectForm(); // Limpa o formulário
+                resetScratchProjectForm(); 
             }
-            // A lista será atualizada automaticamente pelo listener 
-
+            
         } catch (error) {
             console.error(`Erro ao ${actionVerb.toLowerCase()} projeto Scratch:`, error);
             showMessage(scratchProjectMessageDiv, `Erro ao ${actionVerb.toLowerCase()} projeto: ${error.message}`);
@@ -725,7 +756,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (addScratchProjectButton) {
-        // O event listener agora chama handleSaveScratchProject
         addScratchProjectButton.addEventListener('click', handleSaveScratchProject);
     }
 
@@ -786,18 +816,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleMoveProject(project.docId, 'down');
             });
 
-            // Botão Editar
             const editButton = document.createElement('button');
-            editButton.className = 'action-button edit-button'; // Adicionada classe para estilização
+            editButton.className = 'action-button edit-button'; 
             editButton.title = "Editar Projeto";
             const editIcon = document.createElement('img');
-            editIcon.src = 'imgs/edit.svg'; // Caminho para seu ícone
+            editIcon.src = 'imgs/edit.svg'; 
             editIcon.alt = 'Editar';
-            // Não precisa definir width/height aqui se o CSS cuidar disso
             editButton.appendChild(editIcon);
             editButton.addEventListener('click', (e) => {
                 e.stopPropagation();
-                handleEditScratchProject(project); // Passa o objeto completo do projeto
+                handleEditScratchProject(project); 
             });
 
             const deleteButton = document.createElement('button');
@@ -808,10 +836,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleDeleteScratchProject(project.docId, project.customTitle);
             });
             
-            actionsDiv.append(upButton, downButton, editButton, deleteButton); // Adiciona botão de editar
+            actionsDiv.append(upButton, downButton, editButton, deleteButton); 
             li.append(imgLink, title, actionsDiv);
 
-            li.addEventListener('click', () => { // Pop-up de detalhes
+            li.addEventListener('click', () => { 
                 if (!popupContent) return;
                 popupContent.innerHTML = `
                     <h3>${project.customTitle}</h3>
@@ -868,7 +896,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const projectDocRef = doc(db, `users/${currentUserForProfile.uid}/scratchProjects`, docId);
                 await deleteFirestoreDoc(projectDocRef);
                 showMessage(scratchProjectMessageDiv, `Projeto "${projectTitle}" removido.`, "success");
-                // Se estava editando este projeto, cancela a edição
                 if (editingScratchProjectDocId === docId) {
                     cancelEditScratchProject();
                 }
@@ -882,7 +909,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleMoveProject(docIdToMove, direction) {
         if (!currentUserForProfile || !docIdToMove || userScratchProjects.length < 2) return;
 
-        // userScratchProjects já está ordenado por orderIndex (primário) e addedAt (secundário)
         const projectIndex = userScratchProjects.findIndex(p => p.docId === docIdToMove);
         if (projectIndex === -1) return;
 
@@ -897,16 +923,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const projectToMove = userScratchProjects[projectIndex];
         const otherProject = userScratchProjects[otherProjectIndex];
-
-        // Simplesmente troca os orderIndex deles
-        const orderIndexToMove = projectToMove.orderIndex || 0; // Fallback para 0 se não existir
-        const orderIndexOfOther = otherProject.orderIndex || 0; // Fallback para 0 se não existir
         
-        // Se os orderIndex forem iguais (pode acontecer se não foram definidos consistentemente antes)
-        // ou se for a primeira movimentação, precisamos de uma lógica mais robusta.
-        // Por agora, uma troca simples, mas idealmente os orderIndex deveriam ser únicos ou
-        // a lógica de encontrar o próximo/anterior deveria ser mais cuidadosa.
-        // Para esta implementação, vamos assumir que a query os ordena bem o suficiente para a troca.
+        const orderIndexToMove = projectToMove.orderIndex === undefined ? projectIndex : projectToMove.orderIndex;
+        const orderIndexOfOther = otherProject.orderIndex === undefined ? otherProjectIndex : otherProject.orderIndex;
         
         const batch = writeBatch(db);
         const projectToMoveRef = doc(db, `users/${currentUserForProfile.uid}/scratchProjects`, projectToMove.docId);
@@ -924,5 +943,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    console.log("David's Farm profile script (vCom Aba Jogos - Etapa 5 - Edição) carregado!");
+    console.log("David's Farm profile script (vCom Aba Jogos - Etapa 5 - Edição e Scroll CSS) carregado!");
 });
