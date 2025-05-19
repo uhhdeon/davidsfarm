@@ -2158,3 +2158,573 @@ body {
     color: #777; /* Cor mais suave para info */
     border: 1px solid rgba(0, 123, 255, 0.2);
 }
+
+/* Adicione ao final do seu style.css */
+
+/* --- Estilos para Aba e Seção de Jogos (profile.html) --- */
+#section-jogos h2 {
+    color: #00bfff;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #444;
+}
+
+.add-scratch-project-form {
+    background-color: #252525; /* Um pouco diferente do fundo da seção */
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.add-scratch-project-form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #ccc;
+}
+
+.add-scratch-project-form input[type="url"] {
+    width: 100%;
+    max-width: 500px; /* Ajuste conforme necessário */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #333;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.add-scratch-project-form button { /* #add-scratch-project-button */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #28a745; /* Verde, como outros botões de salvar/adicionar */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.add-scratch-project-form button:hover {
+    background-color: #1e7e34;
+}
+
+#scratch-project-message { /* Usa a classe .form-message já estilizada */
+    margin-top: 10px;
+}
+
+#section-jogos h3 { /* Para "Projetos Adicionados:" */
+    margin-top: 20px;
+    margin-bottom: 15px;
+    color: #e0e0e0;
+}
+
+.scratch-projects-list-container {
+    list-style: none;
+    padding: 0;
+    display: grid; /* Para layout em grade, se desejar */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsivo */
+    gap: 15px;
+    min-height: 100px; /* Para a mensagem de "nenhum projeto" ter espaço */
+}
+
+/* Estilo para cada item de projeto (será mais elaborado depois) */
+.scratch-project-item {
+    background-color: #333;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid #444;
+}
+.scratch-project-item img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    background-color: #222; /* Fundo para a imagem */
+}
+.scratch-project-item p {
+    color: #ccc;
+    font-size: 0.9em;
+    word-break: break-word;
+}
+.scratch-project-item .project-actions button {
+    font-size: 0.8em;
+    padding: 4px 8px;
+    margin-top: 8px;
+    margin-right: 5px;
+}
+
+/* Placeholder para lista vazia */
+#scratch-projects-list .list-placeholder {
+    grid-column: 1 / -1; /* Faz ocupar toda a largura da grade */
+    text-align: center;
+    color: #777;
+    padding: 20px;
+    font-style: italic;
+    background-color: transparent; /* Remove fundo se .list-placeholder já tiver */
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (estilos existentes da Etapa 1 para .add-scratch-project-form, etc.) ... */
+
+.scratch-projects-list-container {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Ajustado para thumbs menores */
+    gap: 20px; /* Aumenta o espaço */
+    min-height: 100px; 
+}
+
+.scratch-project-item {
+    background-color: #2c2c2c; /* Um pouco mais claro */
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #383838;
+    display: flex; /* Para alinhar conteúdo verticalmente */
+    flex-direction: column;
+    justify-content: space-between; /* Espaça o conteúdo e as ações */
+    cursor: pointer; /* Indica que é clicável para o futuro popup */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.scratch-project-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.scratch-project-item img {
+    width: 100%; /* Faz a imagem ocupar a largura do container li */
+    max-height: 120px; /* Limita a altura da thumbnail */
+    object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #222; 
+}
+.scratch-project-item p { /* Título do projeto */
+    color: #e0e0e0; /* Mais claro */
+    font-size: 0.95em;
+    font-weight: bold;
+    word-break: break-word;
+    margin-bottom: 10px; /* Espaço antes dos botões */
+    flex-grow: 1; /* Para empurrar os botões para baixo se o título for curto */
+}
+
+.scratch-project-item .project-actions {
+    margin-top: auto; /* Empurra os botões para o final do card */
+}
+
+.scratch-project-item .project-actions button.action-button.danger {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.8em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.scratch-project-item .project-actions button.action-button.danger:hover {
+    background-color: #c82333;
+}
+
+/* Adicione ao final da seção de estilos para a Aba Jogos no seu style.css */
+
+.add-scratch-project-form .form-group input[type="text"],
+.add-scratch-project-form .form-group textarea { /* Estilo para os novos inputs de texto e textarea */
+    width: 100%;
+    max-width: 500px; 
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #333;
+    color: #fff;
+    margin-bottom: 10px; /* Adicionado para espaçamento entre inputs */
+}
+.add-scratch-project-form .form-group textarea {
+    min-height: 60px; /* Altura mínima para a descrição */
+    resize: vertical; /* Permite redimensionar verticalmente */
+}
+
+/* Estilo para o popup de detalhes do projeto (básico, será melhorado) */
+#custom-popup-content h3 { /* Título do projeto no popup */
+    color: #ecf0f1;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.6rem;
+}
+#custom-popup-content h4 { /* "Descrição:" */
+    color: #00bfff;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+}
+#custom-popup-content p { /* Descrição do projeto no popup */
+    color: #bdc3c7;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* --- Layout do Perfil Público com Projetos --- */
+.public-profile-main {
+    /* ... (estilos existentes para public-profile-main) ... */
+    /* max-width pode precisar ser aumentado se o conteúdo ficar muito apertado */
+    max-width: 1000px; /* Exemplo, ajuste conforme necessário */
+}
+
+#public-profile-content {
+    /* ... (estilos existentes) ... */
+    position: relative; /* Para o botão de opções "..." */
+}
+
+.profile-layout-container {
+    display: flex;
+    flex-wrap: wrap; /* Para telas menores, as colunas podem empilhar */
+    gap: 30px; /* Espaço entre a coluna de info e a de projetos */
+}
+
+.profile-info-column {
+    flex: 2; /* Coluna de informações ocupa mais espaço inicialmente */
+    min-width: 300px; /* Largura mínima para a coluna de info */
+}
+
+.profile-projects-column {
+    flex: 1;
+    min-width: 250px; /* Largura mínima para a coluna de projetos */
+    /* background-color: rgba(0,0,0,0.1); /* Opcional: um leve fundo para destacar */
+    /* padding: 15px; */
+    /* border-radius: 6px; */
+}
+
+.profile-projects-column h3 {
+    color: #00bfff; /* Ou herdar do tema */
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #444;
+    font-size: 1.4em;
+}
+.public-profile-main.text-theme-dark .profile-projects-column h3 { /* Se o card do perfil for claro */
+     color: #1f2328;
+     border-bottom-color: #ccc;
+}
+
+
+/* Estilos para a lista de projetos no perfil público (reutiliza/adapta de profile.html) */
+.scratch-projects-list-container.public-profile-project-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Cards um pouco menores no perfil público */
+    gap: 15px;
+}
+
+.public-profile-project-list .scratch-project-item {
+    background-color: rgba(0,0,0,0.2); /* Fundo mais sutil nos cards de projeto */
+    border: 1px solid #333;
+    padding: 10px;
+    /* Mantém outros estilos de .scratch-project-item (cursor, hover, etc.) */
+}
+.public-profile-project-list .scratch-project-item img {
+    max-height: 100px; /* Thumbnails um pouco menores */
+    margin-bottom: 8px;
+}
+.public-profile-project-list .scratch-project-item p { /* Título do projeto */
+    font-size: 0.9em;
+    /* A cor do texto será herdada da classe .text-theme-light/dark do .public-profile-main */
+}
+
+/* Garante que o placeholder de lista vazia na coluna de projetos seja visível */
+#public-scratch-projects-list .list-placeholder {
+    grid-column: 1 / -1; 
+    text-align: center;
+    color: #777;
+    padding: 20px;
+    font-style: italic;
+    background-color: transparent; 
+}
+.public-profile-main.text-theme-dark #public-scratch-projects-list .list-placeholder {
+    color: #555; /* Ajusta cor do placeholder para temas claros */
+}
+
+
+/* Ajustes para responsividade do layout de duas colunas */
+@media (max-width: 768px) {
+    .profile-layout-container {
+        flex-direction: column; /* Empilha as colunas */
+    }
+    .profile-info-column,
+    .profile-projects-column {
+        flex-basis: auto; /* Reseta a base flex */
+        width: 100%;
+    }
+    .profile-projects-column {
+        margin-top: 30px; /* Adiciona espaço se empilhado */
+    }
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* Coluna de Informações do Perfil */
+.profile-info-column {
+    flex: 2; 
+    min-width: 300px;
+    position: relative; /* NECESSÁRIO para posicionar o botão de opções dentro dela */
+}
+
+/* Botão de Mais Opções (...) e Menu de Contexto no Perfil Público */
+.profile-header-options { /* Este é o container do botão "..." e do seu popup */
+    position: absolute; /* Posicionamento absoluto em relação ao .profile-info-column */
+    top: 10px;          /* Ajuste conforme o design, ex: perto do topo da coluna */
+    right: 10px;         /* Ajuste conforme o design, ex: no canto direito da coluna */
+    z-index: 10;        /* Para ficar sobre outros elementos na coluna de info, se houver */
+}
+
+.more-options-button { /* O próprio botão "..." */
+    background: none;
+    border: none;
+    color: #bdc3c7; 
+    font-size: 1.5rem; 
+    cursor: pointer;
+    padding: 8px; /* Aumenta um pouco a área de clique */
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex; /* Para centralizar o ícone se ele não preencher o botão */
+    align-items: center;
+    justify-content: center;
+    line-height: 1; /* Remove espaçamento extra da linha */
+}
+.more-options-button:hover {
+    background-color: rgba(255, 255, 255, 0.15); /* Destaque no hover um pouco mais visível */
+    color: #fff;
+}
+.public-profile-main.text-theme-dark .more-options-button { /* Ícone "..." em fundo claro do card */
+    color: #5f6368; 
+}
+.public-profile-main.text-theme-dark .more-options-button:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: #000;
+}
+
+
+.options-popup { /* O menu que aparece ao clicar no "..." */
+    display: none; 
+    position: absolute;
+    top: 100%; /* Abaixo do botão de opções */
+    right: 0;  /* Alinhado à direita do botão de opções */
+    background-color: #2c3e50; 
+    border: 1px solid #34495e;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25); /* Sombra um pouco mais forte */
+    z-index: 100; 
+    min-width: 200px;
+    padding: 5px 0; 
+    opacity: 0;
+    transform: translateY(5px) scale(0.98); /* Começa um pouco abaixo e menor */
+    transition: opacity 0.1s ease-out, transform 0.1s ease-out;
+    will-change: opacity, transform;
+}
+.options-popup.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+/* ... (restante dos estilos para .options-popup-item, .options-popup-separator, etc. podem ser mantidos como estavam na Etapa 2.1 do profile-script.js) ... */
+.options-popup-item {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #ecf0f1; 
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap; /* Evita quebra de linha nos itens do menu */
+}
+.options-popup-item:hover {
+    background-color: #34495e; 
+}
+.options-popup-item i { 
+    margin-right: 10px; /* Aumenta um pouco o espaço do ícone */
+    width: 16px;
+    text-align: center;
+}
+.options-popup-separator {
+    height: 1px;
+    background-color: #34495e;
+    margin: 5px 0;
+}
+
+/* Ajuste para o profile-header-info para não sobrepor o botão de opções se o nome for muito longo */
+.profile-header-info {
+    /* ... (estilos existentes) ... */
+    padding-right: 40px; /* Adiciona um pouco de padding à direita para não colar no botão de opções */
+                               /* Se o botão de opções estiver mais para dentro, ajuste este valor */
+}
+
+/* Adicione ao final da seção de estilos para .scratch-project-item no seu style.css */
+
+.scratch-project-item .project-actions {
+    margin-top: 10px; /* Ajusta espaço acima dos botões de ação */
+    display: flex; /* Alinha botões na mesma linha */
+    justify-content: center; /* Centraliza o grupo de botões */
+    gap: 8px; /* Espaço entre os botões */
+}
+
+.scratch-project-item .project-actions .reorder-button {
+    background-color: #4a5568; /* Cinza azulado */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 1em; /* Tamanho da seta */
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.scratch-project-item .project-actions .reorder-button:hover:not(:disabled) {
+    background-color: #2c3748; /* Mais escuro no hover */
+}
+.scratch-project-item .project-actions .reorder-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* Coluna de Projetos no Perfil Público com Scroll */
+.profile-projects-column {
+    flex: 1;
+    min-width: 250px; 
+    display: flex; /* Para permitir que o h3 e a lista se alinhem corretamente */
+    flex-direction: column;
+    /* Opcional: definir uma altura máxima para toda a coluna se quiser que o scroll seja nela */
+    /* max-height: 500px; */ 
+    /* overflow-y: auto; */ /* Se o scroll for na coluna inteira */
+}
+
+.profile-projects-column h3 {
+    color: #00bfff; 
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #444;
+    font-size: 1.4em;
+    flex-shrink: 0; /* Impede que o título encolha */
+}
+.public-profile-main.text-theme-dark .profile-projects-column h3 { 
+     color: #1f2328;
+     border-bottom-color: #ccc;
+}
+
+/* Lista de projetos no perfil público com scroll */
+#public-scratch-projects-list.scratch-projects-list-container.public-profile-project-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+    gap: 15px;
+    overflow-y: auto; /* Habilita o scroll vertical na lista */
+    max-height: 450px; /* Defina uma altura máxima para a lista ter scroll. Ajuste conforme necessário! */
+    padding-right: 10px; /* Espaço para a barra de rolagem não cobrir o conteúdo */
+    flex-grow: 1; /* Faz a lista ocupar o espaço disponível na coluna */
+}
+
+
+/* Estilos para o botão de Edição na lista de projetos em profile.html */
+.scratch-project-item .project-actions .edit-button {
+    background-color: #ffc107; /* Amarelo para edição */
+    color: #212529; /* Texto escuro para contraste */
+    border: none;
+    border-radius: 4px;
+    padding: 0; /* Remove padding para o SVG preencher */
+    width: 28px; /* Ajuste o tamanho do botão para o ícone */
+    height: 28px;
+    font-size: 1em; 
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex; /* Para centralizar o SVG */
+    align-items: center;
+    justify-content: center;
+}
+.scratch-project-item .project-actions .edit-button:hover:not(:disabled) {
+    background-color: #e0a800; 
+}
+.scratch-project-item .project-actions .edit-button img { /* Estilo para o SVG dentro do botão */
+    width: 16px; /* Tamanho do ícone */
+    height: 16px;
+    vertical-align: middle;
+}
+
+/* Botão Cancelar Edição (aparecerá dinamicamente) */
+#cancel-edit-scratch-project-button {
+    background-color: #6c757d; /* Cinza */
+    color: white;
+    margin-left: 10px; /* Espaço do botão Adicionar/Salvar */
+     /* Outros estilos de botão podem ser herdados ou definidos aqui */
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+#cancel-edit-scratch-project-button:hover {
+    background-color: #5a6268;
+}
+
+/* Adicione ou ajuste no seu style.css */
+
+/* ... (Estilos existentes) ... */
+
+/* Estilos para botões no popup de detalhes do projeto */
+.popup-actions {
+    /* ... (estilos existentes se houver) ... */
+    display: flex; /* Para alinhar botões lado a lado */
+    justify-content: center; /* Centraliza os botões */
+    gap: 15px; /* Espaço entre os botões */
+}
+
+.popup-action-button { /* Classe genérica para botões no popup */
+    padding: 10px 18px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Espaço entre ícone e texto */
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.popup-action-button:hover {
+    transform: translateY(-1px);
+}
+.popup-action-button:active {
+    transform: translateY(0);
+}
+
+.popup-action-button.scratch { /* Botão "Ver no Scratch" */
+    background-color: #007bff; /* Azul */
+    color: white;
+}
+.popup-action-button.scratch:hover {
+    background-color: #0056b3;
+}
+
+.popup-action-button.play { /* Botão "Jogue Aqui" */
+    background-color: #28a745; /* Verde */
+    color: white;
+}
+.popup-action-button.play:hover {
+    background-color: #1e7e34;
+}
+
+.popup-action-button i { /* Estilo para ícones Font Awesome nos botões */
+    font-size: 0.9em; /* Ajusta tamanho do ícone em relação ao texto */
+}

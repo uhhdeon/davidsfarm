@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div id="background-particles"></div> <div id="background-soundwave-particles"></div> <div id="site-content">
+    <div id="background-particles"></div> <div id="background-soundwave-particles"></div>
+    <div id="site-content">
         <header>
             <div class="header-left">
                 <a href="index.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
@@ -22,45 +23,61 @@
 
         <main class="public-profile-main">
             <div id="public-profile-loading" style="text-align: center; padding: 20px;">Carregando perfil...</div>
+            
             <div id="public-profile-content" style="display: none;">
-                <div class="profile-header-options"> <button id="profile-more-options-btn" class="more-options-button">
-                        <i class="fas fa-ellipsis-h"></i> </button>
-                    <div id="profile-options-popup" class="options-popup">
+                <div class="profile-layout-container"> 
+                    
+                    <div class="profile-info-column"> 
+                        <div class="profile-header-options"> 
+                            <button id="profile-more-options-btn" class="more-options-button">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div id="profile-options-popup" class="options-popup">
+                                </div>
                         </div>
-                </div>
 
-                <div class="profile-header-info">
-                    <img id="profile-page-photo" src="imgs/default-avatar.png" alt="Foto do Perfil">
-                    <div class="profile-name-details">
-                        <h2 id="profile-page-displayName">Nome do Usuário</h2>
-                        <a id="profile-page-scratch-link" href="#" target="_blank" rel="noopener noreferrer" style="display: none;">
-                            <span id="profile-page-scratchUsername">@</span>
-                        </a>
-                        <p id="profile-page-pronouns" class="profile-pronouns"></p>
+                        <div class="profile-header-info">
+                            <img id="profile-page-photo" src="imgs/default-avatar.png" alt="Foto do Perfil">
+                            <div class="profile-name-details">
+                                <h2 id="profile-page-displayName">Nome do Usuário</h2>
+                                <a id="profile-page-scratch-link" href="#" target="_blank" rel="noopener noreferrer" style="display: none;">
+                                    <span id="profile-page-scratchUsername">@</span>
+                                </a>
+                                <p id="profile-page-pronouns" class="profile-pronouns"></p>
+                                
+                                <div class="profile-stats">
+                                    <a href="#" id="stats-friends-link" class="stat-item">
+                                        <span id="friends-count">0</span> Amizades
+                                    </a>
+                                    <a href="#" id="stats-followers-link" class="stat-item">
+                                        <span id="followers-count">0</span> Seguidores
+                                    </a>
+                                    <a href="#" id="stats-following-link" class="stat-item">
+                                        <span id="following-count">0</span> Seguindo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                         
-                        <div class="profile-stats">
-                            <a href="#" id="stats-friends-link" class="stat-item">
-                                <span id="friends-count">0</span> Amizades
-                            </a>
-                            <a href="#" id="stats-followers-link" class="stat-item">
-                                <span id="followers-count">0</span> Seguidores
-                            </a>
-                            <a href="#" id="stats-following-link" class="stat-item">
-                                <span id="following-count">0</span> Seguindo
-                            </a>
+                        <div id="profile-friend-action-button-container" class="profile-action-button-area">
+                            </div>
+                        <div id="friend-action-message" class="form-message" style="text-align: center; margin-bottom:15px;"></div>
+
+                        <div class="profile-description-section">
+                            <h3>Sobre Mim</h3>
+                            <p id="profile-page-description">Nenhuma descrição fornecida.</p>
                         </div>
                     </div>
-                </div>
-                
-                <div id="profile-friend-action-button-container" class="profile-action-button-area">
-                    </div>
-                <div id="friend-action-message" class="form-message" style="text-align: center; margin-bottom:15px;"></div>
 
-                <div class="profile-description-section">
-                    <h3>Sobre Mim</h3>
-                    <p id="profile-page-description">Nenhuma descrição fornecida.</p>
-                </div>
-            </div>
+                    <div class="profile-projects-column">
+                        <h3>Projetos no Scratch</h3>
+                        <div id="public-scratch-projects-loading" style="display: none; text-align: center; padding: 15px;">Carregando projetos...</div>
+                        <ul id="public-scratch-projects-list" class="scratch-projects-list-container public-profile-project-list">
+                            <li class="list-placeholder" id="public-scratch-projects-empty-message" style="display:none;">Nenhum projeto para mostrar.</li>
+                        </ul>
+                    </div>
+
+                </div> </div>
             <div id="public-profile-error" class="form-message" style="display: none; text-align: center;"></div>
         </main>
 
@@ -68,6 +85,15 @@
             <p>&copy; <span id="currentYear"></span> David's Farm. Todos os direitos reservados.</p>
         </footer>
     </div>
+
+    <div id="custom-popup-overlay" class="custom-popup-overlay">
+        <div id="custom-popup" class="custom-popup">
+            <button id="custom-popup-close" class="custom-popup-close-btn">&times;</button>
+            <div id="custom-popup-content" class="custom-popup-content">
+                </div>
+        </div>
+    </div>
+
     <script type="module" src="public-profile-script.js"></script>
 </body>
 </html>

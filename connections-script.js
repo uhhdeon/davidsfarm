@@ -1,7 +1,11 @@
 // connections-script.js
+// VERSÃO RAIZ ATUALIZADA: Busca SEMPRE os dados frescos (nome, foto) do perfil principal
+// de cada usuário listado nas conexões, ignorando dados desnormalizados na subcoleção.
+// Contadores continuam sendo por subcoleção.
+
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, getDoc, collection, getDocs, query, orderBy, limit, startAfter, updateDoc, writeBatch, increment, serverTimestamp, deleteDoc as deleteFirestoreDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Renomeado deleteDoc
+import { doc, getDoc, collection, getDocs, query, orderBy, limit, startAfter, updateDoc, writeBatch, increment, serverTimestamp, deleteDoc as deleteFirestoreDoc, runTransaction, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Seletores DOM ---
@@ -26,34 +30,34 @@ document.addEventListener('DOMContentLoaded', () => {
     let profileUserData = null;
     let currentActiveTab = 'friends';
     let soundwaveParticlesInterval = null;
-    let lastVisibleDoc = null; // Para paginação futura
-    const PAGE_SIZE = 20; // Para paginação futura
+    let lastVisibleDoc = null;
+    const PAGE_SIZE = 20;
 
     if (currentYearSpan) currentYearSpan.textContent = new Date().getFullYear();
     if (siteContent) setTimeout(() => siteContent.classList.add('visible'), 100);
 
-    const showMessageToList = (message, type = 'info') => { // Default para 'info'
+    const showMessageToList = (message, type = 'info') => {
         if (emptyMessageP) {
             emptyMessageP.textContent = message;
-            emptyMessageP.className = 'list-placeholder form-message ' + type; // Usa o tipo diretamente
+            emptyMessageP.className = 'list-placeholder form-message ' + type;
             emptyMessageP.style.display = 'block';
         }
         if (connectionsListUl) connectionsListUl.innerHTML = '';
     };
-    
-    function rgbStringToComponents(rgbString) { /* ... (como antes) ... */
+
+    function rgbStringToComponents(rgbString) {
         if (!rgbString || !rgbString.startsWith('rgb')) return { r: 26, g: 26, b: 26 };
         const result = rgbString.match(/\d+/g);
         if (result && result.length === 3) return { r: parseInt(result[0]), g: parseInt(result[1]), b: parseInt(result[2]) };
         return { r: 26, g: 26, b: 26 };
     }
-    function lightenDarkenColor(colorObj, percent) { /* ... (como antes) ... */
+    function lightenDarkenColor(colorObj, percent) {
         const newR = Math.max(0, Math.min(255, Math.round(colorObj.r * (1 + percent))));
         const newG = Math.max(0, Math.min(255, Math.round(colorObj.g * (1 + percent))));
         const newB = Math.max(0, Math.min(255, Math.round(colorObj.b * (1 + percent))));
         return `rgb(${newR},${newG},${newB})`;
     }
-    function createSoundwaveParticle() { /* ... (como antes, garantindo que o container é criado se não existir) ... */
+    function createSoundwaveParticle() {
         let particlesContainer = document.getElementById('background-soundwave-particles');
         if (!particlesContainer) {
             particlesContainer = document.createElement('div');
@@ -83,10 +87,22 @@ document.addEventListener('DOMContentLoaded', () => {
             body.style.backgroundColor = lightenDarkenColor(bgColorObj, -0.55);
             startSoundwaveParticles();
         } else {
-            body.style.backgroundColor = ''; 
+            body.style.backgroundColor = '';
             stopSoundwaveParticles();
         }
     };
+
+    async function getSubcollectionCount(userUid, subcollectionName) {
+        if (!userUid || !subcollectionName) return 0;
+        try {
+            const subcollectionRef = collection(db, `users/${userUid}/${subcollectionName}`);
+            const snapshot = await getCountFromServer(query(subcollectionRef));
+            return snapshot.data().count;
+        } catch (error) {
+            console.error(`Erro ao contar ${subcollectionName} para ${userUid}:`, error);
+            return 0;
+        }
+    }
 
     const params = new URLSearchParams(window.location.search);
     profileUid = params.get('uid');
@@ -96,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (connectionsPageTitleSpan) connectionsPageTitleSpan.textContent = "Erro";
         showMessageToList("Nenhum perfil de usuário especificado.", "error");
         if (loadingDiv) loadingDiv.style.display = 'none';
-        // Não retorna aqui, pois o onAuthStateChanged ainda precisa rodar para o header
+        applyPageBackgroundAndParticles(null);
     }
 
     onAuthStateChanged(auth, async (loggedInUser) => {
@@ -104,24 +120,42 @@ document.addEventListener('DOMContentLoaded', () => {
         if (viewer) {
             try {
                 const viewerDocSnap = await getDoc(doc(db, "users", viewer.uid));
-                if (viewerDocSnap.exists()) viewerData = viewerDocSnap.data();
+                if (viewerDocSnap.exists()) {
+                    viewerData = viewerDocSnap.data();
+                    viewerData.uid = viewer.uid;
+                    viewerData.friendsCount = viewerData.friendsCount || 0;
+                    viewerData.followersCount = viewerData.followersCount || 0;
+                    viewerData.followingCount = viewerData.followingCount || 0;
+                } else {
+                    viewerData = { uid: viewer.uid, displayName: viewer.displayName, photoURL: viewer.photoURL, email: viewer.email, friendsCount: 0, followersCount: 0, followingCount: 0 };
+                }
             } catch (error) { console.error("Erro ao buscar dados do visualizador:", error); viewerData = null; }
         } else {
             viewerData = null;
         }
         if (userAuthSection) {
-            if (viewer) {
-                const dName = (viewerData?.displayName || viewer.displayName || viewer.email?.split('@')[0]) ?? "Usuário";
-                const pUrl = (viewerData?.photoURL || viewer.photoURL) ?? 'imgs/default-avatar.png';
+            if (viewer && viewerData) {
+                const dName = (viewerData.displayName || viewer.displayName || viewer.email?.split('@')[0]) ?? "Usuário";
+                const pUrl = (viewerData.photoURL || viewer.photoURL) ?? 'imgs/default-avatar.png';
                 userAuthSection.innerHTML = `<a href="profile.html" class="user-info-link"><div class="user-info"><img id="user-photo" src="${pUrl}" alt="Foto"><span id="user-name">${dName}</span></div></a>`;
-            } else userAuthSection.innerHTML = `<a href="login.html" class="login-button">Login</a>`;
+            } else if (viewer) {
+                const dName = (viewer.displayName || viewer.email?.split('@')[0]) ?? "Usuário";
+                const pUrl = viewer.photoURL ?? 'imgs/default-avatar.png';
+                userAuthSection.innerHTML = `<a href="profile.html" class="user-info-link"><div class="user-info"><img id="user-photo" src="${pUrl}" alt="Foto"><span id="user-name">${dName}</span></div></a>`;
+            }
+             else {
+                userAuthSection.innerHTML = `<a href="login.html" class="login-button">Login</a>`;
+            }
         }
-        if (profileUid) { // Só carrega se profileUid estiver definido
-            fetchProfileAndConnections();
+
+        if (profileUid) {
+            await fetchProfileAndConnectionCounts();
+        } else {
+             applyPageBackgroundAndParticles(null);
         }
     });
 
-    async function fetchProfileAndConnections() {
+    async function fetchProfileAndConnectionCounts() {
         if (!profileUid) return;
         if (loadingDiv) loadingDiv.style.display = 'block';
         if (emptyMessageP) emptyMessageP.style.display = 'none';
@@ -133,13 +167,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (userDocSnap.exists()) {
                 profileUserData = userDocSnap.data();
+                profileUserData.uid = profileUid;
+
                 if (connectionsPageTitleSpan) connectionsPageTitleSpan.textContent = profileUserData.displayName || "Usuário";
-                if(connFriendsCountSpan) connFriendsCountSpan.textContent = profileUserData.friendsCount || 0;
-                if(connFollowersCountSpan) connFollowersCountSpan.textContent = profileUserData.followersCount || 0;
-                if(connFollowingCountSpan) connFollowingCountSpan.textContent = profileUserData.followingCount || 0;
-                const siteBaseColor = profileUserData.profileTheme?.siteBaseColor || 
+
+                const [actualFriendsCount, actualFollowersCount, actualFollowingCount] = await Promise.all([
+                    getSubcollectionCount(profileUid, 'friends'),
+                    getSubcollectionCount(profileUid, 'followers'),
+                    getSubcollectionCount(profileUid, 'following')
+                ]);
+
+                if(connFriendsCountSpan) connFriendsCountSpan.textContent = actualFriendsCount;
+                if(connFollowersCountSpan) connFollowersCountSpan.textContent = actualFollowersCount;
+                if(connFollowingCountSpan) connFollowingCountSpan.textContent = actualFollowingCount;
+
+                profileUserData.friendsCount = actualFriendsCount;
+                profileUserData.followersCount = actualFollowersCount;
+                profileUserData.followingCount = actualFollowingCount;
+
+                const siteBaseColor = profileUserData.profileTheme?.siteBaseColor ||
                                      (profileUserData.profileTheme?.type === 'solid' ? profileUserData.profileTheme.color : profileUserData.profileTheme?.color1);
                 applyPageBackgroundAndParticles(siteBaseColor || null);
+
                 setActiveTab(currentActiveTab);
             } else {
                 showMessageToList("Perfil não encontrado.", "error");
@@ -147,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyPageBackgroundAndParticles(null);
             }
         } catch (error) {
-            console.error("Erro ao buscar dados do perfil:", error);
+            console.error("Erro ao buscar dados do perfil e contagens:", error);
             showMessageToList("Erro ao carregar dados do perfil.", "error");
             if (connectionsPageTitleSpan) connectionsPageTitleSpan.textContent = "Erro";
             applyPageBackgroundAndParticles(null);
@@ -165,7 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tabName === 'friends' && tabFriendsBtn) tabFriendsBtn.classList.add('active');
         else if (tabName === 'followers' && tabFollowersBtn) tabFollowersBtn.classList.add('active');
         else if (tabName === 'following' && tabFollowingBtn) tabFollowingBtn.classList.add('active');
-        fetchConnectionsList(tabName);
+
+        if (profileUserData) {
+            fetchConnectionsList(tabName);
+        } else if (profileUid) {
+            console.warn("Tentando definir aba ativa sem profileUserData carregado.");
+        }
     }
 
     if (tabFriendsBtn) tabFriendsBtn.addEventListener('click', () => setActiveTab('friends'));
@@ -173,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tabFollowingBtn) tabFollowingBtn.addEventListener('click', () => setActiveTab('following'));
 
     async function fetchConnectionsList(type) {
-        if (!profileUid || !profileUserData) { // Garante que profileUserData esteja carregado
+        if (!profileUid || !profileUserData) {
              if (loadingDiv) loadingDiv.style.display = 'none';
              showMessageToList("Dados do perfil não carregados para buscar a lista.", "error");
             return;
@@ -181,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loadingDiv) loadingDiv.style.display = 'block';
         if (emptyMessageP) emptyMessageP.style.display = 'none';
         if (connectionsListUl) connectionsListUl.innerHTML = '';
-        lastVisibleDoc = null; // Reseta para paginação futura
+        lastVisibleDoc = null;
 
         let collectionPath = '';
         if (type === 'friends') collectionPath = `users/${profileUid}/friends`;
@@ -190,35 +244,43 @@ document.addEventListener('DOMContentLoaded', () => {
         else { showMessageToList("Tipo de lista inválido.", "error"); if (loadingDiv) loadingDiv.style.display = 'none'; return; }
 
         try {
-            // Adicionado orderBy 'timestamp' para todas as listas.
-            // Se o documento 'friend' não tiver 'timestamp', ele pode não aparecer ou dar erro,
-            // ajuste a criação de amigos para incluir um timestamp.
-            const q = query(collection(db, collectionPath), orderBy("timestamp", "desc"), limit(PAGE_SIZE));
-            const querySnapshot = await getDocs(q);
+            let q;
+            q = query(collection(db, collectionPath), orderBy("timestamp", "desc"), limit(PAGE_SIZE));
             
+            const querySnapshot = await getDocs(q);
+
             if (querySnapshot.empty) {
                 let msg = "Nenhum usuário para mostrar aqui.";
-                if (type === 'friends') msg = `${profileUserData.displayName || 'Este usuário'} ainda não tem amigos.`;
-                else if (type === 'followers') msg = `${profileUserData.displayName || 'Este usuário'} ainda não tem seguidores.`;
-                else if (type === 'following') msg = `${profileUserData.displayName || 'Este usuário'} não segue ninguém ainda.`;
+                // Ajusta a mensagem para ser mais genérica se profileUserData.displayName não estiver disponível
+                const userNameForMsg = profileUserData.displayName || 'Este usuário';
+                if (type === 'friends') msg = `${userNameForMsg} ainda não tem amigos.`;
+                else if (type === 'followers') msg = `${userNameForMsg} ainda não tem seguidores.`;
+                else if (type === 'following') msg = `${userNameForMsg} não segue ninguém ainda.`;
                 showMessageToList(msg, "info");
             } else {
-                const userDetailPromises = querySnapshot.docs.map(itemDoc => {
+                const userDetailPromises = querySnapshot.docs.map(async (itemDoc) => {
                     const itemUid = itemDoc.id;
-                    // Os documentos em 'followers' e 'following' podem ter nome/foto desnormalizados.
-                    // Se não, buscamos do doc principal do usuário.
-                    const itemDataFromSubcollection = itemDoc.data();
-                    if (itemDataFromSubcollection.displayName && itemDataFromSubcollection.photoURL) {
-                        return Promise.resolve({ id: itemUid, ...itemDataFromSubcollection });
+                    // const itemDataFromSubcollection = itemDoc.data(); // Dados da subcoleção (timestamp, etc.)
+
+                    // SEMPRE buscar os dados frescos do perfil principal para nome e foto
+                    const userSnap = await getDoc(doc(db, "users", itemUid));
+                    if (userSnap.exists()) {
+                        const mainUserData = userSnap.data();
+                        return {
+                            id: itemUid,
+                            displayName: mainUserData.displayName || "Usuário Desconhecido",
+                            photoURL: mainUserData.photoURL || 'imgs/default-avatar.png',
+                            // ...itemDataFromSubcollection // Pode adicionar outros dados da subcoleção se precisar, como 'timestamp'
+                        };
                     }
-                    return getDoc(doc(db, "users", itemUid)).then(userSnap => {
-                        if (userSnap.exists()) return { id: itemUid, ...userSnap.data() };
-                        return { id: itemUid, displayName: "Usuário Desconhecido", photoURL: 'imgs/default-avatar.png', isMissing: true };
-                    });
+                    // Fallback se o documento principal do usuário na lista não for encontrado
+                    return { id: itemUid, displayName: "Usuário Desconhecido", photoURL: 'imgs/default-avatar.png', isMissing: true };
                 });
                 const itemsToRender = await Promise.all(userDetailPromises);
                 renderConnectionsList(itemsToRender, type);
-                lastVisibleDoc = querySnapshot.docs[querySnapshot.docs.length - 1]; // Para paginação futura
+                if (querySnapshot.docs.length > 0) {
+                    lastVisibleDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+                }
             }
         } catch (error) {
             console.error(`Erro ao buscar lista de ${type}:`, error);
@@ -230,23 +292,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderConnectionsList(items, type) {
         if (!connectionsListUl) return;
-        connectionsListUl.innerHTML = ''; 
+        connectionsListUl.innerHTML = '';
 
         items.forEach(item => {
             const li = document.createElement('li'); li.className = 'user-list-item';
             const userLink = document.createElement('a'); userLink.href = `public-profile.html?uid=${item.id}`;
             const avatarImg = document.createElement('img');
-            avatarImg.src = item.photoURL || 'imgs/default-avatar.png';
-            avatarImg.alt = `Avatar de ${item.displayName || 'Usuário'}`;
+            avatarImg.src = item.photoURL || 'imgs/default-avatar.png'; // Usará a foto FRESCA
+            avatarImg.alt = `Avatar de ${item.displayName || 'Usuário'}`; // Usará o nome FRESCO
             avatarImg.className = 'user-avatar-small';
             const nameSpan = document.createElement('span');
-            nameSpan.textContent = item.displayName || 'Usuário Desconhecido';
+            nameSpan.textContent = item.displayName || 'Usuário Desconhecido'; // Usará o nome FRESCO
             if (item.isMissing) nameSpan.style.fontStyle = 'italic';
             userLink.append(avatarImg, nameSpan);
             li.appendChild(userLink);
 
             const actionsDiv = document.createElement('div'); actionsDiv.className = 'user-list-actions';
-            if (viewer && viewer.uid === profileUid) { // Dono do perfil vendo suas listas
+            if (viewer && viewer.uid === profileUid) { 
                 if (type === 'friends' && item.id !== viewer.uid) {
                     const removeFriendBtn = document.createElement('button');
                     removeFriendBtn.className = 'action-button danger remove-friend-conn-btn';
@@ -260,15 +322,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     unfollowBtn.addEventListener('click', handleUnfollowFromList);
                     actionsDiv.appendChild(unfollowBtn);
                 }
-            } else if (viewer && item.id !== viewer.uid) { // Visualizador vendo lista de outro, pode ter ações para cada item
-                 // Ex: Adicionar um botão de "Seguir" se ainda não segue o item da lista
-                 // Isso requer checar o status de "seguindo" para cada item, o que pode ser custoso.
-                 // Por enquanto, mantemos simples.
+            } else if (viewer && item.id !== viewer.uid) {
             }
             const viewProfileBtn = document.createElement('button');
             viewProfileBtn.className = 'action-button primary'; viewProfileBtn.textContent = 'Ver Perfil';
             viewProfileBtn.addEventListener('click', () => { window.location.href = `public-profile.html?uid=${item.id}`; });
             actionsDiv.appendChild(viewProfileBtn);
+
             if (actionsDiv.hasChildNodes()) li.appendChild(actionsDiv);
             connectionsListUl.appendChild(li);
         });
@@ -277,43 +337,72 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleUnfollowFromList(event) {
         const followedUid = event.target.dataset.followedUid;
         if (!viewer || viewer.uid !== profileUid || !followedUid) return;
-        const targetUserName = this.closest('.user-list-item').querySelector('span').textContent;
+        const targetUserName = event.target.closest('.user-list-item').querySelector('span').textContent;
         if (!window.confirm(`Deixar de seguir ${targetUserName}?`)) return;
-        
+
         const viewerFollowingRef = doc(db, `users/${viewer.uid}/following/${followedUid}`);
         const followedUserFollowersRef = doc(db, `users/${followedUid}/followers/${viewer.uid}`);
-        const viewerDocRef = doc(db, "users", viewer.uid);
-        const followedUserDocRef = doc(db, "users", followedUid);
+        const viewerDocRef = doc(db, "users", viewer.uid); 
+
         try {
             await runTransaction(db, async (transaction) => {
-                transaction.delete(viewerFollowingRef); transaction.delete(followedUserFollowersRef);
+                transaction.delete(viewerFollowingRef);
+                transaction.delete(followedUserFollowersRef);
                 transaction.update(viewerDocRef, { followingCount: increment(-1) });
-                transaction.update(followedUserDocRef, { followersCount: increment(-1) });
             });
+
             showMessageToList(`Você deixou de seguir ${targetUserName}.`, "success");
-            fetchProfileAndConnections(); 
-        } catch (error) { console.error("Erro ao deixar de seguir:", error); showMessageToList("Erro ao deixar de seguir.", "error"); }
+            
+            if (profileUserData) { 
+                profileUserData.followingCount = Math.max(0, (profileUserData.followingCount || 1) - 1);
+                if(connFollowingCountSpan) connFollowingCountSpan.textContent = profileUserData.followingCount;
+
+                // Para atualizar o contador de seguidores do 'followedUser' na UI DELE (se aberta),
+                // ou em outras partes do app, seria necessário um listener ou Cloud Function.
+                // Aqui, estamos apenas atualizando o contador 'following' do profileUid.
+                // Se esta ação fizesse o contador de seguidores do 'followedUid' mudar na aba 'Seguidores' *desta página*,
+                // então precisaríamos recalcular:
+                if (currentActiveTab === 'followers' && profileUid === followedUid) {
+                    const newFollowersCount = await getSubcollectionCount(profileUid, 'followers');
+                    if (connFollowersCountSpan) connFollowersCountSpan.textContent = newFollowersCount;
+                    if (profileUserData) profileUserData.followersCount = newFollowersCount;
+                }
+            }
+            fetchConnectionsList(currentActiveTab); 
+        } catch (error) {
+            console.error("Erro ao deixar de seguir:", error);
+            showMessageToList(`Erro ao deixar de seguir: ${error.message}`, "error");
+        }
     }
 
     async function handleRemoveFriendFromList(event) {
         const friendUid = event.target.dataset.friendUid;
         if (!viewer || viewer.uid !== profileUid || !friendUid) return;
-        const targetUserName = this.closest('.user-list-item').querySelector('span').textContent;
+        const targetUserName = event.target.closest('.user-list-item').querySelector('span').textContent;
         if (!window.confirm(`Remover amizade com ${targetUserName}?`)) return;
-        
+
         const batch = writeBatch(db);
-        const viewerDocRef = doc(db, "users", viewer.uid);
-        const friendDocRef = doc(db, "users", friendUid);
+        const viewerDocRef = doc(db, "users", viewer.uid); 
+
         batch.delete(doc(db, `users/${viewer.uid}/friends/${friendUid}`));
         batch.delete(doc(db, `users/${friendUid}/friends/${viewer.uid}`));
         batch.update(viewerDocRef, { friendsCount: increment(-1) });
-        batch.update(friendDocRef, { friendsCount: increment(-1) });
+        
         try {
             await batch.commit();
             showMessageToList(`Amizade com ${targetUserName} removida.`, "success");
-            fetchProfileAndConnections();
-        } catch (error) { console.error("Erro ao remover amizade:", error); showMessageToList("Erro ao remover amizade.", "error"); }
+            if (profileUserData) { 
+                profileUserData.friendsCount = Math.max(0, (profileUserData.friendsCount || 1) - 1);
+                if(connFriendsCountSpan) connFriendsCountSpan.textContent = profileUserData.friendsCount;
+                // O contador friendsCount do 'friendUid' não é atualizado aqui pelo cliente.
+                // Se estivéssemos vendo a lista de amigos do 'friendUid', seu contador não mudaria em tempo real.
+            }
+            fetchConnectionsList(currentActiveTab); 
+        } catch (error) {
+            console.error("Erro ao remover amizade:", error);
+            showMessageToList(`Erro ao remover amizade: ${error.message}`, "error");
+        }
     }
 
-    console.log("David's Farm connections script (vCompletíssimo com Regras Firestore em mente) carregado!");
+    console.log("David's Farm connections script (vRaiz - Foto Fresca e Contadores por Subcoleção) carregado!");
 });

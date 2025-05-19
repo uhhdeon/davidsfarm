@@ -1,14 +1,17 @@
 // friends-script.js
+// VERSÃO RAIZ ATUALIZADA: Busca SEMPRE os dados frescos (nome, foto) do perfil principal
+// de cada usuário listado (amigos, pedidos enviados/recebidos).
+
 import { auth, db } from './firebase-config.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; // signOut não será usado diretamente no header aqui
-import { 
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
     doc, getDoc, setDoc, updateDoc, deleteDoc,
-    collection, onSnapshot,
-    serverTimestamp, writeBatch
+    collection, onSnapshot, query, orderBy,
+    serverTimestamp, writeBatch, increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    const userAuthSection = document.querySelector('.user-auth-section'); // Para o header
+    const userAuthSection = document.querySelector('.user-auth-section');
     const currentYearSpan = document.getElementById('currentYear');
     const siteContent = document.getElementById('site-content');
     const myFriendIdDisplay = document.getElementById('my-friend-id-display');
@@ -20,56 +23,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const friendsList = document.getElementById('friends-list');
 
     let currentUser = null;
-    let currentUserData = null; 
+    let currentUserData = null;
 
     if (currentYearSpan) currentYearSpan.textContent = new Date().getFullYear();
     if (siteContent) setTimeout(() => siteContent.classList.add('visible'), 100);
 
-    const showMessage = (element, message, type = 'error') => {
-        // ... (função showMessage da etapa anterior - sem alterações) ...
-        console.log(`[UI Message - ${type} @ ${element?.id || 'unknown'}]: ${message}`); // Adicionado ? para element.id
+    const showMessage = (element, message, type = 'error', duration = 7000) => {
+        console.log(`[UI Message - ${type} @ ${element?.id || 'unknown'}]: ${message}`);
         if(element) {
             element.textContent = message;
-            element.className = 'form-message ' + (type === 'success' ? 'success' : '');
+            element.className = 'form-message ' + (type === 'success' ? 'success' : (type === 'info' ? 'info' : 'error'));
             element.style.display = 'block';
-            setTimeout(() => { element.style.display = 'none'; element.textContent = ''; }, 7000);
+            setTimeout(() => { if (element) {element.style.display = 'none'; element.textContent = '';} }, duration);
         } else {
             console.warn("Elemento para showMessage não encontrado");
         }
     };
 
     async function fetchUserDetails(uid) {
-        // ... (função fetchUserDetails da etapa anterior - sem alterações) ...
-        if (!uid) { 
+        if (!uid) {
             console.warn("fetchUserDetails chamado com UID nulo ou indefinido.");
-            return { displayName: "Usuário Desconhecido", photoURL: 'imgs/default-avatar.png' }; 
+            return { displayName: "Usuário Desconhecido", photoURL: 'imgs/default-avatar.png', isMissing: true };
         }
         const userDocRef = doc(db, "users", uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-            return userDocSnap.data();
-        } else {
-            console.warn(`Nenhum documento encontrado para o usuário ${uid} em fetchUserDetails.`);
-            return { displayName: `Usuário (${uid.substring(0,5)}...)`, photoURL: 'imgs/default-avatar.png' };
+        try {
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+                return { ...userDocSnap.data(), id: uid, isMissing: false }; // Adiciona ID e isMissing
+            } else {
+                console.warn(`Nenhum documento encontrado para o usuário ${uid} em fetchUserDetails.`);
+                return { id: uid, displayName: `Usuário (${uid.substring(0,5)}...)`, photoURL: 'imgs/default-avatar.png', isMissing: true };
+            }
+        } catch (error) {
+            console.error(`Erro ao buscar detalhes do usuário ${uid}:`, error);
+            return { id: uid, displayName: "Erro ao carregar", photoURL: 'imgs/default-avatar.png', isMissing: true, hasError: true };
         }
     }
+
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
-            console.log("[Auth State - Friends Page] Usuário logado:", currentUser.uid);
-            
-            const userDocSnap = await getDoc(doc(db, "users", currentUser.uid));
+            const userDocRef = doc(db, "users", currentUser.uid);
+            const userDocSnap = await getDoc(userDocRef);
             if (userDocSnap.exists()) {
                 currentUserData = userDocSnap.data();
-                console.log("[Auth State - Friends Page] Dados do Firestore do usuário:", currentUserData);
+                currentUserData.uid = currentUser.uid; // Garante UID no currentUserData
+                currentUserData.friendsCount = currentUserData.friendsCount || 0;
+                currentUserData.followersCount = currentUserData.followersCount || 0;
+                currentUserData.followingCount = currentUserData.followingCount || 0;
+
                 if (myFriendIdDisplay) myFriendIdDisplay.textContent = currentUserData.friendId || 'Não definido';
-                
-                // ATUALIZAÇÃO DO HEADER PARA SER IGUAL AO DO INDEX.HTML
+
                 if (userAuthSection) {
-                    const displayName = currentUserData.displayName || currentUser.displayName || currentUser.email;
+                    const displayName = currentUserData.displayName || currentUser.displayName || currentUser.email?.split('@')[0] || "Usuário";
                     const photoURL = currentUserData.photoURL || currentUser.photoURL || 'imgs/default-avatar.png';
-                    // O nome e a foto do usuário agora são um link para profile.html, sem botão de sair aqui
                     userAuthSection.innerHTML = `
                         <a href="profile.html" class="user-info-link">
                             <div class="user-info">
@@ -77,17 +85,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <span id="user-name">${displayName}</span>
                             </div>
                         </a>`;
-                    // O botão de logout foi REMOVIDO do header desta página
                 }
                 listenToFriends();
                 listenToFriendRequests();
             } else {
                 console.error("[Auth State - Friends Page] ALERTA: Documento do usuário não encontrado no Firestore para UID:", currentUser.uid);
                 if (myFriendIdDisplay) myFriendIdDisplay.textContent = 'Erro (sem perfil Firestore)';
-                // Se o usuário chegou aqui sem perfil no Firestore, algo está errado no fluxo de ensureUserProfileAndFriendId
-                // Poderia tentar chamar ensureUserProfileAndFriendId aqui, mas idealmente já deveria ter sido resolvido.
-                 if (userAuthSection) { // Mostra botão de login se os dados do usuário falharem criticamente
-                    userAuthSection.innerHTML = `<a href="login.html" class="login-button">Login Necessário</a>`;
+                 if (userAuthSection) {
+                    userAuthSection.innerHTML = `<a href="login.html" class="login-button">Erro ao carregar</a>`;
                 }
             }
         } else {
@@ -95,9 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Lógica para Adicionar Amigos ---
     if (addFriendButton) {
-        // ... (lógica do addFriendButton da etapa anterior - sem alterações) ...
         addFriendButton.addEventListener('click', async () => {
             if (!currentUser || !currentUserData || !currentUserData.friendId) {
                 showMessage(addFriendMessage, "Seus dados de usuário ainda não foram carregados ou falta ID de amigo. Tente recarregar."); return;
@@ -109,8 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (targetFriendId === currentUserData.friendId) {
                 showMessage(addFriendMessage, "Você não pode adicionar a si mesmo."); return;
             }
-            showMessage(addFriendMessage, "Buscando e enviando pedido...", "success");
-            console.log(`[Add Friend] User ${currentUser.uid} (FriendID: ${currentUserData.friendId}) tentando adicionar Friend ID: ${targetFriendId}`);
+            showMessage(addFriendMessage, "Buscando e enviando pedido...", "info");
             try {
                 const mappingRef = doc(db, "friendIdMappings", targetFriendId);
                 const mappingSnap = await getDoc(mappingRef);
@@ -118,11 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     showMessage(addFriendMessage, "Usuário com este ID de Amigo não encontrado."); return;
                 }
                 const targetUid = mappingSnap.data().uid;
-                console.log(`[Add Friend] UID do destinatário encontrado: ${targetUid}`);
-                const targetUserProfile = await fetchUserDetails(targetUid);
-                if (targetUid === currentUser.uid) {
+                if (targetUid === currentUser.uid) { 
                     showMessage(addFriendMessage, "Você não pode adicionar a si mesmo."); return;
                 }
+                const targetUserProfile = await fetchUserDetails(targetUid);
+                if (targetUserProfile.isMissing) { 
+                     showMessage(addFriendMessage, "Perfil do usuário alvo não encontrado no banco de dados."); return;
+                }
+
                 const areAlreadyFriends = (await getDoc(doc(db, `users/${currentUser.uid}/friends/${targetUid}`))).exists();
                 if (areAlreadyFriends) { showMessage(addFriendMessage, "Vocês já são amigos!"); return; }
                 const alreadySentByMe = (await getDoc(doc(db, `users/${currentUser.uid}/friendRequestsSent/${targetUid}`))).exists();
@@ -132,164 +137,240 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const batch = writeBatch(db);
                 const sentRef = doc(db, `users/${currentUser.uid}/friendRequestsSent`, targetUid);
-                batch.set(sentRef, { 
+                // Não precisa mais salvar receiverName/PhotoURL aqui, pois sempre buscaremos o atual
+                batch.set(sentRef, {
                     status: "pending", timestamp: serverTimestamp(),
-                    receiverUid: targetUid,
-                    receiverName: targetUserProfile.displayName || "Usuário",
-                    receiverPhotoURL: targetUserProfile.photoURL || 'imgs/default-avatar.png'
+                    receiverUid: targetUid 
                 });
                 const receivedRef = doc(db, `users/${targetUid}/friendRequestsReceived`, currentUser.uid);
-                batch.set(receivedRef, { 
+                // Não precisa mais salvar senderName/PhotoURL aqui
+                batch.set(receivedRef, {
                     status: "pending", senderUid: currentUser.uid,
-                    senderName: currentUserData.displayName || currentUser.email,
-                    senderPhotoURL: currentUserData.photoURL || 'imgs/default-avatar.png',
-                    timestamp: serverTimestamp() 
+                    timestamp: serverTimestamp()
                 });
                 await batch.commit();
                 showMessage(addFriendMessage, "Pedido de amizade enviado!", "success");
                 addFriendInput.value = '';
             } catch (error) {
                 console.error("[Add Friend] Erro CRÍTICO ao enviar pedido:", error);
-                showMessage(addFriendMessage, "Erro ao enviar pedido. Verifique o console.");
+                showMessage(addFriendMessage, `Erro ao enviar pedido: ${error.message}`);
             }
         });
     }
 
-    // --- Funções para Renderizar Listas ---
-   const renderList = (listElement, items, type) => {
+    const renderList = (listElement, itemsWithFreshData, type) => {
+        if (!listElement) { console.error("Elemento de lista não encontrado para renderizar:", type); return; }
         listElement.innerHTML = '';
-        if (items.length === 0) {
+        if (itemsWithFreshData.length === 0) {
             let placeholderText = "Nenhum item aqui.";
             if (type === 'received') placeholderText = "Nenhum pedido recebido.";
-            if (type === 'sent') placeholderText = "Nenhum pedido enviado.";
-            if (type === 'friends') placeholderText = "Você ainda não tem amigos.";
+            else if (type === 'sent') placeholderText = "Nenhum pedido enviado.";
+            else if (type === 'friends') placeholderText = "Você ainda não tem amigos.";
             listElement.innerHTML = `<li class="list-placeholder">${placeholderText}</li>`;
             return;
         }
-        items.forEach(itemWrapper => {
+        itemsWithFreshData.forEach(freshItemData => { // freshItemData é o resultado de fetchUserDetails
             const li = document.createElement('li');
             li.className = 'friend-list-item';
-            const itemData = itemWrapper.data || itemWrapper; // Acessa os dados corretos do item
-            // Prioriza nomes e fotos que podem ter sido salvos diretamente no pedido/amigo,
-            // caso contrário usa o displayName/photoURL do objeto de usuário completo (itemWrapper ou itemData se for perfil)
-            const targetUid = itemWrapper.id; // UID do usuário sendo listado
-            const displayName = itemData.displayName || itemData.senderName || itemData.receiverName || "Usuário";
-            const photoURL = itemData.photoURL || itemData.senderPhotoURL || itemData.receiverPhotoURL || 'imgs/default-avatar.png';
-
-            // Cria o link para o perfil público
-            const profileLink = `<a href="public-profile.html?uid=${targetUid}" class="profile-list-link">`;
             
-            let content = `${profileLink}<img src="${photoURL}" alt="${displayName}" class="friend-avatar-small"> <span>${displayName}</span></a>`; // Fecha o <a>
+            const targetUid = freshItemData.id;
+            const displayName = freshItemData.displayName; // Dados frescos
+            const photoURL = freshItemData.photoURL;     // Dados frescos
+
+            const profileLink = document.createElement('a');
+            profileLink.href = `public-profile.html?uid=${targetUid}`;
+            profileLink.className = 'profile-list-link';
+
+            const avatarImg = document.createElement('img');
+            avatarImg.src = photoURL;
+            avatarImg.alt = displayName;
+            avatarImg.className = 'friend-avatar-small';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = displayName;
+            if (freshItemData.isMissing || freshItemData.hasError) nameSpan.style.fontStyle = 'italic';
+
+            profileLink.append(avatarImg, nameSpan);
+            li.appendChild(profileLink);
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'actions';
+
+            // Os dados originais da subcoleção (como 'status' do pedido) podem ser passados
+            // em freshItemData.originalSubcollectionData se necessário.
+            // Por agora, 'status' é pego de freshItemData.dataFromRequest se adicionado lá.
+            const originalSubData = freshItemData.originalSubcollectionData || {};
+
 
             if (type === 'received') {
-                content += ` <div class="actions"><button class="accept-request" data-id="${targetUid}">Aceitar</button> <button class="decline-request" data-id="${targetUid}">Recusar</button></div>`;
+                const acceptBtn = document.createElement('button'); acceptBtn.className = 'accept-request'; acceptBtn.dataset.id = targetUid; acceptBtn.textContent = 'Aceitar';
+                const declineBtn = document.createElement('button'); declineBtn.className = 'decline-request'; declineBtn.dataset.id = targetUid; declineBtn.textContent = 'Recusar';
+                actionsDiv.append(acceptBtn, declineBtn);
             } else if (type === 'sent') {
-                // Para pedidos enviados, o targetUid é o destinatário. O 'status' vem de itemData.status.
-                content += ` <span class="status">(${(itemData.status || 'pendente')})</span> <button class="cancel-request" data-id="${targetUid}">Cancelar</button>`;
+                const statusSpan = document.createElement('span'); statusSpan.className = 'status';
+                // Para 'sent', o 'status' viria do documento da subcoleção friendRequestsSent
+                // Precisamos garantir que 'originalSubData' (anteriormente itemWrapper.data) está disponível
+                statusSpan.textContent = `(${(originalSubData.status || 'pendente')})`;
+                const cancelBtn = document.createElement('button'); cancelBtn.className = 'cancel-request'; cancelBtn.dataset.id = targetUid; cancelBtn.textContent = 'Cancelar';
+                actionsDiv.append(statusSpan, cancelBtn);
             } else if (type === 'friends') {
-                content += ` <div class="actions"><button class="remove-friend" data-id="${targetUid}"><img src="imgs/trashbin.png" alt="Remover" class="btn-icon-small"></button></div>`;
+                const removeBtn = document.createElement('button'); removeBtn.className = 'remove-friend'; removeBtn.dataset.id = targetUid;
+                const trashIcon = document.createElement('img'); trashIcon.src = 'imgs/trashbin.png'; trashIcon.alt = 'Remover'; trashIcon.className = 'btn-icon-small';
+                removeBtn.appendChild(trashIcon);
+                actionsDiv.appendChild(removeBtn);
             }
-            li.innerHTML = content;
+            if (actionsDiv.hasChildNodes()) li.appendChild(actionsDiv);
             listElement.appendChild(li);
         });
     };
     
-    // --- Listeners para as listas ---
     let unsubFriends, unsubSent, unsubReceived;
-    function listenToFriends() { /* ... (sem alterações) ... */
-        if (!currentUser) return;
+
+    function listenToFriends() {
+        if (!currentUser || !friendsList) return;
         if (unsubFriends) unsubFriends();
-        const friendsQuery = collection(db, `users/${currentUser.uid}/friends`);
-        unsubFriends = onSnapshot(friendsQuery, async (snapshot) => {
+        
+        const friendsQueryRef = query(collection(db, `users/${currentUser.uid}/friends`), orderBy("timestamp", "desc"));
+        unsubFriends = onSnapshot(friendsQueryRef, async (snapshot) => {
             const friendsDataPromises = snapshot.docs.map(async (friendDoc) => {
                 const friendUid = friendDoc.id;
-                const friendProfile = await fetchUserDetails(friendUid);
-                return { id: friendUid, ...friendProfile, dataFromFriendDoc: friendDoc.data() };
+                // SEMPRE buscar dados frescos do amigo
+                const friendProfileDetails = await fetchUserDetails(friendUid);
+                return { 
+                    ...friendProfileDetails, // Contém id, displayName, photoURL, isMissing, etc.
+                    originalSubcollectionData: friendDoc.data() // Mantém dados da subcoleção original se precisar (ex: timestamp)
+                };
             });
-            const friendsData = await Promise.all(friendsDataPromises);
-            renderList(friendsList, friendsData, 'friends');
-        }, error => console.error("[Listener Friends] Erro:", error));
+            const friendsDataWithFreshDetails = await Promise.all(friendsDataPromises);
+            renderList(friendsList, friendsDataWithFreshDetails, 'friends');
+        }, error => {
+            console.error("[Listener Friends] Erro:", error);
+            if (friendsList) friendsList.innerHTML = `<li class="list-placeholder error">Erro ao carregar amigos.</li>`;
+        });
     }
-    function listenToFriendRequests() { /* ... (sem alterações) ... */
+
+    function listenToFriendRequests() {
         if (!currentUser) return;
+
         if (unsubSent) unsubSent();
+        const sentQueryRef = query(collection(db, `users/${currentUser.uid}/friendRequestsSent`), orderBy("timestamp", "desc"));
+        unsubSent = onSnapshot(sentQueryRef, async (snapshot) => {
+            const sentItemsPromises = snapshot.docs.map(async (requestDoc) => {
+                const recipientUid = requestDoc.id; // O ID do documento é o UID do destinatário
+                const requestData = requestDoc.data(); // Dados do pedido (status, timestamp)
+                const recipientProfileDetails = await fetchUserDetails(recipientUid); // Busca dados frescos do destinatário
+                return {
+                    ...recipientProfileDetails, // Contém id (que será recipientUid), displayName, photoURL, etc.
+                    originalSubcollectionData: requestData // Para ter acesso ao 'status' do pedido
+                };
+            });
+            const sentItemsWithFreshDetails = await Promise.all(sentItemsPromises);
+            renderList(sentRequestsList, sentItemsWithFreshDetails, 'sent');
+        }, error => {
+            console.error("[Listener Sent Requests] Erro:", error);
+            if (sentRequestsList) sentRequestsList.innerHTML = `<li class="list-placeholder error">Erro ao carregar pedidos enviados.</li>`;
+        });
+
         if (unsubReceived) unsubReceived();
-        const sentQuery = collection(db, `users/${currentUser.uid}/friendRequestsSent`);
-        unsubSent = onSnapshot(sentQuery, async (snapshot) => {
-            const sentData = snapshot.docs.map(d => ({ id: d.id, data: d.data() }));
-            renderList(sentRequestsList, sentData, 'sent');
-        }, error => console.error("[Listener Sent Requests] Erro:", error));
-        const receivedQuery = collection(db, `users/${currentUser.uid}/friendRequestsReceived`);
-        unsubReceived = onSnapshot(receivedQuery, async (snapshot) => {
-            const receivedData = snapshot.docs.map(d => ({ id: d.id, data: d.data() }));
-            renderList(receivedRequestsList, receivedData, 'received');
-        }, error => console.error("[Listener Received Requests] Erro:", error));
+        const receivedQueryRef = query(collection(db, `users/${currentUser.uid}/friendRequestsReceived`), orderBy("timestamp", "desc"));
+        unsubReceived = onSnapshot(receivedQueryRef, async (snapshot) => {
+            const receivedItemsPromises = snapshot.docs.map(async (requestDoc) => {
+                const senderUid = requestDoc.id; // O ID do documento é o UID do remetente
+                const requestData = requestDoc.data(); // Dados do pedido (status, timestamp)
+                const senderProfileDetails = await fetchUserDetails(senderUid); // Busca dados frescos do remetente
+                return {
+                    ...senderProfileDetails, // Contém id (senderUid), displayName, photoURL, etc.
+                    originalSubcollectionData: requestData // Para ter acesso a outros dados do pedido se houver
+                };
+            });
+            const receivedItemsWithFreshDetails = await Promise.all(receivedItemsPromises);
+            renderList(receivedRequestsList, receivedItemsWithFreshDetails, 'received');
+        }, error => {
+            console.error("[Listener Received Requests] Erro:", error);
+            if (receivedRequestsList) receivedRequestsList.innerHTML = `<li class="list-placeholder error">Erro ao carregar pedidos recebidos.</li>`;
+        });
     }
     
-    // --- Ações nas Listas (Aceitar, Recusar, Cancelar, Remover) ---
     document.addEventListener('click', async (event) => {
-        // ... (lógica de clique para ações de amizade da etapa anterior - sem alterações) ...
-        if (!currentUser || !currentUserData) return;
-        const target = event.target;
-        const otherUserId = target.dataset.id; 
-        if (!otherUserId && (target.classList.contains('accept-request') || target.classList.contains('decline-request') || target.classList.contains('cancel-request') || target.classList.contains('remove-friend'))) {
+        if (!currentUser || !currentUserData) {
+            console.warn("Ação de amizade clicada, mas currentUser ou currentUserData não estão definidos.");
             return;
         }
+        const targetButton = event.target.closest('button.accept-request, button.decline-request, button.cancel-request, button.remove-friend');
+        
+        if (!targetButton) return; 
+
+        const otherUserId = targetButton.dataset.id;
+        if (!otherUserId) {
+            console.warn("Botão de ação de amizade não tem data-id.", targetButton);
+            return;
+        }
+
         const batch = writeBatch(db);
-        if (target.classList.contains('accept-request')) {
-            console.log(`[Accept Request] Usuário ${currentUser.uid} (eu) aceitando pedido de ${otherUserId}`);
-            showMessage(addFriendMessage, 'Aceitando pedido...', 'success');
-            try {
-                const otherUserProfile = await fetchUserDetails(otherUserId);
-                batch.set(doc(db, `users/${currentUser.uid}/friends`, otherUserId), { 
-                    addedAt: serverTimestamp(), 
-                    friendName: otherUserProfile.displayName || "Amigo",
-                    friendPhotoURL: otherUserProfile.photoURL || 'imgs/default-avatar.png'
+        const currentUserDocRef = doc(db, "users", currentUser.uid);
+        
+        try {
+            if (targetButton.classList.contains('accept-request')) {
+                showMessage(addFriendMessage, 'Aceitando pedido...', 'info');
+                const otherUserProfile = await fetchUserDetails(otherUserId); // Pega dados frescos para desnormalizar na amizade
+                if (otherUserProfile.isMissing || otherUserProfile.hasError) throw new Error("Perfil do remetente do pedido não encontrado ou erro ao buscar.");
+
+                // Salva dados desnormalizados (frescos) na criação da amizade
+                batch.set(doc(db, `users/${currentUser.uid}/friends`, otherUserId), {
+                    timestamp: serverTimestamp(),
+                    friendName: otherUserProfile.displayName, // Dado fresco
+                    friendPhotoURL: otherUserProfile.photoURL  // Dado fresco
                 });
-                batch.set(doc(db, `users/${otherUserId}/friends`, currentUser.uid), { 
-                    addedAt: serverTimestamp(), 
-                    friendName: currentUserData.displayName || "Amigo",
-                    friendPhotoURL: currentUserData.photoURL || 'imgs/default-avatar.png'
+                batch.set(doc(db, `users/${otherUserId}/friends`, currentUser.uid), {
+                    timestamp: serverTimestamp(),
+                    friendName: currentUserData.displayName, // Dado do usuário logado
+                    friendPhotoURL: currentUserData.photoURL
                 });
                 batch.delete(doc(db, `users/${currentUser.uid}/friendRequestsReceived`, otherUserId));
                 batch.delete(doc(db, `users/${otherUserId}/friendRequestsSent`, currentUser.uid));
+                
+                batch.update(currentUserDocRef, { friendsCount: increment(1) });
+                
                 await batch.commit();
+                currentUserData.friendsCount = (currentUserData.friendsCount || 0) + 1; 
                 showMessage(addFriendMessage, 'Amigo adicionado!', 'success');
-            } catch (e) { console.error("[Accept Request] Erro CRÍTICO:", e); showMessage(addFriendMessage, 'Erro ao aceitar pedido. Verifique o console.'); }
-        } 
-        else if (target.classList.contains('decline-request')) {
-            console.log(`[Decline Request] Pedido de ${otherUserId} recusado por ${currentUser.uid}`);
-            showMessage(addFriendMessage, 'Recusando pedido...', 'success');
-            try {
+            }
+            else if (targetButton.classList.contains('decline-request')) {
+                showMessage(addFriendMessage, 'Recusando pedido...', 'info');
                 batch.delete(doc(db, `users/${currentUser.uid}/friendRequestsReceived`, otherUserId));
                 batch.delete(doc(db, `users/${otherUserId}/friendRequestsSent`, currentUser.uid));
                 await batch.commit();
                 showMessage(addFriendMessage, 'Pedido recusado.', 'success');
-            } catch (e) { console.error("[Decline Request] Erro:", e); showMessage(addFriendMessage, 'Erro ao recusar pedido.');}
-        }
-        else if (target.classList.contains('cancel-request')) {
-            console.log(`[Cancel Request] ${currentUser.uid} cancelando pedido para ${otherUserId}`);
-            showMessage(addFriendMessage, 'Cancelando pedido...', 'success');
-            try {
+            }
+            else if (targetButton.classList.contains('cancel-request')) {
+                showMessage(addFriendMessage, 'Cancelando pedido...', 'info');
                 batch.delete(doc(db, `users/${currentUser.uid}/friendRequestsSent`, otherUserId));
                 batch.delete(doc(db, `users/${otherUserId}/friendRequestsReceived`, currentUser.uid));
                 await batch.commit();
                 showMessage(addFriendMessage, 'Pedido cancelado.', 'success');
-            } catch (e) { console.error("[Cancel Request] Erro:", e); showMessage(addFriendMessage, 'Erro ao cancelar pedido. Verifique o console.');}
-        }
-        else if (target.classList.contains('remove-friend')) {
-            if(window.confirm("Tem certeza que deseja remover este amigo?")) {
-                console.log(`[Remove Friend] ${currentUser.uid} removendo amigo ${otherUserId}`);
-                showMessage(addFriendMessage, 'Removendo amigo...', 'success');
-                try {
+            }
+            else if (targetButton.classList.contains('remove-friend')) {
+                const friendNameElement = targetButton.closest('.friend-list-item')?.querySelector('.profile-list-link span');
+                const friendNameToConfirm = friendNameElement ? friendNameElement.textContent : 'este amigo';
+                if(window.confirm(`Tem certeza que deseja remover ${friendNameToConfirm}?`)) {
+                    showMessage(addFriendMessage, 'Removendo amigo...', 'info');
                     batch.delete(doc(db, `users/${currentUser.uid}/friends`, otherUserId));
                     batch.delete(doc(db, `users/${otherUserId}/friends`, currentUser.uid));
+                    
+                    batch.update(currentUserDocRef, { friendsCount: increment(-1) });
+
                     await batch.commit();
+                    currentUserData.friendsCount = Math.max(0, (currentUserData.friendsCount || 1) - 1); 
                     showMessage(addFriendMessage, 'Amigo removido.', 'success');
-                } catch (e) { console.error("[Remove Friend] Erro:", e); showMessage(addFriendMessage, 'Erro ao remover amigo.');}
+                } else {
+                    return; 
+                }
             }
+        } catch (e) {
+            console.error("Erro na ação de amizade:", e);
+            showMessage(addFriendMessage, `Erro: ${e.message || 'Falha na operação.'}`);
         }
     });
     
-    console.log("David's Farm friends script (v6 - header consistente) carregado!");
+    console.log("David's Farm friends script (vRaiz - Foto Fresca em Todas as Listas) carregado!");
 });

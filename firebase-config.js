@@ -11,14 +11,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAoI436Z3hx8rp63S6Ea095YpGxAeJdazA",
-    authDomain: "david-s-farm.firebaseapp.com",
-    projectId: "david-s-farm",
-    storageBucket: "david-s-farm.firebasestorage.app",
-    messagingSenderId: "1036766340330",
-    appId: "1:1036766340330:web:5fb56b8eb0d7241c7a2393",
-    measurementId: "G-XP73P7XJ09"
-};
+    apiKey: "AIzaSyCKB2AfgZ-J2qT39OADTBcNxQVruOzzIdU",
+    authDomain: "david-farm.firebaseapp.com",
+    projectId: "david-farm",
+    storageBucket: "david-farm.firebasestorage.app",
+    messagingSenderId: "224856226591",
+    appId: "1:224856226591:web:7ab5dd8a3fcd8822af4e2a",
+    measurementId: "G-S0Q529X6Z1"
+  };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

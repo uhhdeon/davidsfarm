@@ -25,7 +25,9 @@
                     <ul>
                         <li><button id="tab-perfil" class="active">Perfil</button></li>
                         <li><button id="tab-seguranca">Segurança</button></li>
-                        <li><button id="tab-tema">Tema</button></li> <li><a href="friends.html" class="profile-menu-link-button">Amigos</a></li>
+                        <li><button id="tab-tema">Tema</button></li>
+                        <li><button id="tab-jogos">Jogos</button></li>
+                        <li><a href="friends.html" class="profile-menu-link-button">Amigos</a></li>
                     </ul>
                 </aside>
                 <section class="profile-content">
@@ -140,7 +142,35 @@
                             </div>
                         </div>
                     </div>
-                </section>
+
+                    <div id="section-jogos" class="profile-section">
+                        <h2>Meus Jogos do Scratch</h2>
+                        <div class="add-scratch-project-form">
+                            <div class="form-group">
+                                <label for="scratch-project-link-input">Link do Projeto Scratch:</label>
+                                <input type="url" id="scratch-project-link-input" placeholder="https://scratch.mit.edu/projects/ID_DO_PROJETO/" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="scratch-project-title-input">Título Personalizado:</label>
+                                <input type="text" id="scratch-project-title-input" placeholder="Como você quer chamar este projeto?" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="scratch-project-desc-input">Descrição Personalizada:</label>
+                                <textarea id="scratch-project-desc-input" rows="3" placeholder="Descreva brevemente seu projeto aqui." required></textarea>
+                            </div>
+                            <button id="add-scratch-project-button">Adicionar Projeto</button>
+                            <div id="scratch-project-message" class="form-message"></div>
+                        </div>
+
+                        <hr style="margin: 30px 0; border-color: #444;">
+
+                        <h3>Projetos Adicionados:</h3>
+                        <div id="scratch-projects-loading" style="display: none; text-align: center; padding: 15px;">Carregando projetos...</div>
+                        <ul id="scratch-projects-list" class="scratch-projects-list-container">
+                            <li class="list-placeholder" id="scratch-projects-empty-message" style="display: none;">Nenhum projeto adicionado ainda.</li>
+                        </ul>
+                    </div>
+                    </section>
             </div>
         </main>
         <footer>
