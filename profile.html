@@ -48,9 +48,17 @@
                                 <label for="profile-photo-url-input">URL da Foto de Perfil:</label>
                                 <input type="url" id="profile-photo-url-input" name="photoURL" placeholder="https://exemplo.com/sua-foto.jpg">
                                 <div class="photo-preview-container" style="margin-top:10px;">
-                                    <img id="profile-photo-preview-img" src="imgs/default-avatar.png" alt="Pré-visualização da foto">
+                                     <img id="profile-photo-preview-img" src="imgs/default-avatar.png" alt="Pré-visualização da foto">
                                     <small>Pré-visualização</small>
                                 </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Ou envie uma imagem (max. 200KB):</label>
+                                <input type="file" id="profile-photo-upload-input" accept="image/jpeg, image/png, image/gif, image/webp" style="display: none;">
+                                <button type="button" id="trigger-photo-upload-button" class="action-button secondary">Escolher Imagem</button>
+                                <div id="photo-upload-progresstext" class="form-message info" style="display: none; margin-top: 10px;"></div>
+                                <div id="photo-upload-message" class="form-message" style="margin-top: 10px;"></div>
                             </div>
                             <div class="form-group">
                                 <label for="profile-scratch-username">Nome de Usuário no Scratch:</label>

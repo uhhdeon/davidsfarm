@@ -1,0 +1,23 @@
+[
+    {
+        "id": "df001",
+        "nome": "Colheita Dourada",
+        "descricao": "Uma bela imagem do pôr do sol sobre os campos de milho maduros da Fazenda do David.",
+        "data": "2024-10-15",
+        "arquivoImagem": "davidsfarm_sunset_harvest.png"
+    },
+    {
+        "id": "df002",
+        "nome": "Personagens Reunidos",
+        "descricao": "David e seus amigos animais posando em frente ao celeiro principal.",
+        "data": "2024-11-02",
+        "arquivoImagem": "davidsfarm_characters_barn.png"
+    },
+    {
+        "id": "df003",
+        "nome": "Arte Conceitual Inicial",
+        "descricao": "Um dos primeiros esboços conceituais para o visual da fazenda.",
+        "data": "2023-05-20",
+        "arquivoImagem": "davidsfarm_concept_art_01.jpg"
+    }
+]

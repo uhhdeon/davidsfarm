@@ -1,0 +1,1698 @@
+#category-selection-section {
+    background-color: red !important; /* Para ver se a seção ocupa espaço */
+    padding: 20px !important;
+    border: 2px solid yellow !important;
+    min-height: 100px !important; /* Garante que tenha alguma altura */
+    opacity: 1 !important;
+    visibility: visible !important;
+    color: white !important; /* Garante que o texto seja visível em fundo escuro */
+}
+
+#category-selection-section .category-button {
+    background-color: blue !important;
+    color: white !important;
+    padding: 10px !important;
+    border: 1px solid lightblue !important;
+    min-width: 100px !important;
+    min-height: 50px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+#category-selection-section .category-button img {
+    width: 30px !important; /* Apenas para teste */
+    height: 30px !important;
+    border: 1px solid lime !important; /* Para ver se a imagem está lá */
+}
+
+/* No seu style.css ou gallery-style.css */
+#site-content {
+    opacity: 0;
+    visibility: hidden; /* Esconde e remove do fluxo de renderização até ser visível */
+    transition: opacity 0.5s ease-out, visibility 0s linear 0.5s; /* Transição para opacity, visibility muda no final */
+    /* Ou uma transição mais simples se preferir:
+    transition: opacity 0.5s ease-out; */
+}
+
+#site-content.visible {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s; /* Garante que a transição de visibility ocorra imediatamente ao adicionar a classe */
+}
+
+/* gallery-style.css */
+
+/* --- Estilos Gerais para a Página da Galeria --- */
+.gallery-main-content {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    color: #e0e0e0; /* Cor de texto clara para tema escuro */
+}
+
+.gallery-main-content h2 {
+    text-align: center;
+    color: #00bfff; /* Um azul vibrante para títulos */
+    margin-bottom: 30px;
+    font-size: 2.5em;
+}
+
+.gallery-main-content h3 {
+    color: #00bfff;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+.gallery-main-content p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+/* --- Seção de Seleção de Categoria --- */
+.category-selector {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.category-selector p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    color: #bdc3c7; /* Cinza claro */
+}
+
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 25px; /* Espaço entre os botões */
+    flex-wrap: wrap; /* Permite quebra de linha em telas menores */
+}
+
+.category-button {
+    background-color: #2c3e50; /* Azul acinzentado escuro */
+    color: #ecf0f1; /* Branco suave */
+    border: 2px solid #34495e; /* Borda sutil */
+    border-radius: 8px;
+    padding: 20px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column; /* Ícone acima do texto */
+    align-items: center;
+    min-width: 180px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.category-button img {
+    width: 60px; /* Ajuste o tamanho do ícone conforme necessário */
+    height: 60px;
+    margin-bottom: 10px;
+    object-fit: contain; /* Para não distorcer o ícone */
+}
+
+.category-button:hover {
+    background-color: #34495e; /* Cor de hover */
+    border-color: #00bfff;
+    transform: translateY(-3px); /* Efeito de elevação suave */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Seção de Visualização da Galeria --- */
+.gallery-view {
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.1); /* Fundo sutil para a área da galeria */
+    border-radius: 8px;
+}
+
+#gallery-category-title {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2em;
+}
+
+/* Mensagens de status (loading, erro, vazio) */
+.gallery-message {
+    text-align: center;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 6px;
+    font-size: 1.1em;
+    max-width: 600px;
+}
+
+.gallery-message.error {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #ff6b81; /* Vermelho claro para erro */
+    border: 1px solid rgba(220, 53, 69, 0.4);
+}
+
+#gallery-loading { /* Já tem a classe .gallery-message */
+    color: #00bfff;
+}
+
+#gallery-empty { /* Já tem a classe .gallery-message */
+    color: #bdc3c7;
+}
+
+
+/* Carrossel / Contêiner da Imagem Principal */
+.gallery-carousel-container {
+    display: flex; /* Controlado pelo JS, mas definimos como flex aqui */
+    align-items: center;
+    justify-content: center;
+    position: relative; /* Para posicionamento absoluto dos botões de navegação */
+    margin: 0 auto;
+    max-width: 900px; /* Ajuste conforme necessário */
+    background-color: #1c1c1c; /* Fundo escuro para o carrossel */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    padding: 15px;
+}
+
+.gallery-image-wrapper {
+    position: relative; /* Para o overlay de informações */
+    overflow: hidden; /* Garante que o overlay não vaze se for maior que a imagem */
+    border-radius: 6px; /* Bordas arredondadas para a imagem */
+    width: 100%; /* Para ocupar o espaço disponível no carrossel */
+    display: flex; /* Para centralizar a imagem se ela for menor que o wrapper */
+    justify-content: center;
+    align-items: center;
+    min-height: 300px; /* Altura mínima para o wrapper */
+}
+
+#current-gallery-image {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh; /* Altura máxima relativa à tela */
+    height: auto;
+    border-radius: 6px;
+    object-fit: contain;
+    transition: opacity 0.5s ease-in-out; /* Transição para o fade-in via JS */
+    opacity: 0; /* Começa invisível, JS controla para 1 no onload */
+}
+
+/* Animação de Fade-in para a Imagem (se quiser via classe CSS) */
+.image-fade-in {
+    animation: fadeInEffect 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeInEffect {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Overlay de Informações da Imagem */
+.gallery-image-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0) 100%);
+    color: #fff;
+    padding: 25px 20px 15px 20px; /* Mais padding no topo para o gradiente */
+    opacity: 0; /* Começa invisível */
+    transition: opacity 0.4s ease-in-out;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.gallery-image-wrapper:hover .gallery-image-info-overlay {
+    opacity: 1; /* Mostra no hover do wrapper da imagem */
+}
+
+#gallery-image-name {
+    font-size: 1.4em;
+    margin: 0 0 5px 0;
+    font-weight: bold;
+    color: #00bfff;
+}
+
+#gallery-image-description {
+    font-size: 0.95em;
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+    max-height: 60px; /* Limita altura da descrição */
+    overflow-y: auto; /* Adiciona scroll se a descrição for longa */
+}
+
+.image-date {
+    font-size: 0.8em;
+    color: #bdc3c7; /* Cinza claro */
+    display: block; /* Para ocupar a linha inteira */
+}
+
+/* Botões de Navegação do Carrossel */
+.gallery-nav-button {
+    background-color: rgba(40, 40, 40, 0.6);
+    color: #fff;
+    border: none;
+    border-radius: 50%; /* Botões redondos */
+    width: 45px;
+    height: 45px;
+    font-size: 1.5em; /* Tamanho do ícone */
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.gallery-nav-button.prev {
+    left: -60px; /* Posição fora do contêiner da imagem, ajuste conforme necessário */
+}
+
+.gallery-nav-button.next {
+    right: -60px; /* Posição fora do contêiner da imagem */
+}
+
+.gallery-nav-button:hover {
+    background-color: #00bfff;
+    color: #1a1a1a; /* Cor do ícone no hover */
+}
+
+.gallery-nav-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: rgba(80, 80, 80, 0.4);
+}
+
+/* Contador de Imagens */
+.gallery-image-counter {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: #bdc3c7;
+}
+
+/* --- Responsividade (Exemplo Básico) --- */
+@media (max-width: 768px) {
+    .gallery-main-content h2 {
+        font-size: 2em;
+    }
+    .category-button {
+        padding: 15px 20px;
+        font-size: 1em;
+        min-width: 150px;
+    }
+    .category-button img {
+        width: 45px;
+        height: 45px;
+    }
+
+    .gallery-carousel-container {
+        padding: 10px;
+    }
+
+    .gallery-nav-button {
+        width: 38px;
+        height: 38px;
+        font-size: 1.2em;
+    }
+    .gallery-nav-button.prev {
+        left: -10px; /* Mais próximo da imagem em telas pequenas */
+    }
+    .gallery-nav-button.next {
+        right: -10px;
+    }
+
+    .gallery-image-info-overlay {
+        padding: 15px 15px 10px 15px;
+        /* Em telas menores, pode ser melhor que o overlay seja sempre visível ou ativado por toque */
+        opacity: 1; /* Exemplo: sempre visível em telas pequenas */
+    }
+    #gallery-image-name {
+        font-size: 1.2em;
+    }
+    #gallery-image-description {
+        font-size: 0.85em;
+        max-height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-buttons {
+        gap: 15px;
+    }
+    .category-button {
+        min-width: 120px;
+        padding: 10px 15px;
+    }
+    .category-button img {
+        width: 40px;
+        height: 40px;
+    }
+     .gallery-nav-button.prev {
+        left: 5px;
+    }
+    .gallery-nav-button.next {
+        right: 5px;
+    }
+    #gallery-category-title {
+        font-size: 1.6em;
+    }
+}
+
+/* gallery-style.css */
+
+/* --- Estilos Gerais para a Página da Galeria --- */
+.gallery-main-content {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    color: #cccccc; /* Tom de cinza claro para texto principal em fundo escuro */
+}
+
+.gallery-main-content h2 { /* Título "Galeria de Imagens" */
+    text-align: center;
+    color: #00aeff; /* Um azul claro e moderno para o título principal */
+    margin-bottom: 40px;
+    font-size: 2.2em; /* Um pouco menor que antes, mais elegante */
+    font-weight: 600;
+}
+
+.gallery-main-content h3 { /* Título da categoria, ex: "Galeria: David's Farm" */
+    color: #00aeff;
+    margin-top: 25px;
+    margin-bottom: 20px;
+    font-size: 1.6em;
+    font-weight: 500;
+}
+
+.gallery-main-content p {
+    line-height: 1.7;
+    margin-bottom: 15px;
+    color: #b0b0b0; /* Cinza um pouco mais escuro para parágrafos */
+}
+
+/* --- Seção de Seleção de Categoria --- */
+.category-selector {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 25px;
+    background-color: #282c34; /* Fundo cinza escuro, cor comum em temas dev */
+    border-radius: 10px;
+    border: 1px solid #3a3f4b; /* Borda sutil */
+}
+
+.category-selector p {
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    color: #a0a0a0;
+}
+
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.category-button {
+    background-color: #3a3f4b; /* Cor de fundo do botão */
+    color: #e0e0e0; /* Texto do botão */
+    border: 1px solid #4a4f5b; /* Borda do botão */
+    border-radius: 8px;
+    padding: 18px 25px;
+    font-size: 1.1em; /* Tamanho da fonte do texto do botão */
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 170px; /* Largura mínima */
+}
+
+.category-button img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 12px;
+    object-fit: contain;
+    filter: grayscale(30%) opacity(85%); /* Efeito sutil nos ícones */
+    transition: filter 0.25s ease;
+}
+
+.category-button:hover {
+    background-color: #4a4f5b; /* Fundo do botão no hover */
+    border-color: #00aeff;    /* Borda azul no hover */
+    transform: translateY(-2px);
+}
+
+.category-button:hover img {
+    filter: grayscale(0%) opacity(100%); /* Ícone com cor total no hover */
+}
+
+/* --- Seção de Visualização da Galeria --- */
+.gallery-view {
+    padding: 0px; /* Removido padding para o carrossel ocupar mais espaço se necessário */
+    /* background-color: #22252a; /* Fundo um pouco diferente para a área da galeria, opcional */
+    border-radius: 8px;
+}
+
+#gallery-category-title { /* Título da categoria selecionada */
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.9em;
+    font-weight: 500;
+}
+
+/* Mensagens de status (loading, erro, vazio) */
+.gallery-message {
+    text-align: center;
+    padding: 25px;
+    margin: 20px auto;
+    border-radius: 6px;
+    font-size: 1.05em;
+    max-width: 550px;
+    background-color: #282c34;
+    border: 1px solid #3a3f4b;
+}
+
+.gallery-message.error {
+    color: #ff7675; /* Cor para mensagens de erro */
+    border-left: 4px solid #ff7675;
+}
+
+#gallery-loading {
+    color: #00aeff; /* Cor para mensagem de carregamento */
+}
+
+#gallery-empty {
+    color: #a0a0a0; /* Cor para mensagem de galeria vazia */
+}
+
+
+/* Carrossel / Contêiner da Imagem Principal */
+.gallery-carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto 20px auto; /* Adicionado margem inferior */
+    max-width: 850px;
+    background-color: #1e1e1e; /* Fundo bem escuro para a imagem se destacar */
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5); /* Sombra mais pronunciada */
+    padding: 10px; /* Padding menor para dar mais espaço à imagem */
+    min-height: 400px; /* Altura mínima para o contêiner */
+}
+
+.gallery-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#current-gallery-image {
+    display: block;
+    max-width: 100%;
+    max-height: 75vh; /* Aumentado para ocupar mais da tela verticalmente */
+    height: auto;
+    border-radius: 4px; /* Borda sutil na imagem */
+    object-fit: contain;
+    opacity: 0; /* JS controla para 1 no onload */
+    transition: opacity 0.4s ease-in-out; /* Para o JS */
+}
+
+/* Animação de Fade-in para a Imagem (via classe CSS se o JS adicionar/remover) */
+.image-fade-in {
+    animation: fadeInSmooth 0.6s ease-in-out forwards;
+}
+
+@keyframes fadeInSmooth {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Overlay de Informações da Imagem */
+.gallery-image-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.9) 0%, rgba(10, 10, 10, 0.7) 50%, rgba(10, 10, 10, 0) 100%);
+    color: #e0e0e0;
+    padding: 20px 15px 15px 15px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px); /* Efeito de subida suave */
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, transform 0.3s ease-in-out;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.gallery-image-wrapper:hover .gallery-image-info-overlay {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#gallery-image-name {
+    font-size: 1.25em;
+    margin: 0 0 6px 0;
+    font-weight: 600;
+    color: #00aeff; /* Destaque para o nome */
+}
+
+#gallery-image-description {
+    font-size: 0.9em;
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+    max-height: 55px;
+    overflow-y: auto;
+    color: #c0c0c0;
+}
+
+/* Scrollbar sutil para a descrição */
+#gallery-image-description::-webkit-scrollbar {
+    width: 6px;
+}
+#gallery-image-description::-webkit-scrollbar-thumb {
+    background-color: #4f4f4f;
+    border-radius: 3px;
+}
+#gallery-image-description::-webkit-scrollbar-track {
+    background-color: rgba(0,0,0,0.1);
+}
+
+
+.image-date {
+    font-size: 0.75em;
+    color: #888888; /* Cinza mais escuro para a data */
+    display: block;
+}
+
+/* Botões de Navegação do Carrossel */
+.gallery-nav-button {
+    background-color: rgba(50, 50, 50, 0.5); /* Fundo semi-transparente */
+    color: #e0e0e0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 40px; /* Um pouco menores */
+    height: 40px;
+    font-size: 1.3em;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gallery-nav-button.prev {
+    left: 15px; /* Mais próximos da borda do carrossel */
+}
+
+.gallery-nav-button.next {
+    right: 15px;
+}
+
+.gallery-nav-button:hover {
+    background-color: #00aeff;
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.1); /* Efeito de zoom no hover */
+}
+
+.gallery-nav-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background-color: rgba(70, 70, 70, 0.3);
+    transform: translateY(-50%) scale(1); /* Resetar transform no disabled */
+}
+
+/* Contador de Imagens */
+.gallery-image-counter {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #909090;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 900px) { /* Ajustado o breakpoint */
+    .gallery-carousel-container {
+        max-width: 95%; /* Ocupa mais da largura da tela */
+    }
+     .gallery-nav-button.prev {
+        left: 8px;
+    }
+    .gallery-nav-button.next {
+        right: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-main-content h2 {
+        font-size: 1.9em;
+    }
+    .gallery-main-content h3 {
+        font-size: 1.5em;
+    }
+     #gallery-category-title {
+        font-size: 1.7em;
+    }
+
+    .category-button {
+        padding: 15px;
+        font-size: 1em;
+        min-width: 140px;
+    }
+    .category-button img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .gallery-nav-button {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1em;
+    }
+
+    .gallery-image-info-overlay {
+        opacity: 1; /* Sempre visível em telas menores */
+        visibility: visible;
+        transform: translateY(0);
+        background: linear-gradient(to top, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0.75) 60%, rgba(10, 10, 10, 0) 100%); /* Mais forte */
+        padding: 10px;
+    }
+    #gallery-image-name {
+        font-size: 1.1em;
+    }
+    #gallery-image-description {
+        font-size: 0.8em;
+        max-height: 3.6em; /* Aproximadamente 3 linhas */
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-main-content {
+        padding: 10px;
+    }
+    .gallery-main-content h2 {
+        font-size: 1.7em;
+        margin-bottom: 30px;
+    }
+     #gallery-category-title {
+        font-size: 1.4em;
+        margin-bottom: 20px;
+    }
+    .category-buttons {
+        gap: 10px;
+        flex-direction: column; /* Botões de categoria um abaixo do outro */
+    }
+    .category-button {
+        width: 80%; /* Ocupa mais largura */
+        max-width: 280px;
+    }
+     .gallery-carousel-container {
+        min-height: 250px; /* Reduz altura mínima */
+    }
+    #current-gallery-image {
+        max-height: 60vh;
+    }
+     .gallery-nav-button {
+        background-color: rgba(30, 30, 30, 0.6); /* Um pouco mais visível se sobrepuser a imagem */
+    }
+}
+
+/* gallery-style.css */
+
+/* --- Estilos Gerais para a Página da Galeria --- */
+.gallery-main-content {
+    max-width: 1100px; /* Consistente com public-profile */
+    margin: 30px auto;
+    padding: 20px 25px; /* Ajuste de padding */
+    color: #e0e0e0;
+}
+
+.gallery-main-content h2 { /* Título "Galeria de Imagens" */
+    text-align: center;
+    color: #00bfff; /* Cor de link/destaque principal do seu style.css */
+    margin-bottom: 35px;
+    font-size: 2.3em;
+    font-weight: 600; /* Um pouco mais de peso */
+}
+
+.gallery-main-content h3 { /* Título da categoria, ex: "Galeria: David's Farm" */
+    color: #e0e0e0; /* Texto principal claro */
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 1.7em;
+    font-weight: 500;
+}
+
+.gallery-main-content p { /* Parágrafos gerais na galeria */
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #cccccc; /* Um pouco mais suave que o texto principal */
+}
+
+/* --- Seção de Seleção de Categoria --- */
+.category-selector {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 20px; /* Mais padding vertical */
+    background-color: #252525; /* Tom de cinza escuro usado em .my-friend-id-section */
+    border-radius: 8px;
+    border: 1px solid #383838; /* Borda sutil como .search-bar-wrapper */
+}
+
+.category-selector p { /* "Escolha uma categoria..." */
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    color: #b0b0b0;
+}
+
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: stretch; /* Para botões terem a mesma altura se o conteúdo variar */
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.category-button {
+    background-color: #2c2c2c; /* Cor de .auth-form-container ou .message-card */
+    color: #e0e0e0;
+    border: 1px solid #444; /* Borda comum */
+    border-radius: 8px;
+    padding: 20px;
+    font-size: 1.15em;
+    font-weight: 500; /* Um pouco menos bold que no exemplo anterior */
+    cursor: pointer;
+    transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Para alinhar conteúdo verticalmente */
+    min-width: 200px; /* Largura mínima */
+    text-align: center;
+}
+
+.category-button img {
+    width: 55px;
+    height: 55px;
+    margin-bottom: 12px;
+    object-fit: contain;
+    transition: transform 0.25s ease;
+}
+
+.category-button:hover {
+    background-color: #383838; /* Um cinza um pouco mais claro no hover */
+    border-color: #00bfff;    /* Borda na cor de destaque */
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.1);
+}
+.category-button:hover img {
+    transform: scale(1.05); /* Leve zoom no ícone */
+}
+
+/* --- Seção de Visualização da Galeria --- */
+.gallery-view {
+    padding: 0; /* Sem padding extra, o carrossel define o seu */
+    border-radius: 8px;
+    margin-top: 30px;
+}
+
+#gallery-category-title { /* Título da categoria selecionada */
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2em; /* Coerente com h2 de outras páginas */
+    font-weight: 600;
+    color: #00bfff; /* Cor de destaque */
+}
+
+/* Mensagens de status (loading, erro, vazio) */
+.gallery-message {
+    text-align: center;
+    padding: 20px 25px;
+    margin: 25px auto;
+    border-radius: 6px;
+    font-size: 1.05em;
+    max-width: 600px;
+    background-color: #2c2c2c; /* Consistente com .auth-form-container */
+    border: 1px solid #444;
+}
+
+.gallery-message.error { /* Já tem a classe .form-message no HTML, mas podemos sobrescrever se necessário */
+    color: #ffc107; /* Amarelo para erro, como em #auth-status */
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+#gallery-loading {
+    color: #00bfff;
+    border-color: rgba(0, 191, 255, 0.2);
+    background-color: rgba(0,191,255,0.05);
+}
+
+#gallery-empty {
+    color: #aaa; /* Cinza para "vazio", como em .divider-text */
+    border-color: #444;
+    background-color: #282828;
+}
+
+
+/* Carrossel / Contêiner da Imagem Principal */
+.gallery-carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto 20px auto;
+    max-width: 900px; /* Mantido, parece bom */
+    background-color: #1f1f1f; /* Fundo bem escuro, quase preto */
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4); /* Sombra mais definida */
+    padding: 15px;
+    min-height: 350px;
+}
+
+.gallery-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #111; /* Fundo para a área da imagem se a imagem for transparente ou demorar a carregar */
+}
+
+#current-gallery-image {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+    height: auto;
+    border-radius: 4px;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1); /* Transição mais suave */
+}
+
+/* Animação de Fade-in para a Imagem */
+.image-fade-in { /* Aplicada pelo JS */
+    animation: fadeInSmoothGallery 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes fadeInSmoothGallery {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Overlay de Informações da Imagem */
+.gallery-image-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.92) 0%, rgba(10, 10, 10, 0.75) 50%, rgba(10, 10, 10, 0) 100%);
+    color: #e0e0e0;
+    padding: 20px 15px 15px 15px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: opacity 0.35s ease-out, visibility 0.35s ease-out, transform 0.35s ease-out;
+    border-bottom-left-radius: 4px; /* Consistente com a imagem */
+    border-bottom-right-radius: 4px;
+}
+
+.gallery-image-wrapper:hover .gallery-image-info-overlay {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#gallery-image-name { /* Nome da imagem no overlay */
+    font-size: 1.3em;
+    margin: 0 0 6px 0;
+    font-weight: 600;
+    color: #00bfff; /* Cor de destaque para o nome */
+}
+
+#gallery-image-description {
+    font-size: 0.9em;
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+    max-height: 58px; /* Aprox. 3 linhas */
+    overflow-y: auto;
+    color: #c0c0c0;
+    padding-right: 5px; /* Espaço para scrollbar sutil */
+}
+/* Scrollbar para descrição, usando as globais que você já tem */
+#gallery-image-description::-webkit-scrollbar { width: 6px; }
+#gallery-image-description::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius:3px;}
+#gallery-image-description::-webkit-scrollbar-thumb { background-color: #4f4f4f; border-radius: 3px; }
+
+
+.image-date { /* Data da imagem no overlay */
+    font-size: 0.8em;
+    color: #888;
+    display: block;
+}
+
+/* Botões de Navegação do Carrossel */
+.gallery-nav-button {
+    background-color: rgba(30, 30, 30, 0.7); /* Fundo mais integrado */
+    color: #d0d0d0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    font-size: 1.4em;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.gallery-nav-button.prev {
+    left: 20px; /* Um pouco mais para dentro */
+}
+
+.gallery-nav-button.next {
+    right: 20px;
+}
+
+.gallery-nav-button:hover:not(:disabled) {
+    background-color: #007bff; /* Azul de botões primários */
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 3px 7px rgba(0, 123, 255, 0.3);
+}
+
+.gallery-nav-button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background-color: rgba(50, 50, 50, 0.5);
+    transform: translateY(-50%) scale(1);
+    box-shadow: none;
+}
+
+/* Contador de Imagens */
+.gallery-image-counter {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 0.95em;
+    color: #909090; /* Cinza mais suave */
+}
+
+/* --- Responsividade --- */
+@media (max-width: 900px) {
+    .gallery-carousel-container {
+        max-width: 96%;
+    }
+    .gallery-nav-button.prev { left: 10px; }
+    .gallery-nav-button.next { right: 10px; }
+}
+
+@media (max-width: 768px) {
+    .gallery-main-content h2 { font-size: 2em; }
+    #gallery-category-title { font-size: 1.7em; }
+    .category-button { padding: 15px; font-size: 1.05em; min-width: 160px;}
+    .category-button img { width: 45px; height: 45px; }
+    .gallery-nav-button { width: 38px; height: 38px; font-size: 1.2em; }
+
+    .gallery-image-info-overlay {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        background: linear-gradient(to top, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0.8) 60%, rgba(10, 10, 10, 0) 100%);
+        padding: 12px 10px 10px 10px;
+    }
+    #gallery-image-name { font-size: 1.15em; margin-bottom: 4px; }
+    #gallery-image-description { font-size: 0.85em; max-height: 3.8em; } /* ~3 linhas */
+}
+
+@media (max-width: 480px) {
+    .gallery-main-content { padding: 15px; }
+    .gallery-main-content h2 { font-size: 1.8em; margin-bottom: 25px; }
+    #gallery-category-title { font-size: 1.5em; margin-bottom: 20px; }
+    .category-buttons { gap: 15px; flex-direction: column; }
+    .category-button { width: 90%; max-width: 300px; }
+    .gallery-carousel-container { min-height: 280px; padding: 8px; }
+    #current-gallery-image { max-height: 55vh; }
+    .gallery-nav-button { background-color: rgba(20, 20, 20, 0.65); }
+    .gallery-nav-button.prev { left: 5px; }
+    .gallery-nav-button.next { right: 5px; }
+}
+
+/* gallery-style.css */
+/* Versão revisada para melhor integração com o tema escuro de David's Farm */
+
+/* --- Estilos Gerais para a Página da Galeria --- */
+.gallery-main-content {
+    max-width: 1100px;
+    margin: 20px auto 40px auto; /* Reduzida margem superior, aumentada inferior */
+    padding: 20px 25px;
+    color: #e0e0e0; /* Cor de texto padrão do seu style.css */
+}
+
+.gallery-main-content h2 { /* Título "Galeria de Imagens" */
+    text-align: center;
+    color: #00bfff; /* Cor de destaque do seu style.css */
+    margin-bottom: 30px; /* Reduzida margem inferior */
+    font-size: 2.2em;
+    font-weight: 600;
+    /* Animação de entrada (exemplo, pode adaptar ou remover se já tiver globalmente) */
+    opacity: 0; transform: translateY(-20px);
+    animation: fadeInSlideDown 0.7s 0.3s ease-out forwards; /* Delay para aparecer após header */
+}
+
+.gallery-main-content h3 { /* Título da categoria, ex: "Galeria: David's Farm" */
+    color: #e0e0e0;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 1.7em;
+    font-weight: 500;
+    text-align: center; /* Centraliza título da categoria */
+}
+
+/* --- Seção de Seleção de Categoria --- */
+.category-selector {
+    text-align: center;
+    margin: 0 auto 40px auto; /* Centraliza a seção */
+    padding: 25px 20px;
+    background-color: #252525; /* Tom de cinza escuro usado em .my-friend-id-section */
+    border-radius: 8px;
+    border: 1px solid #3a3838; /* Tom de borda sutil */
+    max-width: 700px; /* Limita a largura da caixa de seleção */
+    /* Animação de entrada */
+    opacity: 0; transform: translateY(20px);
+    animation: fadeInSlideUp 0.7s 0.5s ease-out forwards; /* Delay um pouco maior */
+}
+
+.category-selector p { /* "Escolha uma categoria..." */
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    color: #b0b0b0; /* Cinza claro */
+}
+
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 20px; /* Reduzido o gap */
+    flex-wrap: wrap;
+}
+
+.category-button {
+    background-color: #2c2c2c; /* Cor de fundo dos cards/inputs no seu style.css */
+    color: #e0e0e0;
+    border: 1px solid #444; /* Borda comum */
+    border-radius: 6px; /* Um pouco menos arredondado */
+    padding: 18px 25px;
+    font-size: 1.1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sombra mais sutil */
+}
+
+.category-button img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+    object-fit: contain;
+    filter: grayscale(20%) opacity(90%);
+    transition: filter 0.25s ease, transform 0.25s ease;
+}
+
+.category-button:hover {
+    background-color: #383838;
+    border-color: #007bff;    /* Usando o azul de botões primários no hover, como no menu de perfil */
+    transform: translateY(-2px) scale(1.02); /* Efeito de elevação e leve zoom */
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Sombra azulada no hover */
+}
+.category-button:hover img {
+    filter: grayscale(0%) opacity(100%);
+    transform: scale(1.03);
+}
+.category-button.active { /* Se você adicionar uma classe 'active' via JS ao botão selecionado */
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+}
+
+
+/* --- Seção de Visualização da Galeria --- */
+.gallery-view {
+    padding: 0;
+    border-radius: 8px;
+    margin-top: 25px; /* Espaço acima da galeria de imagens */
+}
+
+#gallery-category-title {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2em;
+    font-weight: 500; /* Ajustado para consistência com outros H2 */
+    color: #00bfff; /* Cor de destaque principal */
+}
+
+/* Mensagens de status (loading, erro, vazio) */
+.gallery-message {
+    text-align: center;
+    padding: 20px 25px;
+    margin: 20px auto;
+    border-radius: 6px;
+    font-size: 1.05em;
+    max-width: 600px;
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+}
+
+.gallery-message.error {
+    color: #ffc107; /* Amarelo para erro, como em #auth-status */
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+#gallery-loading {
+    color: #00bfff;
+    border-color: rgba(0, 191, 255, 0.2);
+    background-color: rgba(0,191,255,0.05);
+}
+
+#gallery-empty {
+    color: #aaa;
+    border-color: #444;
+    background-color: #282828;
+}
+
+
+/* Carrossel */
+.gallery-carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto 20px auto;
+    max-width: 850px;
+    background-color: #1c1c1c;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    padding: 15px;
+    min-height: 350px;
+}
+
+.gallery-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #111; /* Fundo enquanto a imagem carrega */
+}
+
+#current-gallery-image {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+    height: auto;
+    border-radius: 4px;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out; /* JS controla opacity */
+}
+
+.image-fade-in { /* Aplicada pelo JS */
+    animation: fadeInSmoothGallery 0.5s ease-out forwards;
+}
+
+@keyframes fadeInSmoothGallery {
+    from { opacity: 0; /* transform: scale(0.97); Opcional */ }
+    to { opacity: 1; /* transform: scale(1); */ }
+}
+
+/* Overlay de Informações da Imagem */
+.gallery-image-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(15, 15, 15, 0.9) 0%, rgba(15, 15, 15, 0.7) 60%, rgba(15, 15, 15, 0) 100%);
+    color: #e0e0e0;
+    padding: 18px 15px 12px 15px; /* Ajuste de padding */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0.3s ease-out;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.gallery-image-wrapper:hover .gallery-image-info-overlay {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#gallery-image-name {
+    font-size: 1.2em; /* Um pouco menor */
+    margin: 0 0 5px 0;
+    font-weight: 600;
+    color: #00bfff; /* Destaque */
+}
+
+#gallery-image-description {
+    font-size: 0.9em;
+    margin: 0 0 8px 0;
+    line-height: 1.45; /* Ajuste */
+    max-height: 55px;
+    overflow-y: auto;
+    color: #bdbdbd; /* Mais suave */
+    padding-right: 5px;
+}
+#gallery-image-description::-webkit-scrollbar { width: 5px; }
+#gallery-image-description::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius:3px;}
+#gallery-image-description::-webkit-scrollbar-thumb { background-color: #555; border-radius: 3px; }
+
+
+.image-date {
+    font-size: 0.75em;
+    color: #888;
+    display: block;
+}
+
+/* Botões de Navegação do Carrossel */
+.gallery-nav-button {
+    background-color: rgba(40, 40, 40, 0.65); /* Um pouco mais escuro e sutil */
+    color: #c0c0c0; /* Ícone mais claro */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.3em;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+}
+
+.gallery-nav-button.prev { left: 15px; }
+.gallery-nav-button.next { right: 15px; }
+
+.gallery-nav-button:hover:not(:disabled) {
+    background-color: #007bff; /* Azul primário do seu tema */
+    color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+}
+
+.gallery-nav-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: rgba(60, 60, 60, 0.4);
+    box-shadow: none;
+}
+
+/* Contador de Imagens */
+.gallery-image-counter {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #999; /* Cinza mais escuro para o contador */
+}
+
+/* --- Responsividade --- */
+@media (max-width: 900px) {
+    .gallery-carousel-container { max-width: 95%; }
+    .gallery-nav-button.prev { left: 10px; }
+    .gallery-nav-button.next { right: 10px; }
+}
+
+@media (max-width: 768px) {
+    .gallery-main-content h2 { font-size: 1.9em; }
+    #gallery-category-title { font-size: 1.6em; }
+    .category-button { padding: 15px; font-size: 1em; min-width: 150px;}
+    .category-button img { width: 40px; height: 40px; }
+    .gallery-nav-button { width: 36px; height: 36px; font-size: 1.1em; }
+
+    .gallery-image-info-overlay {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        background: linear-gradient(to top, rgba(10, 10, 10, 0.92) 0%, rgba(10, 10, 10, 0.78) 60%, rgba(10, 10, 10, 0) 100%);
+        padding: 10px 12px 8px 12px;
+    }
+    #gallery-image-name { font-size: 1.1em; margin-bottom: 3px;}
+    #gallery-image-description { font-size: 0.8em; max-height: 3.8em; }
+}
+
+@media (max-width: 480px) {
+    .gallery-main-content { padding: 10px; }
+    .gallery-main-content h2 { font-size: 1.7em; margin-bottom: 25px; }
+    #gallery-category-title { font-size: 1.4em; margin-bottom: 20px; }
+    .category-buttons { gap: 12px; flex-direction: column; }
+    .category-button { width: 85%; max-width: 280px; padding: 12px 15px;}
+    .gallery-carousel-container { min-height: 260px; padding: 6px; }
+    #current-gallery-image { max-height: 50vh; }
+    .gallery-nav-button { background-color: rgba(20, 20, 20, 0.7); }
+    .gallery-nav-button.prev { left: 3px; }
+    .gallery-nav-button.next { right: 3px; }
+}
+
+/* gallery-style.css */
+/* Estilos específicos para a galeria, baseados no style.css principal de David's Farm */
+
+/* --- Estilos Gerais para a Página da Galeria (Container Principal) --- */
+.gallery-main-content {
+    max-width: 1100px; /* Consistent with your public-profile.html */
+    margin: 20px auto 40px auto; /* Consistent top/bottom margins */
+    padding: 20px 25px;
+    /* O fundo do .gallery-main-content não será definido aqui,
+       pois o body já tem #1a1a1a. As seções internas terão seus fundos. */
+}
+
+.gallery-main-content h2 { /* Título "Galeria de Imagens" */
+    text-align: center;
+    color: #00bfff; /* Sua cor de destaque principal */
+    margin-bottom: 30px;
+    font-size: 2.2em; /* Como outros H2 principais */
+    font-weight: 600;
+    /* Animações de entrada são globais, não precisa repetir aqui se já estiver no #site-content */
+}
+
+/* Título da categoria selecionada (ex: "David's Farm") */
+#gallery-category-title {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.9em; /* Um pouco menor que o título principal da página */
+    font-weight: 500;
+    color: #e0e0e0; /* Cor de texto padrão */
+}
+
+/* --- Seção de Seleção de Categoria --- */
+.category-selector {
+    text-align: center;
+    margin: 0 auto 35px auto;
+    padding: 25px 20px;
+    background-color: #252525; /* Tom de cinza dos cards/seções do seu site */
+    border-radius: 8px;      /* Consistente com .my-friend-id-section, .add-friend-section */
+    border: 1px solid #383838; /* Borda sutil */
+    max-width: 750px;
+}
+
+.category-selector p { /* "Escolha uma categoria..." */
+    font-size: 1.05em; /* Um pouco menor */
+    margin-bottom: 20px;
+    color: #b0b0b0;
+}
+
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: stretch; /* Para botões terem a mesma altura */
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.category-button {
+    background-color: #333; /* Cor de botões de menu/inputs */
+    color: #e0e0e0;
+    border: 1px solid #555; /* Borda de inputs */
+    border-radius: 6px;
+    padding: 15px 20px; /* Padding um pouco menor */
+    font-size: 1.1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 190px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.category-button img {
+    width: 45px; /* Ícones um pouco menores */
+    height: 45px;
+    margin-bottom: 10px;
+    object-fit: contain;
+    transition: transform 0.2s ease;
+}
+
+.category-button:hover {
+    background-color: #007bff; /* Azul de botões primários/ativos do seu tema */
+    border-color: #0056b3;    /* Cor de hover do botão primário */
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.25);
+}
+.category-button:hover img {
+    transform: scale(1.03);
+}
+/* Poderíamos adicionar uma classe .active ao botão selecionado se desejado */
+
+
+/* --- Seção de Visualização da Galeria (onde a imagem e controles aparecem) --- */
+.gallery-view {
+    padding: 0; /* Sem padding extra aqui */
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+/* Mensagens de status (loading, erro, vazio) */
+.gallery-message {
+    text-align: center;
+    padding: 18px 20px; /* Padding ajustado */
+    margin: 20px auto;
+    border-radius: 6px;
+    font-size: 1em;
+    max-width: 550px;
+    background-color: #2c2c2c; /* Cor de fundo de .auth-form-container */
+    border: 1px solid #444; /* Borda de .auth-form-container */
+}
+
+.gallery-message.error {
+    color: #ffc107; /* Amarelo para erro, como em #auth-status */
+    background-color: rgba(220, 53, 69, 0.08); /* Fundo sutil de erro */
+    border: 1px solid rgba(220, 53, 69, 0.25);
+}
+
+#gallery-loading {
+    color: #00bfff; /* Cor de destaque */
+    border-color: rgba(0, 191, 255, 0.15);
+    background-color: rgba(0,191,255,0.03);
+}
+
+#gallery-empty {
+    color: #aaa;
+    border-color: #444;
+    background-color: #282828; /* Tom de .profile-content */
+}
+
+
+/* Carrossel / Contêiner da Imagem Principal */
+.gallery-carousel-container {
+    display: flex; /* JS controla para none/flex */
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto 20px auto;
+    max-width: 800px; /* Largura máxima do carrossel */
+    background-color: #181818; /* Fundo bem escuro, como o header */
+    border-radius: 8px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.35);
+    padding: 12px; /* Padding interno */
+    min-height: 300px;
+}
+
+.gallery-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0d0d0d; /* Fundo super escuro para a área da imagem */
+}
+
+#current-gallery-image {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+    height: auto;
+    border-radius: 4px;
+    object-fit: contain;
+    opacity: 0; /* JS controla para 1 no onload */
+    /* A transição e animação .image-fade-in são aplicadas via JS */
+    transition: opacity 0.5s ease-in-out;
+}
+
+.image-fade-in {
+    animation: fadeInSmoothGalleryInternal 0.5s ease-out forwards;
+}
+
+@keyframes fadeInSmoothGalleryInternal { /* Renomeado para evitar conflito se já existir */
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Overlay de Informações da Imagem */
+.gallery-image-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.9) 0%, rgba(10, 10, 10, 0.75) 55%, transparent 100%);
+    color: #e0e0e0;
+    padding: 15px 12px 10px 12px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px); /* Começa um pouco mais abaixo */
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0.3s ease-out;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.gallery-image-wrapper:hover .gallery-image-info-overlay {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#gallery-image-name {
+    font-size: 1.15em;
+    margin: 0 0 4px 0;
+    font-weight: 600;
+    color: #00bfff; /* Destaque */
+}
+
+#gallery-image-description {
+    font-size: 0.85em;
+    margin: 0 0 6px 0;
+    line-height: 1.4;
+    max-height: 50px; /* ~3 linhas */
+    overflow-y: auto;
+    color: #bdbdbd;
+    padding-right: 5px;
+}
+#gallery-image-description::-webkit-scrollbar { width: 5px; }
+#gallery-image-description::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius:3px;}
+#gallery-image-description::-webkit-scrollbar-thumb { background-color: #555; border-radius: 3px; }
+
+
+.image-date {
+    font-size: 0.75em;
+    color: #777; /* Cinza escuro para data, como .list-placeholder */
+    display: block;
+}
+
+/* Botões de Navegação do Carrossel */
+.gallery-nav-button {
+    background-color: rgba(40, 40, 40, 0.7); /* Fundo mais sutil */
+    color: #ccc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    width: 38px; /* Um pouco menor */
+    height: 38px;
+    font-size: 1.2em; /* Ícone menor */
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gallery-nav-button.prev { left: 10px; }
+.gallery-nav-button.next { right: 10px; }
+
+.gallery-nav-button:hover:not(:disabled) {
+    background-color: #007bff; /* Azul primário de botões */
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.gallery-nav-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background-color: rgba(50, 50, 50, 0.5);
+}
+
+/* Contador de Imagens */
+.gallery-image-counter {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #888; /* Cor sutil para o contador */
+}
+
+/* --- Responsividade (Básica, pode precisar de mais ajustes) --- */
+@media (max-width: 900px) {
+    .gallery-carousel-container { max-width: 96%; }
+}
+
+@media (max-width: 768px) {
+    .gallery-main-content h2 { font-size: 2em; }
+    #gallery-category-title { font-size: 1.6em; }
+    .category-button { padding: 12px 18px; font-size: 1em; min-width: 150px;}
+    .category-button img { width: 40px; height: 40px; }
+    .gallery-nav-button { width: 34px; height: 34px; font-size: 1em; }
+    .gallery-nav-button.prev { left: 5px; }
+    .gallery-nav-button.next { right: 5px; }
+
+    .gallery-image-info-overlay { /* Sempre visível em telas menores */
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        background: linear-gradient(to top, rgba(10, 10, 10, 0.92) 0%, rgba(10, 10, 10, 0.8) 60%, rgba(10, 10, 10, 0) 100%);
+        padding: 10px 10px 8px 10px;
+    }
+    #gallery-image-name { font-size: 1.1em; margin-bottom: 3px;}
+    #gallery-image-description { font-size: 0.8em; max-height: 3.8em; }
+}
+
+@media (max-width: 480px) {
+    .gallery-main-content { padding: 10px; }
+    .gallery-main-content h2 { font-size: 1.7em; margin-bottom: 25px; }
+    #gallery-category-title { font-size: 1.4em; margin-bottom: 20px; }
+    .category-buttons { gap: 10px; flex-direction: column; } /* Botões empilhados */
+    .category-button { width: 90%; max-width: 280px; }
+    .gallery-carousel-container { min-height: 240px; padding: 5px; }
+    #current-gallery-image { max-height: 50vh; }
+}

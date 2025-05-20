@@ -1,0 +1,23 @@
+[
+    {
+        "id": "pz001",
+        "nome": "Herói em Ação",
+        "descricao": "O protagonista de Pollution Zero utilizando seus poderes para limpar uma área contaminada.",
+        "data": "2025-01-20",
+        "arquivoImagem": "pollutionzero_hero_action.png"
+    },
+    {
+        "id": "pz002",
+        "nome": "Cidade Futurista",
+        "descricao": "Visão da cidade principal do jogo, antes e depois da poluição.",
+        "data": "2025-02-10",
+        "arquivoImagem": "pollutionzero_cityscape.jpg"
+    },
+    {
+        "id": "pz003",
+        "nome": "Vilão Revelado",
+        "descricao": "Arte conceitual do principal antagonista de Pollution Zero.",
+        "data": "2024-12-05",
+        "arquivoImagem": "pollutionzero_villain_concept.png"
+    }
+]

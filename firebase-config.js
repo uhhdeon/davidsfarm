@@ -11,14 +11,14 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCKB2AfgZ-J2qT39OADTBcNxQVruOzzIdU",
-    authDomain: "david-farm.firebaseapp.com",
-    projectId: "david-farm",
-    storageBucket: "david-farm.firebasestorage.app",
-    messagingSenderId: "224856226591",
-    appId: "1:224856226591:web:7ab5dd8a3fcd8822af4e2a",
-    measurementId: "G-S0Q529X6Z1"
+ const firebaseConfig = {
+    apiKey: "AIzaSyCOoIQ1Wjan1LvkpgdKsY4tmPmZECM8U8w",
+    authDomain: "david-farm-e8b9d.firebaseapp.com",
+    projectId: "david-farm-e8b9d",
+    storageBucket: "david-farm-e8b9d.firebasestorage.app",
+    messagingSenderId: "936154396455",
+    appId: "1:936154396455:web:4e4fc485f10fe99c705b02",
+    measurementId: "G-KL3VR2JFT8"
   };
 
 const app = initializeApp(firebaseConfig);

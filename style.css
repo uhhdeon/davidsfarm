@@ -4658,3 +4658,474 @@ html#documentation-page-html {
     padding: 30px 0;
 }
 
+/* === Estilos para o Botão de Upload de Imagem e Mensagens === */
+
+/* Botão "Escolher Imagem" */
+#trigger-photo-upload-button {
+    display: inline-block; /* Para permitir padding e margin */
+    padding: 10px 18px;
+    background-color: #007bff; /* Um azul primário, como outros botões de ação */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    margin-top: 5px; /* Espaçamento do label acima */
+}
+
+#trigger-photo-upload-button:hover {
+    background-color: #0056b3; /* Um azul um pouco mais escuro no hover */
+}
+
+#trigger-photo-upload-button:active {
+    transform: translateY(1px); /* Efeito de clique sutil */
+}
+
+/* Se você quiser um estilo secundário, caso já tenha .action-button.secondary definido: */
+/*
+#trigger-photo-upload-button.action-button.secondary {
+    background-color: #6c757d; // Cinza para botões secundários
+    color: white;
+}
+
+#trigger-photo-upload-button.action-button.secondary:hover {
+    background-color: #545b62;
+}
+*/
+
+/* Estilo para o texto de progresso do upload */
+#photo-upload-progresstext {
+    /* A classe .form-message .info já deve tratar a cor de fundo e texto.
+       Apenas garantindo o espaçamento e a visibilidade. */
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* Estilo para a mensagem de status do upload (sucesso/erro) */
+#photo-upload-message {
+    /* A classe .form-message (com .success ou .error) já deve tratar as cores.
+       Apenas garantindo o espaçamento. */
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+/* Estilos base para .form-message (se você não tiver algo similar) */
+/* Adapte as cores para combinar com seu tema */
+.form-message {
+    padding: 10px 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    line-height: 1.4;
+    display: none; /* Inicialmente escondido, o JS controla a exibição */
+    word-break: break-word;
+}
+
+.form-message.info {
+    background-color: rgba(0, 123, 255, 0.1); /* Fundo azul claro translúcido */
+    color: #007bff; /* Texto azul */
+    border: 1px solid rgba(0, 123, 255, 0.3);
+}
+
+.form-message.success {
+    background-color: rgba(40, 167, 69, 0.1); /* Fundo verde claro translúcido */
+    color: #28a745; /* Texto verde */
+    border: 1px solid rgba(40, 167, 69, 0.4);
+}
+
+.form-message.error {
+    background-color: rgba(220, 53, 69, 0.1); /* Fundo vermelho claro translúcido */
+    color: #dc3545; /* Texto vermelho */
+    border: 1px solid rgba(220, 53, 69, 0.4);
+}
+
+/* Pequeno ajuste para o input de arquivo, embora ele esteja escondido */
+#profile-photo-upload-input {
+    /* display: none; já está inline, mas pode ser reforçado aqui */
+}
+
+/* Ajustes no contêiner do input de foto para melhor alinhamento se necessário */
+/* No seu HTML, o botão está dentro de um .form-group, o que já deve ajudar no espaçamento. */
+/* Se o botão parecer desalinhado com o label, você pode adicionar: */
+/*
+#trigger-photo-upload-button {
+    vertical-align: middle; // Tenta alinhar com o texto do label se estiver na mesma linha
+    margin-left: 10px; // Se quiser um espaço do label
+}
+*/
+
+/* gallery-style.css */
+
+/* --- Estilos Gerais para a Página da Galeria --- */
+.gallery-main-content {
+    max-width: 1100px; /* Consistente com public-profile */
+    margin: 30px auto;
+    padding: 20px 25px; /* Ajuste de padding */
+    color: #e0e0e0;
+}
+
+.gallery-main-content h2 { /* Título "Galeria de Imagens" */
+    text-align: center;
+    color: #00bfff; /* Cor de link/destaque principal do seu style.css */
+    margin-bottom: 35px;
+    font-size: 2.3em;
+    font-weight: 600; /* Um pouco mais de peso */
+}
+
+.gallery-main-content h3 { /* Título da categoria, ex: "Galeria: David's Farm" */
+    color: #e0e0e0; /* Texto principal claro */
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 1.7em;
+    font-weight: 500;
+}
+
+.gallery-main-content p { /* Parágrafos gerais na galeria */
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #cccccc; /* Um pouco mais suave que o texto principal */
+}
+
+/* --- Seção de Seleção de Categoria --- */
+.category-selector {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 20px; /* Mais padding vertical */
+    background-color: #252525; /* Tom de cinza escuro usado em .my-friend-id-section */
+    border-radius: 8px;
+    border: 1px solid #383838; /* Borda sutil como .search-bar-wrapper */
+}
+
+.category-selector p { /* "Escolha uma categoria..." */
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    color: #b0b0b0;
+}
+
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: stretch; /* Para botões terem a mesma altura se o conteúdo variar */
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.category-button {
+    background-color: #2c2c2c; /* Cor de .auth-form-container ou .message-card */
+    color: #e0e0e0;
+    border: 1px solid #444; /* Borda comum */
+    border-radius: 8px;
+    padding: 20px;
+    font-size: 1.15em;
+    font-weight: 500; /* Um pouco menos bold que no exemplo anterior */
+    cursor: pointer;
+    transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Para alinhar conteúdo verticalmente */
+    min-width: 200px; /* Largura mínima */
+    text-align: center;
+}
+
+.category-button img {
+    width: 55px;
+    height: 55px;
+    margin-bottom: 12px;
+    object-fit: contain;
+    transition: transform 0.25s ease;
+}
+
+.category-button:hover {
+    background-color: #383838; /* Um cinza um pouco mais claro no hover */
+    border-color: #00bfff;    /* Borda na cor de destaque */
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 191, 255, 0.1);
+}
+.category-button:hover img {
+    transform: scale(1.05); /* Leve zoom no ícone */
+}
+
+/* --- Seção de Visualização da Galeria --- */
+.gallery-view {
+    padding: 0; /* Sem padding extra, o carrossel define o seu */
+    border-radius: 8px;
+    margin-top: 30px;
+}
+
+#gallery-category-title { /* Título da categoria selecionada */
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2em; /* Coerente com h2 de outras páginas */
+    font-weight: 600;
+    color: #00bfff; /* Cor de destaque */
+}
+
+/* Mensagens de status (loading, erro, vazio) */
+.gallery-message {
+    text-align: center;
+    padding: 20px 25px;
+    margin: 25px auto;
+    border-radius: 6px;
+    font-size: 1.05em;
+    max-width: 600px;
+    background-color: #2c2c2c; /* Consistente com .auth-form-container */
+    border: 1px solid #444;
+}
+
+.gallery-message.error { /* Já tem a classe .form-message no HTML, mas podemos sobrescrever se necessário */
+    color: #ffc107; /* Amarelo para erro, como em #auth-status */
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+#gallery-loading {
+    color: #00bfff;
+    border-color: rgba(0, 191, 255, 0.2);
+    background-color: rgba(0,191,255,0.05);
+}
+
+#gallery-empty {
+    color: #aaa; /* Cinza para "vazio", como em .divider-text */
+    border-color: #444;
+    background-color: #282828;
+}
+
+
+/* Carrossel / Contêiner da Imagem Principal */
+.gallery-carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto 20px auto;
+    max-width: 900px; /* Mantido, parece bom */
+    background-color: #1f1f1f; /* Fundo bem escuro, quase preto */
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4); /* Sombra mais definida */
+    padding: 15px;
+    min-height: 350px;
+}
+
+.gallery-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #111; /* Fundo para a área da imagem se a imagem for transparente ou demorar a carregar */
+}
+
+#current-gallery-image {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+    height: auto;
+    border-radius: 4px;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1); /* Transição mais suave */
+}
+
+/* Animação de Fade-in para a Imagem */
+.image-fade-in { /* Aplicada pelo JS */
+    animation: fadeInSmoothGallery 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes fadeInSmoothGallery {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Overlay de Informações da Imagem */
+.gallery-image-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.92) 0%, rgba(10, 10, 10, 0.75) 50%, rgba(10, 10, 10, 0) 100%);
+    color: #e0e0e0;
+    padding: 20px 15px 15px 15px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: opacity 0.35s ease-out, visibility 0.35s ease-out, transform 0.35s ease-out;
+    border-bottom-left-radius: 4px; /* Consistente com a imagem */
+    border-bottom-right-radius: 4px;
+}
+
+.gallery-image-wrapper:hover .gallery-image-info-overlay {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#gallery-image-name { /* Nome da imagem no overlay */
+    font-size: 1.3em;
+    margin: 0 0 6px 0;
+    font-weight: 600;
+    color: #00bfff; /* Cor de destaque para o nome */
+}
+
+#gallery-image-description {
+    font-size: 0.9em;
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+    max-height: 58px; /* Aprox. 3 linhas */
+    overflow-y: auto;
+    color: #c0c0c0;
+    padding-right: 5px; /* Espaço para scrollbar sutil */
+}
+/* Scrollbar para descrição, usando as globais que você já tem */
+#gallery-image-description::-webkit-scrollbar { width: 6px; }
+#gallery-image-description::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius:3px;}
+#gallery-image-description::-webkit-scrollbar-thumb { background-color: #4f4f4f; border-radius: 3px; }
+
+
+.image-date { /* Data da imagem no overlay */
+    font-size: 0.8em;
+    color: #888;
+    display: block;
+}
+
+/* Botões de Navegação do Carrossel */
+.gallery-nav-button {
+    background-color: rgba(30, 30, 30, 0.7); /* Fundo mais integrado */
+    color: #d0d0d0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    font-size: 1.4em;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.gallery-nav-button.prev {
+    left: 20px; /* Um pouco mais para dentro */
+}
+
+.gallery-nav-button.next {
+    right: 20px;
+}
+
+.gallery-nav-button:hover:not(:disabled) {
+    background-color: #007bff; /* Azul de botões primários */
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 3px 7px rgba(0, 123, 255, 0.3);
+}
+
+.gallery-nav-button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background-color: rgba(50, 50, 50, 0.5);
+    transform: translateY(-50%) scale(1);
+    box-shadow: none;
+}
+
+/* Contador de Imagens */
+.gallery-image-counter {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 0.95em;
+    color: #909090; /* Cinza mais suave */
+}
+
+/* --- Responsividade --- */
+@media (max-width: 900px) {
+    .gallery-carousel-container {
+        max-width: 96%;
+    }
+    .gallery-nav-button.prev { left: 10px; }
+    .gallery-nav-button.next { right: 10px; }
+}
+
+@media (max-width: 768px) {
+    .gallery-main-content h2 { font-size: 2em; }
+    #gallery-category-title { font-size: 1.7em; }
+    .category-button { padding: 15px; font-size: 1.05em; min-width: 160px;}
+    .category-button img { width: 45px; height: 45px; }
+    .gallery-nav-button { width: 38px; height: 38px; font-size: 1.2em; }
+
+    .gallery-image-info-overlay {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        background: linear-gradient(to top, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0.8) 60%, rgba(10, 10, 10, 0) 100%);
+        padding: 12px 10px 10px 10px;
+    }
+    #gallery-image-name { font-size: 1.15em; margin-bottom: 4px; }
+    #gallery-image-description { font-size: 0.85em; max-height: 3.8em; } /* ~3 linhas */
+}
+
+@media (max-width: 480px) {
+    .gallery-main-content { padding: 15px; }
+    .gallery-main-content h2 { font-size: 1.8em; margin-bottom: 25px; }
+    #gallery-category-title { font-size: 1.5em; margin-bottom: 20px; }
+    .category-buttons { gap: 15px; flex-direction: column; }
+    .category-button { width: 90%; max-width: 300px; }
+    .gallery-carousel-container { min-height: 280px; padding: 8px; }
+    #current-gallery-image { max-height: 55vh; }
+    .gallery-nav-button { background-color: rgba(20, 20, 20, 0.65); }
+    .gallery-nav-button.prev { left: 5px; }
+    .gallery-nav-button.next { right: 5px; }
+}
+
+/* style.css */
+
+/* ... (Todo o seu CSS existente) ... */
+
+/* --- Estilos para Novos Botões de Ação na Página Inicial (index.html) --- */
+
+/* Botão Galeria */
+.main-actions .action-button.gallery-btn {
+    background-color: #28a745; /* Verde */
+    color: white;
+}
+.main-actions .action-button.gallery-btn:hover {
+    background-color: #1e7e34; /* Verde mais escuro no hover */
+}
+
+/* Botão Feedback */
+.main-actions .action-button.feedback-btn {
+    background-color: #d59736; /* Amarelo */
+    color: white;
+/* Texto escuro para contraste com amarelo, como no seu reset-password-button */
+    /* Se preferir texto branco no botão amarelo:
+    color: white;
+    */
+}
+.main-actions .action-button.feedback-btn:hover {
+    background-color: #cd8128; /* Amarelo mais escuro no hover */
+    color: white;
+}
+
+/* Botão Créditos */
+.main-actions .action-button.credits-btn {
+    background-color: #6f42c1; /* Roxo (como o profile-main-btn) */
+    color: white;
+}
+.main-actions .action-button.credits-btn:hover {
+    background-color: #5a2fad; /* Roxo mais escuro no hover */
+}
+
+/* ... (Restante dos seus estilos) ... */
