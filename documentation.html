@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
+<html lang="pt-BR" id="documentation-page-html"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentação - David's Farm</title>
@@ -29,7 +28,7 @@
                 </div>
             </div>
             <div class="user-auth-section">
-                </div>
+            </div>
         </header>
 
         <main class="documentation-main">
@@ -41,19 +40,28 @@
             </div>
 
             <div class="doc-content-area">
-                <div id="doc-content-davidsfarm" class="doc-content" style="display:none;">
-                    </div>
-                <div id="doc-content-pollutionzero" class="doc-content" style="display:none;">
-                    <h3>Pollution Zero</h3>
-                    <p>Detalhes sobre o projeto "Pollution Zero" estarão disponíveis em breve!</p>
-                    <p>Agradecemos a sua paciência.</p>
+                <div id="book-container">
+                    <div id="current-page-content" class="book-page">
+                        </div>
                 </div>
-                <div id="doc-placeholder" class="doc-content" style="display:block;"> <p>Selecione um projeto acima para ver sua documentação.</p>
+
+                <div id="page-navigation-controls" class="page-navigation" style="display:none;">
+                    <button id="prev-page-btn" class="page-nav-button" disabled>
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                    <span id="page-indicator">Página 1 de 1</span>
+                    <button id="next-page-btn" class="page-nav-button" disabled>
+                        Próxima <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div id="doc-placeholder" class="doc-content" style="display:block;">
+                    <p>Selecione um projeto acima para ver sua documentação.</p>
                 </div>
             </div>
 
             <div id="doc-selection-feedback" class="doc-selection-feedback" style="display:none;">
-                </div>
+            </div>
         </main>
 
         <footer>
@@ -65,17 +73,18 @@
         <div id="custom-popup" class="custom-popup">
             <button id="custom-popup-close" class="custom-popup-close-btn">&times;</button>
             <div id="custom-popup-content" class="custom-popup-content">
-                </div>
+            </div>
         </div>
     </div>
 
     <script type="module" src="documentation-script.js"></script>
-    <script type="module" src="script.js"></script> 
+    <script type="module" src="script.js"></script>
 
-      <script>
+    <script>
         if (window.location.pathname.endsWith("documentation.html")) {
             window.history.replaceState(null, "", "/info");
         }
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
 </body>
 </html>

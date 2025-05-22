@@ -37,62 +37,106 @@
                 </div>
             </div>
             <div class="user-auth-section">
-            </div>
+                </div>
         </header>
 
         <main class="index-main-content">
-            <section class="welcome-section">
-                <h1>BEM VINDO!</h1>
-                <p class="site-status-message">Este site ainda está em construção. Espere bugs ou quedas.</p>
-                <img src="imgs/david-builder.svg" alt="David Construtor" class="builder-image">
+            <div class="main-layout-grid">
+                <section class="hero-main-section">
+                    <div class="hero-text-content">
+                        <h2>Bem Vindo ao Universo<br><span class="hero-highlight">&lt; David's Farm /&gt;</span></h2>
+                        <p class="site-subtitle">Um dos grandes e melhores projetos 'Agrinho's que você vai ver. Tentaremos nosso melhor para lhe dar uma ótima experiência!</p>
+                        <p class="site-status-message">Este site ainda está em construção. Espere bugs ou quedas.</p>
+                    </div>
+                    <img src="imgs/david-builder.svg" alt="David Construtor" class="builder-image-hero">
+                </section>
 
-                 <div class="main-actions">
-                    <div class="action-buttons-row">
-                        <a href="login.html" id="main-auth-button" class="action-button login-main-btn">
-                            <i id="main-auth-button-icon" class="fas fa-sign-in-alt"></i> <span
-                                id="main-auth-button-text">Login</span>
-                        </a>
-                        <a href="https://scratch.mit.edu/users/eusougabriel/" target="_blank" rel="noopener noreferrer"
-                            class="action-button scratch-profile-btn">
-                            <i class="fas fa-cat"></i> Perfil no Scratch
-                        </a>
-                        <a href="https://livepix.gg/eusoudeon" target="_blank" rel="noopener noreferrer"
-                            class="action-button donate-btn">
-                            <i class="fas fa-heart"></i> Doar
-                        </a>
+                <aside class="stats-sidebar">
+                    <div class="stats-card">
+                        <h3>Estatísticas do Site</h3>
+                        <ul class="stats-list">
+                            <li>
+                                <i class="fas fa-cogs icon-scripts"></i>
+                                <div>
+                                    <span id="stats-scripts-count">2k+</span>
+                                    <span>Bloquinhos de Coding</span>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fas fa-users icon-online"></i>
+                                <div>
+                                    <span id="stats-online-count">15+</span>
+                                    <span>Scratch Game Testers</span>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fas fa-eye icon-visits"></i>
+                                <div>
+                                    <span id="stats-visits-count">2.5k+</span>
+                                    <span>Users Deram um 'Play'</span>
+                                </div>
+                            </li>
+                        </ul>
+                        <p class="stats-updated">David acordou em: <span id="stats-last-updated">21/05/2025</span></p>
                     </div>
-                    <div class="action-buttons-row">
-                        <a href="documentation.html" class="action-button documentation-btn"> <i class="fas fa-book-open"></i> Documentação
-                        </a>
-                        <a href="https://github.com/uhhdeon" target="_blank" rel="noopener noreferrer"
-                            class="action-button github-btn"> <i class="fab fa-github"></i> GitHub
-                        </a>
-                        <button id="downloads-btn" class="action-button downloads-btn-disabled"> <i class="fas fa-download"></i> Downloads
-                        </button>
-                    </div>
+                </aside>
+            </div>
 
-                    <div class="action-buttons-row">
-                        <a href="gallery.html" id="gallery-btn" class="action-button gallery-btn">
-                            <i class="fas fa-images"></i> Galeria
-                        </a>
-                        <a href="feedback.html" id="feedback-btn" class="action-button feedback-btn"> <i class="fas fa-comments"></i> Feedback
-                        </a>
-                        <a href="credits.html" id="credits-btn" class="action-button credits-btn"> <i class="fas fa-award"></i> Créditos
-                        </a>
-                    </div>
-                    </div>
+            <section class="features-section">
+                <h3>Explore o Site!</h3>
+                <div class="action-cards-grid">
+                    <a href="login.html" id="main-auth-button" class="action-card">
+                        <i id="main-auth-button-icon" class="fas fa-sign-in-alt"></i>
+                        <span id="main-auth-button-text">Login</span>
+                        <p class="card-description">Acesse sua conta ou registre-se.</p>
+                    </a>
+                    <a href="https://scratch.mit.edu/users/eusougabriel/" target="_blank" rel="noopener noreferrer" class="action-card">
+                        <i class="fas fa-cat"></i>
+                        <span>Perfil no Scratch</span>
+                        <p class="card-description">Veja meus projetos no Scratch.</p>
+                    </a>
+                    <a href="https://livepix.gg/eusoudeon" target="_blank" rel="noopener noreferrer" class="action-card">
+                        <i class="fas fa-heart"></i>
+                        <span>Doar</span>
+                        <p class="card-description">Apoie o desenvolvimento do site.</p>
+                    </a>
+
+                    <a href="documentation.html" class="action-card">
+                        <i class="fas fa-book-open"></i>
+                        <span>Documentação</span>
+                        <p class="card-description">Guias e informações úteis.</p>
+                    </a>
+                    <a href="https://github.com/uhhdeon" target="_blank" rel="noopener noreferrer" class="action-card">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                        <p class="card-description">Explore o código fonte.</p>
+                    </a>
+                    <button id="downloads-btn" class="action-card downloads-btn-styled"> <i class="fas fa-download"></i>
+                        <span>Downloads</span>
+                        <p class="card-description">Recursos para baixar (em breve).</p>
+                    </button>
+
+                    <a href="gallery.html" id="gallery-btn" class="action-card">
+                        <i class="fas fa-images"></i>
+                        <span>Galeria</span>
+                        <p class="card-description">Veja imagens e artes.</p>
+                    </a>
+                    <a href="feedback.html" id="feedback-btn" class="action-card">
+                        <i class="fas fa-comments"></i>
+                        <span>Feedback</span>
+                        <p class="card-description">Deixe sua opinião e sugestões.</p>
+                    </a>
+                </div>
             </section>
 
             <section class="special-message-section">
                 <div id="dev-message-card" class="message-card" style="display: none;">
                     <div class="message-header" id="dev-message-header-clickable">
-                        <img id="dev-avatar" src="imgs/default-avatar.png" alt="Avatar do Desenvolvedor"
-                            class="message-avatar">
+                        <img id="dev-avatar" src="imgs/default-avatar.png" alt="Avatar do Desenvolvedor" class="message-avatar">
                         <span id="dev-name" class="message-username">Carregando...</span>
                     </div>
                     <div class="message-content">
-                        <p>"Obrigado a todos que jogarem o jogo ou testarem o site e reportarem bugs. Fico muito grato
-                            por tudo que fazem aqui ;)"</p>
+                        <p>"Obrigado a todos que jogarem o jogo ou testarem o site e reportarem bugs. Fico muito grato por tudo que fazem aqui ;)"</p>
                     </div>
                     <div class="message-timestamp">
                         <span>Uma mensagem do criador</span>

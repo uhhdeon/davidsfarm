@@ -28,7 +28,7 @@ a {
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 input[type="text"],
@@ -468,6 +468,8 @@ button:active, .login-button:active, .logout-button-style:active, .account-actio
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
+
+
 
 /* Modal Simples (se fôssemos usar um, mas estamos com window.confirm) */
 /*
@@ -5129,3 +5131,1024 @@ html#documentation-page-html {
 }
 
 /* ... (Restante dos seus estilos) ... */
+
+/* === INÍCIO DAS ADIÇÕES - ESTILOS PARA O NOVO LAYOUT DA INDEX.HTML === */
+
+/* --- Estilos para o Header Inspirado --- */
+.header-nav-inspired {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-nav-inspired a {
+    color: #b0b0b0;
+    text-decoration: none;
+    font-size: 0.95em;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.header-nav-inspired a:hover,
+.header-nav-inspired a.active { /* Adicione .active via JS se quiser indicar a página atual */
+    color: #ffffff;
+    background-color: #2a2a2a;
+}
+
+.header-nav-inspired a i {
+    margin-right: 6px;
+}
+
+
+/* --- Layout Principal da Nova Index --- */
+.index-main-content.new-davids-layout {
+    padding: 30px 20px; /* Ajuste o padding do main */
+    background-color: #0D0D0D; /* Fundo bem escuro para o conteúdo principal */
+}
+
+.hero-and-stats-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar em telas menores */
+    gap: 30px;
+    margin-bottom: 50px;
+    align-items: flex-start; /* Alinha os itens no topo */
+    max-width: 1200px; /* Limita a largura máxima do container */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- Seção Hero (Descubra os melhores...) --- */
+.hero-section-new {
+    flex: 2; /* Ocupa mais espaço que as estatísticas */
+    min-width: 300px; /* Largura mínima */
+    padding-right: 20px; /* Espaço para não colar nas estatísticas */
+}
+
+.hero-badge-title {
+    display: inline-flex; /* Para o badge ficar ao lado do título */
+    align-items: center;
+    background-color: rgba(88, 101, 242, 0.1); /* Fundo do badge roxo/azulado transparente */
+    padding: 8px 15px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(88, 101, 242, 0.3);
+}
+
+.hero-badge-title h2 {
+    font-size: 1.1em;
+    color: #c0c8fc; /* Texto do badge */
+    margin: 0;
+    font-weight: 500;
+}
+
+.hero-badge-title .beta-tag {
+    background-color: #5865F2; /* Roxo/Azul do Discord (Exemplo de cor) */
+    color: white;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    margin-left: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.hero-main-title-new {
+    font-size: 3.5em; /* Ajuste conforme necessário */
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.hero-main-title-new .highlight-text-new {
+    color: #8c72cb; /* Roxo claro para o texto destacado */
+    /* Se quiser um brilho sutil no texto destacado: */
+    text-shadow: 0 0 10px rgba(140, 114, 203, 0.5), 0 0 20px rgba(140, 114, 203, 0.3);
+}
+
+.hero-subtitle-new {
+    font-size: 1.2em;
+    color: #a0a0a0; /* Cinza claro para o subtítulo */
+    line-height: 1.6;
+    max-width: 600px; /* Limita a largura do subtítulo */
+}
+
+/* --- Barra Lateral de Estatísticas --- */
+.site-stats-sidebar {
+    flex: 1;
+    min-width: 280px; /* Largura mínima */
+    max-width: 320px; /* Largura máxima */
+    background-color: #171717; /* Fundo da caixa de estatísticas, um pouco mais escuro */
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 50px rgba(140, 114, 203, 0.05) inset; /* Sombra externa e interna sutil */
+}
+
+.site-stats-sidebar h3 {
+    font-size: 1.4em;
+    color: #e0e0e0;
+    margin-bottom: 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+}
+
+.stats-updated-date {
+    font-size: 0.8em;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.stat-item-new {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: rgba(255,255,255,0.03);
+    border-radius: 8px;
+}
+
+.stat-icon-new {
+    font-size: 1.8em; /* Tamanho do ícone */
+    margin-right: 15px;
+    width: 30px; /* Largura fixa para alinhar texto */
+    text-align: center;
+    padding: 8px;
+    border-radius: 50%; /* Círculo em volta do ícone */
+}
+
+.stat-icon-new.purple { color: #ab92ea; background-color: rgba(171, 146, 234, 0.1); }
+.stat-icon-new.green  { color: #6decb9; background-color: rgba(109, 236, 185, 0.1); }
+.stat-icon-new.blue   { color: #6daeec; background-color: rgba(109, 174, 236, 0.1); } /* Adaptado de "vermelho" para downloads */
+
+
+.stat-item-new div {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number-new {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.stat-label-new {
+    font-size: 0.9em;
+    color: #888;
+}
+
+/* --- Seção de Recursos (Cards) --- */
+.resources-section-new {
+    margin-top: 50px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.resources-section-new h2 {
+    font-size: 2.2em;
+    color: #e0e0e0;
+    text-align: center;
+    margin-bottom: 40px;
+    font-weight: 600;
+}
+
+.resources-grid-new {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Grid responsivo */
+    gap: 25px;
+}
+
+.resource-card-new {
+    background-color: #171717; /* Mesmo fundo da sidebar de stats */
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 25px;
+    text-decoration: none;
+    color: #a0a0a0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Para o footer ficar no final */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.resource-card-new:hover {
+    transform: translateY(-8px);
+    border-color: #8c72cb; /* Borda roxa no hover */
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 25px rgba(140, 114, 203, 0.2); /* Sombra mais pronunciada e brilho roxo */
+}
+/* Para cards que são divs clicáveis (como o de Downloads) */
+.resource-card-button {
+    cursor: pointer;
+}
+
+
+.card-header-new {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.card-icon-main {
+    font-size: 1.6em;
+    color: #8c72cb; /* Roxo para ícones principais dos cards */
+    margin-right: 15px;
+    width: 28px; /* Para alinhar */
+    text-align: center;
+}
+
+.card-header-new h3 {
+    font-size: 1.3em;
+    color: #e0e0e0;
+    margin: 0;
+    font-weight: 600;
+}
+
+.resource-card-new p {
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    flex-grow: 1; /* Faz a descrição ocupar espaço se o card tiver altura flexível */
+}
+
+.card-footer-new {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    color: #777;
+    padding-top: 15px;
+    border-top: 1px solid #2a2a2a;
+}
+
+.card-footer-new i {
+    color: #8c72cb; /* Roxo para o ícone do footer */
+}
+
+
+/* --- Ajustes para Responsividade --- */
+@media (max-width: 992px) {
+    .hero-main-title-new {
+        font-size: 3em;
+    }
+    .hero-section-new {
+        padding-right: 0; /* Remove padding para melhor uso do espaço */
+    }
+     .site-stats-sidebar {
+        max-width: 100%; /* Permite que a sidebar ocupe a largura total se quebrar */
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-and-stats-container {
+        flex-direction: column; /* Empilha a hero section e as estatísticas */
+        gap: 40px;
+    }
+    .hero-main-title-new {
+        font-size: 2.5em;
+        text-align: center;
+    }
+    .hero-badge-title {
+        justify-content: center; /* Centraliza o badge */
+        display: flex;
+    }
+    .hero-subtitle-new {
+        text-align: center;
+        max-width: 100%;
+    }
+    .site-stats-sidebar {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .resources-section-new h2 {
+        font-size: 1.8em;
+    }
+    .resources-grid-new {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    .header-nav-inspired {
+        gap: 10px; /* Reduz o espaço entre os links de navegação no header */
+    }
+    .header-nav-inspired a {
+        padding: 6px 8px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-main-title-new {
+        font-size: 2em;
+    }
+    .hero-subtitle-new {
+        font-size: 1em;
+    }
+    .site-stats-sidebar h3 {
+        font-size: 1.2em;
+    }
+    .stat-number-new {
+        font-size: 1.3em;
+    }
+    .resources-grid-new {
+        gap: 15px;
+    }
+    .resource-card-new {
+        padding: 20px;
+    }
+    .card-header-new h3 {
+        font-size: 1.15em;
+    }
+    .header-nav-inspired {
+        display: none; /* Esconde a navegação inspirada em telas muito pequenas ou a transforma em um menu hamburguer (não implementado aqui) */
+    }
+}
+
+/* === FIM DAS ADIÇÕES === */
+
+/* === NOVOS ESTILOS - TEMA INSPIRADO === */
+
+/* --- Fundo e Layout Geral da Página Principal --- */
+body {
+    background-color: #0D0D0D; /* Fundo bem escuro, como o site de referência */
+}
+
+.index-main-content {
+    padding: 30px 40px; /* Mais padding lateral */
+    animation-delay: 0.6s; /* Sincronizar com animações de header */
+}
+
+.main-layout-grid {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 50px;
+    align-items: flex-start; /* Alinha itens no topo */
+}
+
+/* --- Seção Hero Principal --- */
+.hero-main-section {
+    flex: 2; /* Ocupa mais espaço */
+    background-color: transparent; /* Sem fundo extra, o body já define */
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    text-align: left;
+}
+
+.hero-text-content h2 {
+    font-size: 3.8em; /* Maior e mais impactante */
+    color: #FFFFFF;
+    line-height: 1.2;
+    margin-bottom: 15px;
+    font-weight: 700;
+    text-shadow: 0 0 15px rgba(200, 200, 255, 0.3);
+}
+
+.hero-text-content .hero-highlight {
+    color: #00A9FF; /* Azul brilhante como no exemplo */
+    font-family: 'Consolas', 'Courier New', monospace; /* Fonte monoespaçada para o trecho de código */
+}
+
+.site-subtitle {
+    font-size: 1.3em;
+    color: #B0B0B0; /* Cinza claro para subtítulo */
+    margin-bottom: 25px;
+    max-width: 600px;
+}
+
+.index-main-content .site-status-message { /* Re-estilizando a mensagem de status */
+    font-size: 0.95em;
+    color: #E0C050; /* Amarelo mais sutil */
+    background-color: rgba(224, 192, 80, 0.1);
+    border: 1px solid rgba(224, 192,80, 0.3);
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: inline-block; /* Para o padding funcionar bem */
+    margin-top: 10px;
+    font-style: normal;
+}
+
+.builder-image-hero {
+    display: none; /* A imagem do construtor não se encaixa bem neste novo layout hero */
+}
+
+
+/* --- Barra Lateral de Estatísticas --- */
+.stats-sidebar {
+    flex: 1; /* Ocupa menos espaço */
+    max-width: 320px; /* Largura máxima */
+}
+
+.stats-card {
+    background-color: #1A1D21; /* Cor de fundo do card de estatísticas */
+    padding: 25px 20px;
+    border-radius: 12px;
+    border: 1px solid #2A2D32;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 169, 255, 0.1) inset;
+}
+
+.stats-card h3 {
+    font-size: 1.4em;
+    color: #E0E0E0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2A2D32;
+    text-align: center;
+}
+
+.stats-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.stats-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+    padding: 10px 0;
+    border-bottom: 1px solid #222529;
+}
+.stats-list li:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.stats-list li i {
+    font-size: 1.8em;
+    margin-right: 18px;
+    width: 30px; /* Alinhamento */
+    text-align: center;
+}
+
+.stats-list li .icon-scripts { color: #00A9FF; /* Azul */ }
+.stats-list li .icon-online { color: #33CC33;  /* Verde */ }
+.stats-list li .icon-visits { color: #FF4747;  /* Vermelho */ }
+
+
+.stats-list li div {
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-list li span:first-child { /* O número */
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #FFFFFF;
+    line-height: 1;
+}
+
+.stats-list li span:last-child { /* O texto (Scripts, Online) */
+    font-size: 0.9em;
+    color: #909090;
+}
+
+.stats-updated {
+    font-size: 0.8em;
+    color: #606060;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* --- Seção de Cards de Ação/Recursos --- */
+.features-section {
+    margin-top: 40px;
+    width: 100%;
+}
+
+.features-section h3 {
+    font-size: 2em;
+    color: #E0E0E0;
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative; /* Para o pseudo-elemento de linha */
+}
+
+.features-section h3::after { /* Linha sutil abaixo do título */
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background-color: #00A9FF;
+    border-radius: 2px;
+    margin: 10px auto 0 auto;
+    box-shadow: 0 0 10px rgba(0, 169, 255, 0.5);
+}
+
+.action-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.action-card, button.downloads-btn-styled.action-card { /* Aplicar a button.downloads-btn-styled também */
+    background-color: #1A1D21; /* Mesma cor do card de stats */
+    border: 1px solid #2A2D32;
+    border-radius: 10px;
+    padding: 25px 20px;
+    text-align: left;
+    text-decoration: none;
+    color: #D0D0D0; /* Cor base do texto do card */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinha itens à esquerda */
+    transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    min-height: 150px; /* Altura mínima para consistência */
+}
+
+.action-card:hover, button.downloads-btn-styled.action-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    background-color: #202328;
+    border-color: #00A9FF; /* Borda azul no hover */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 169, 255, 0.3);
+    color: #FFFFFF;
+}
+
+.action-card i { /* Ícone dentro do card */
+    font-size: 1.8em;
+    margin-bottom: 12px;
+    color: #00A9FF; /* Cor padrão dos ícones nos cards */
+    width: 30px; /* Para alinhamento */
+}
+/* Cores específicas de ícones se necessário */
+.action-card i.fa-sign-in-alt { color: #58D68D; } /* Verde para login */
+.action-card i.fa-cat { color: #F5B041; } /* Laranja para Scratch */
+.action-card i.fa-heart { color: #EC7063; } /* Vermelho/Rosa para Doar */
+.action-card i.fa-images { color: #AF7AC5; } /* Roxo para Galeria */
+
+
+.action-card span:not(.card-description):not(#main-auth-button-text) { /* Nome do card */
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #E0E0E0; /* Cor do título do card */
+    margin-bottom: 8px;
+    transition: color 0.3s ease;
+}
+#main-auth-button-text { /* Para o span específico do botão de login */
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #E0E0E0;
+    margin-bottom: 8px;
+    transition: color 0.3s ease;
+}
+
+
+.action-card:hover span, .action-card:hover #main-auth-button-text {
+    color: #FFFFFF;
+}
+
+.action-card .card-description {
+    font-size: 0.9em;
+    color: #808080; /* Cor da descrição do card */
+    line-height: 1.5;
+    margin-top: auto; /* Empurra a descrição para o final, se o card tiver altura flexível */
+    transition: color 0.3s ease;
+}
+.action-card:hover .card-description {
+    color: #B0B0B0;
+}
+
+/* Estilo específico para o botão de downloads (que é um <button>) */
+button.downloads-btn-styled.action-card {
+    cursor: pointer; /* Garante o cursor de ponteiro */
+}
+button.downloads-btn-styled.action-card i.fa-download {
+    color: #AAB7B8; /* Cinza para Downloads (em breve) */
+}
+
+
+/* --- Ajustes no Header Existente para Harmonia --- */
+header {
+    background-color: #0D0D0D; /* Fundo do header igual ao body */
+    border-bottom: 1px solid #2A2D32; /* Linha divisória mais sutil */
+    padding: 12px 40px; /* Ajuste de padding */
+}
+#logo {
+    width: 45px;
+    height: 45px;
+}
+header h1 {
+    font-size: 1.8em; /* Levemente ajustado */
+}
+
+/* --- Ajustes na Barra de Pesquisa do Header --- */
+.header-search .search-bar-wrapper {
+    background-color: #1A1D21; /* Mesmo fundo dos cards */
+    border: 1px solid #2A2D32;
+    height: 42px;
+}
+.header-search .search-bar-wrapper:focus-within {
+    border-color: #00A9FF;
+    box-shadow: 0 0 0 0.2rem rgba(0, 169, 255, 0.25);
+}
+.header-search #main-search-input {
+    color: #D0D0D0;
+    font-size: 0.95rem;
+}
+.header-search #main-search-input::placeholder {
+    color: #606060;
+}
+.header-search .search-icon-input {
+    color: #606060;
+}
+.header-search .clear-search-button {
+    color: #707070;
+}
+.search-suggestions.header-suggestions {
+    background-color: #1A1D21;
+    border: 1px solid #2A2D32;
+    border-top: none; /* Para juntar visualmente com a barra */
+}
+.search-suggestions.header-suggestions .suggestion-item {
+    border-bottom: 1px solid #25282D;
+    color: #A0A0A0;
+}
+.search-suggestions.header-suggestions .suggestion-item:hover {
+    background-color: #25282D;
+    color: #FFFFFF;
+}
+.search-suggestions.header-suggestions .suggestion-item i {
+    color: #00A9FF;
+}
+
+
+/* --- Ajustes no Rodapé --- */
+footer {
+    background-color: #0A0A0A; /* Quase preto */
+    padding: 25px 40px;
+    border-top: 1px solid #2A2D32;
+}
+
+/* --- Ajustes na Mensagem Especial do Dev --- */
+.special-message-section {
+    margin-top: 50px; /* Mais espaço acima */
+    padding: 0 15px; /* Para centralizar o card em telas menores */
+}
+.message-card {
+    background-color: #1A1D21;
+    border: 1px solid #2A2D32;
+    border-radius: 10px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.message-avatar {
+    border: 2px solid #00A9FF;
+}
+.message-username {
+    color: #E0E0E0;
+}
+.message-content p {
+    color: #A0A0A0;
+}
+.message-timestamp span {
+    color: #505050;
+}
+
+
+/* --- Responsividade para o Novo Layout --- */
+@media (max-width: 992px) {
+    .main-layout-grid {
+        flex-direction: column;
+        align-items: center; /* Centraliza os itens quando empilhados */
+    }
+    .hero-main-section {
+        text-align: center; /* Centraliza o texto hero em telas menores */
+        margin-bottom: 30px;
+    }
+    .hero-text-content h2 {
+        font-size: 3em;
+    }
+    .site-subtitle {
+        font-size: 1.1em;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .stats-sidebar {
+        width: 100%;
+        max-width: 450px; /* Limita a largura da sidebar de stats */
+    }
+    .action-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .index-main-content {
+        padding: 20px;
+    }
+    header {
+        padding: 10px 20px;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .header-search {
+        width: 90%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    .hero-text-content h2 {
+        font-size: 2.5em;
+    }
+    .site-subtitle {
+        font-size: 1em;
+    }
+    .features-section h3 {
+        font-size: 1.6em;
+    }
+    .action-cards-grid {
+        grid-template-columns: 1fr; /* Uma coluna em telas muito pequenas */
+        gap: 20px;
+    }
+    .action-card, button.downloads-btn-styled.action-card {
+        min-height: auto; /* Altura automática para uma coluna */
+        padding: 20px;
+    }
+}
+/* Adicione ao final do seu style.css */
+
+/* --- Estilos para Página de Documentação (Novo Layout de Livro) --- */
+.documentation-main {
+    max-width: 950px; /* Aumentar um pouco para dar espaço ao "livro" */
+    margin: 30px auto;
+    padding: 30px;
+    background-color: #171717; /* Fundo mais escuro, como a sidebar da imagem de referência */
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.documentation-main h2 { /* Título "Documentação dos Projetos" */
+    color: #00A9FF; /* Azul destacado, como na imagem de referência */
+    margin-bottom: 35px;
+    font-size: 2.2em;
+    text-shadow: 0 0 10px rgba(0, 169, 255, 0.3);
+}
+
+.doc-selector-container {
+    margin-bottom: 35px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #2a2a2a; /* Linha divisória mais sutil */
+}
+
+.doc-selector-btn {
+    padding: 12px 30px;
+    font-size: 1.05em;
+    color: #b0b0b0;
+    background-color: #252525;
+    border: 1px solid #383838;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+.doc-selector-btn:hover {
+    background-color: #333;
+    color: #ffffff;
+    border-color: #8c72cb; /* Roxo no hover */
+    transform: translateY(-2px);
+}
+.doc-selector-btn.active {
+    background-color: #8c72cb; /* Roxo para ativo, como no <David's Farm /> */
+    color: white;
+    border-color: #7a5fb5;
+    box-shadow: 0 0 15px rgba(140, 114, 203, 0.4);
+}
+
+.doc-content-area {
+    background-color: #0D0D0D; /* Fundo bem escuro para a área do "livro" */
+    padding: 25px;
+    border-radius: 8px;
+    min-height: 400px;
+    border: 1px solid #2a2a2a;
+    overflow: hidden; /* Para conter as animações de página */
+    position: relative; /* Para posicionamento absoluto das páginas se necessário no futuro */
+}
+
+#book-container {
+    position: relative; /* Importante para as animações de página */
+    min-height: 350px; /* Altura mínima para evitar colapso */
+    perspective: 1500px; /* Para efeito 3D sutil na virada de página */
+}
+
+.book-page {
+    background-color: transparent; /* O conteúdo da página em si não precisa de fundo aqui */
+    color: #c5c5c5;
+    line-height: 1.7;
+    /* Transições e animações serão aplicadas aqui */
+    opacity: 0;
+    position: absolute; /* Para sobrepor páginas durante a transição */
+    width: 100%;
+    top: 0;
+    left: 0;
+    transform-style: preserve-3d;
+    backface-visibility: hidden; /* Evita que o verso da página apareça durante a rotação */
+}
+
+.book-page.page-active {
+    opacity: 1;
+    z-index: 2; /* Página ativa fica na frente */
+    position: relative; /* Volta ao fluxo normal quando ativa */
+}
+
+/* Animações de Virar Página */
+.book-page.page-enter-from-right {
+    animation: enterFromRight 0.6s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.book-page.page-exit-left {
+    animation: exitToLeft 0.6s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1;
+}
+.book-page.page-enter-from-left {
+    animation: enterFromLeft 0.6s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.book-page.page-exit-right {
+    animation: exitToRight 0.6s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1;
+}
+
+@keyframes enterFromRight {
+    from { opacity: 0; transform: translateX(100%) rotateY(-30deg) scale(0.9); }
+    to   { opacity: 1; transform: translateX(0) rotateY(0deg) scale(1); }
+}
+@keyframes exitToLeft {
+    from { opacity: 1; transform: translateX(0) rotateY(0deg) scale(1); }
+    to   { opacity: 0; transform: translateX(-100%) rotateY(30deg) scale(0.9); }
+}
+@keyframes enterFromLeft {
+    from { opacity: 0; transform: translateX(-100%) rotateY(30deg) scale(0.9); }
+    to   { opacity: 1; transform: translateX(0) rotateY(0deg) scale(1); }
+}
+@keyframes exitToRight {
+    from { opacity: 1; transform: translateX(0) rotateY(0deg) scale(1); }
+    to   { opacity: 0; transform: translateX(100%) rotateY(-30deg) scale(0.9); }
+}
+
+
+/* Conteúdo dentro da página do livro */
+.book-page h3 {
+    color: #00A9FF; /* Azul destacado */
+    font-size: 1.7em;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #2a2a2a;
+    padding-bottom: 10px;
+}
+.book-page h4 {
+    color: #e0e0e0;
+    font-size: 1.3em;
+    margin-top: 22px;
+    margin-bottom: 12px;
+}
+.book-page p {
+    margin-bottom: 14px;
+}
+.book-page strong {
+    color: #8c72cb; /* Roxo para texto em negrito */
+}
+.book-page ul {
+    margin-left: 25px;
+    margin-bottom: 15px;
+}
+.book-page ul li {
+    margin-bottom: 8px;
+    list-style-type: disc; /* Estilo de lista padrão */
+}
+.book-page a {
+    color: #5dade2; /* Azul claro para links */
+    text-decoration: none;
+    border-bottom: 1px dotted #5dade2;
+}
+.book-page a:hover {
+    color: #85c1e9;
+    border-bottom-style: solid;
+}
+.book-page .doc-separator {
+    border-top: 1px solid #2a2a2a;
+    margin: 30px 0;
+}
+.book-page .warning-note { color: #e74c3c; }
+.book-page .performance-note { color: #f39c12; }
+.book-page .controls-note { color: #2ecc71; }
+.book-page .inspiration-note, .book-page .copyright-note { color: #777; font-size: 0.9em; }
+
+
+/* Navegação das Páginas */
+.page-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #2a2a2a;
+}
+.page-nav-button {
+    background-color: #252525;
+    color: #b0b0b0;
+    border: 1px solid #383838;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.2s, color 0.2s, transform 0.1s;
+}
+.page-nav-button:hover:not(:disabled) {
+    background-color: #8c72cb;
+    color: white;
+}
+.page-nav-button:active:not(:disabled) {
+    transform: scale(0.96);
+}
+.page-nav-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.page-nav-button i {
+    margin: 0 5px;
+}
+#page-indicator {
+    font-size: 0.95em;
+    color: #888;
+}
+
+/* Placeholder */
+#doc-placeholder p {
+    text-align: center;
+    font-size: 1.2em;
+    color: #666;
+    padding: 50px 0;
+}
+
+/* Animações de conteúdo dentro da página (Scroll) */
+.book-page .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(25px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.book-page .animate-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+/* Adicionando delays escalonados para um efeito mais suave */
+.book-page .animate-on-scroll.is-visible:nth-child(1) { transition-delay: 0.05s; }
+.book-page .animate-on-scroll.is-visible:nth-child(2) { transition-delay: 0.1s; }
+.book-page .animate-on-scroll.is-visible:nth-child(3) { transition-delay: 0.15s; }
+.book-page .animate-on-scroll.is-visible:nth-child(4) { transition-delay: 0.2s; }
+.book-page .animate-on-scroll.is-visible:nth-child(5) { transition-delay: 0.25s; }
+/* Continue se precisar de mais delays para mais elementos visíveis de uma vez */
+
+
+/* Ajustes no Pop-up da Medalha (para melhor encaixe no tema) */
+.custom-popup.medal-popup-animation {
+    background-color: #171717; /* Fundo escuro consistente */
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+#custom-popup-content.medal-popup h3 {
+    color: #e6b400; /* Dourado/Amarelo para o título da medalha */
+}
+#custom-popup-content.medal-popup p {
+    color: #b0b0b0;
+}
+#custom-popup-content.medal-popup p.agradecimento-longo {
+    color: #999;
+    font-size: 0.75em; /* Reduzir um pouco mais para o texto longo */
+}
+#custom-popup-content.medal-popup .popup-actions button {
+    background-color: #8c72cb; /* Botão "Legal!" com o roxo de destaque */
+}
+#custom-popup-content.medal-popup .popup-actions button:hover {
+    background-color: #7a5fb5;
+}
+#custom-popup-content.medal-popup .medal-image {
+    border: 3px solid #e6b400; /* Borda dourada na imagem da medalha */
+    border-radius: 50%;
+    padding: 3px;
+    background-color: rgba(230, 180, 0, 0.1);
+}
+/* Wrapper para scroll interno no pop-up da medalha, se necessário */
+.medal-popup-content-wrapper {
+    max-height: 55vh; /* Ex: 55% da altura da viewport */
+    overflow-y: auto;
+    padding-right: 15px; /* Espaço para a barra de rolagem */
+    margin-right: -15px; /* Compensa o padding para alinhar o conteúdo */
+}
+
+/* Scrollbar para o wrapper do popup (WebKit) */
+.medal-popup-content-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+.medal-popup-content-wrapper::-webkit-scrollbar-track {
+    background: #1e1e1e;
+    border-radius: 4px;
+}
+.medal-popup-content-wrapper::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 4px;
+    border: 2px solid #1e1e1e;
+}
+.medal-popup-content-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+/* Scrollbar para o wrapper do popup (Firefox) */
+.medal-popup-content-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #444 #1e1e1e;
+}
